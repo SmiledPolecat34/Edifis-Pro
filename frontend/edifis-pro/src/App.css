@@ -1,0 +1,13 @@
+.pattern {
+    --pattern-color: #E2E8F0;
+    background-image: linear-gradient(var(--pattern-color) 1px, transparent 1px), linear-gradient(to right, var(--pattern-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+a.active {
+    background-color: #E2E8F0;
+}
+
+.scrollbar-thin {
+    scrollbar-width: thin;
+}

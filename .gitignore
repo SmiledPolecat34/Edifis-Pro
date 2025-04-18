@@ -1,0 +1,58 @@
+
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+frontend/edifis-pro/package-lock.json
+frontend/edifis-pro/.env
+backend/coverage
+frontend\edifis-pro\coverage
+.env
+
+pnpm-lock.yaml
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# dotenv environment variables file
+.env
+
+backend/uploads/construction_sites/*
+backend/uploads/profile_pictures/*
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build directories
+dist/
+build/
+out/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+

@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.app.json",
+    "compilerOptions": {
+      "skipLibCheck": true,
+      "types": ["jest", "node"]
+    },
+    "include": ["src", "tests", "recharts.d.ts"]
+  }
+  

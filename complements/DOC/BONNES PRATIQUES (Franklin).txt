@@ -1,0 +1,52 @@
+
+___________________________________________________________________________
+MVC
+API Rest
+ReactJS
+nodeJS
+Pq ces technologies ?
+tailwind
+typescript
+
+___________________________________________________________________________
+
+Tests automatisés :
+rapport de couverture de tests généré par Jest, montrant à quel point l'application est couverte par les tests automatisés
+___________________________________________________________________________
+% Stmts (Statements) : Pourcentage des instructions exécutées par tes tests.
+% Branch (Branches) : Pourcentage des cas conditionnels couverts (if/else, switch, etc.).
+% Funcs (Functions) : Pourcentage des fonctions appelées par tes tests.
+% Lines (Lines) : Pourcentage des lignes du code couvertes par tes tests.
+
+___________________________________________________________________________
+jest --coverage : lance les tests et affiche le rapport de couverture du code.
+
+--verbose : affiche en détail chaque test exécuté.
+--detectOpenHandles : détecte s'il reste des processus actifs après les tests.
+--forceExit : force Jest à fermer les processus après les tests.
+___________________________________________________________________________
+| nodemon server.js --watch : Lance ou relance automatiquement le serveur Node.js à chaque changement du code.
+
+L'option --watch indique à nodemon de :
+Surveiller automatiquement les fichiers sources.
+Redémarrer immédiatement ton serveur Node.js dès qu'un changement est détecté dans le code.
+___________________________________________________________________________
+
+Les différents types de tests
+- intégration : Vérifie que plusieurs parties (modules) de l’application fonctionnent correctement ensemble.
+
+- end-to-end (E2E) : Simule un parcours utilisateur complet, du début à la fin, pour valider toute l’application en conditions réelles.
+
+- CI/CD : Automatiser les tests, builds, et déploiements pour détecter rapidement les problèmes.
+
+		________________________________________
+
+Tests d’intégration :
+Ex : Vérifier qu’une requête HTTP passe bien par le contrôleur, atteint la base de données et renvoie la bonne réponse.
+
+Tests end-to-end (E2E) :
+Ex : Simuler un utilisateur qui se connecte, ajoute un produit au panier et valide sa commande, en vérifiant que chaque étape fonctionne.
+
+		________________________________________
+
+___________________________________________________________________________
