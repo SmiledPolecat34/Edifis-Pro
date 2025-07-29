@@ -239,20 +239,6 @@ export default function CreateTask() {
           />
         </div>
 
-        {/* Champ de recherche pour les utilisateurs */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Rechercher un utilisateur :
-          </label>
-          <input
-            type="text"
-            value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-            placeholder="Tapez le nom ou la compétence..."
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-
         {/* Sélection des utilisateurs */}
         <div className="mb-4">
           <label className="block text-gray-700">

@@ -204,16 +204,17 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getAllWorkers = async (req, res) => {
     try {
-        console.log(req.user.role);
-        if (req.user.role !== "Admin" && req.user.role !== "Manager") {
-            return res.status(403).json({ message: "Accès refusé. Seuls les Admins et Managers peuvent accéder à cette ressource" });
-        }
-
         const users = await User.findAll({
-            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role"],
-            where: {
-                role: { [Op.notIn]: ["Admin", "Manager"] } // Exclure les Admins et Managers
-            },
+            attributes: [
+                "user_id",
+                "firstname",
+                "lastname",
+                "email",
+                "numberphone",
+                "profile_picture",
+                "role"
+            ],
+            where: { role: "Worker" },
             include: [
                 {
                     model: Competence,
@@ -227,17 +228,13 @@ exports.getAllWorkers = async (req, res) => {
                 }
             ]
         });
-
-        if (!users.length) {
-            return res.status(404).json({ message: "Aucun utilisateur trouvé (hors Admins)" });
-        }
-
-        res.json(users);
+        return res.json(users);
     } catch (error) {
-        console.error("Erreur lors de la récupération des utilisateurs :", error);
-        res.status(500).json({ error: error.message });
+        console.error("getAllWorkers:", error);
+        return res.status(500).json({ error: error.message });
     }
 };
+
 
 // Récupérer tous les chefs de projet (utilisateurs avec `role = Manager`)
 exports.getAllManagers = async (req, res) => {
@@ -255,10 +252,6 @@ exports.getAllManagers = async (req, res) => {
                 }
             ]
         });
-
-        if (!managers.length) {
-            return res.status(404).json({ message: "Aucun chef de projet trouvé" });
-        }
 
         res.json(managers);
     } catch (error) {

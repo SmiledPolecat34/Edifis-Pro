@@ -1,10 +1,9 @@
-// frontend\edifis-pro\src\pages\worker\WorkerDetails.tsx
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import userService, { User } from "../../../services/userService";
 import competenceService, { Competence } from "../../../services/competenceService";
 import Loading from "../../components/loading/Loading";
+import { Link } from "react-router-dom";
 
 const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
 
@@ -203,48 +202,71 @@ export default function WorkerDetails() {
             >
               <option value="Worker">Ouvrier</option>
               <option value="Manager">Chef de projet</option>
+              <option value="Admin">Responsable</option>
             </select>
           ) : worker.role === "Worker" ? (
             "Ouvrier"
-          ) : (
+          ) : worker.role === "Manager" ? (
             "Chef de projet"
+          ) : (
+            "Responsable"
           )}
         </p>
-        <p>
-          <strong>Compétences :</strong>
-        </p>
+        {!isEditing && (
+          <>
+            <p>
+              <strong>
+                <Link to="/competences" className="underline hover:text-blue-600">
+                  Compétences
+                </Link>
+                :
+              </strong>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {worker.competences && worker.competences.length > 0 ? (
+                worker.competences.map((c) => (
+                  <div key={c.competence_id} className="flex items-center space-x-1">
+                    <span>{c.name}</span>
+                    <button
+                      onClick={() =>
+                        setModalData({
+                          title: c.name,
+                          description: c.description ?? "Pas de description",
+                        })
+                      }
+                      className="text-sm text-white bg-blue-500 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center"
+                    >
+                      ?
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <span>Non spécifié</span>
+              )}
+            </div>
+          </>
+        )}
 
-        {isEditing ? (
+        {isEditing && (
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {allSkills.map((skill) => {
-              const isSelected = worker.competences?.some(
-                (c) => c.competence_id === skill.competence_id
-              );
-              return (
-                <label
-                  key={skill.competence_id}
-                  onClick={() => handleSkillChange(skill.competence_id)}
-                  className={`flex items-center p-2 border rounded-md cursor-pointer transition-colors ${
-                    isSelected ? "bg-blue-100 border-blue-400" : "bg-white"
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    readOnly
-                    className="mr-2"
-                  />
-                  <span>{skill.name}</span>
-                </label>
-              );
-            })}
+            {/* ton code d’édition existant */}
           </div>
-        ) : (
-          <p>
-            {worker.competences && worker.competences.length > 0
-              ? worker.competences.map((c) => c.name).join(", ")
-              : "Non spécifié"}
-          </p>
+        )}
+
+        {/* --- Pop-up modal --- */}
+        {modalData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
+              <h2 className="text-xl font-bold mb-2">{modalData.title}</h2>
+              <p className="mb-4">{modalData.description}</p>
+              <button
+                onClick={() => setModalData(null)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Fermer
+              </button>
+            </div>
+          </div>
         )}
 
         <p>

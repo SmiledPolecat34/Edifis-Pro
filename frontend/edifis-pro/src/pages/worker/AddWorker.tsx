@@ -5,8 +5,20 @@ import userService from "../../../services/userService";
 
 type RoleType = "Admin" | "Worker" | "Manager";
 
+// Interface User attendue par userService.createUser
+interface UserPayload {
+  firstname: string;
+  lastname: string;
+  email: string;
+  numberphone: string;
+  password: string;
+  role: RoleType;
+  competences: Competence[]; // tableau d’objets Competence, pas seulement d’IDs
+}
+
 export default function AddWorker() {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -14,23 +26,24 @@ export default function AddWorker() {
     numberphone: "",
     password: "",
     role: "Worker" as RoleType,
-    competences: [] as number[],
+    competences: [] as number[], // tableau d’IDs de compétences
   });
+
   const [competences, setCompetences] = useState<Competence[]>([]);
   const [newCompetence, setNewCompetence] = useState({ name: "", description: "" });
   const [addingCompetence, setAddingCompetence] = useState(false);
 
+  // Charger la liste des compétences au montage
   useEffect(() => {
     const fetchCompetences = async () => {
-        try {
-          const data = await competenceService.getAllCompetences();
-          console.log("Compétences récupérées :", data);
-          setCompetences(data);
-        } catch (error) {
-          console.error("Erreur lors de la récupération des compétences :", error);
-        }
-      };
-      
+      try {
+        const data = await competenceService.getAllCompetences();
+        console.log("Compétences récupérées :", data);
+        setCompetences(data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des compétences :", error);
+      }
+    };
     fetchCompetences();
   }, []);
 
@@ -50,6 +63,7 @@ export default function AddWorker() {
     setNewCompetence((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Ajouter une nouvelle compétence à la base
   const handleAddCompetence = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -58,24 +72,14 @@ export default function AddWorker() {
       const data = await competenceService.getAllCompetences();
       setCompetences(data);
       setNewCompetence({ name: "", description: "" });
-      setAddingCompetence(false);
     } catch (error) {
       console.error("Erreur lors de l'ajout de la compétence :", error);
+    } finally {
       setAddingCompetence(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const newUser = await userService.createUser(formData);
-      console.log("Utilisateur créé avec succès :", newUser);
-      navigate("/worker");
-    } catch (error) {
-      console.error("Erreur lors de la création de l'employé :", error);
-    }
-  };
-
+  // Cocher/décocher une compétence (stocke l’ID dans formData.competences)
   const handleCompetenceToggle = (compId: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -84,9 +88,35 @@ export default function AddWorker() {
         : [...prev.competences, compId],
     }));
   };
-  
-  
-  
+
+  // Soumettre le formulaire : on convertit d’abord les IDs en objets Competence[]
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // 1. Filtrer la liste complète pour ne garder que les objets dont l’ID est dans formData.competences
+    const selectedCompetences: Competence[] = competences.filter((comp) =>
+      formData.competences.includes(comp.competence_id)
+    );
+
+    // 2. Construit l’objet attendu par createUser
+    const newUser: UserPayload = {
+      firstname: formData.firstname,
+      lastname: formData.lastname,
+      email: formData.email,
+      numberphone: formData.numberphone,
+      password: formData.password,
+      role: formData.role,
+      competences: selectedCompetences,
+    };
+
+    try {
+      const createdUser = await userService.createUser(newUser);
+      console.log("Utilisateur créé avec succès :", createdUser);
+      navigate("/worker");
+    } catch (error) {
+      console.error("Erreur lors de la création de l'employé :", error);
+    }
+  };
 
   return (
     <main className="min-h-[calc(100dvh-65px)] p-4 bg-gray-100">
@@ -167,29 +197,24 @@ export default function AddWorker() {
               </select>
             </div>
             <div>
-                <label className="block text-sm font-medium">Compétences</label>
-                <div className="mt-1 flex flex-col gap-2 max-h-48 overflow-y-auto">
-                  {competences.map((comp) => {
-                    const isSelected = formData.competences.includes(comp.competence_id);
-                    return (
-                      <div
-                        key={comp.competence_id}
-                        onClick={() => handleCompetenceToggle(comp.competence_id)}
-                        className={`flex items-center p-2 border rounded-md cursor-pointer transition-colors ${
-                          isSelected ? "bg-blue-100 border-blue-400" : "bg-white"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          readOnly
-                          className="mr-2"
-                        />
-                        <span>{comp.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+              <label className="block text-sm font-medium">Compétences</label>
+              <div className="mt-1 flex flex-col gap-2 max-h-48 overflow-y-auto">
+                {competences.map((comp) => {
+                  const isSelected = formData.competences.includes(comp.competence_id);
+                  return (
+                    <div
+                      key={comp.competence_id}
+                      onClick={() => handleCompetenceToggle(comp.competence_id)}
+                      className={`flex items-center p-2 border rounded-md cursor-pointer transition-colors ${
+                        isSelected ? "bg-blue-100 border-blue-400" : "bg-white"
+                      }`}
+                    >
+                      <input type="checkbox" checked={isSelected} readOnly className="mr-2" />
+                      <span>{comp.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
             <button
               type="submit"
@@ -199,48 +224,46 @@ export default function AddWorker() {
             </button>
           </form>
         </div>
+
         {/* Formulaire d'ajout d'une compétence */}
         <div className="bg-gray-50 p-4 rounded-lg shadow-md md:w-1/3">
+          <h2 className="text-xl font-semibold text-slate-800 mb-2">Ajouter une compétence</h2>
+          <form onSubmit={handleAddCompetence} className="space-y-2">
+            <input
+              type="text"
+              name="name"
+              placeholder="Nom de la compétence"
+              value={newCompetence.name}
+              onChange={handleCompetenceFormChange}
+              className="w-full p-2 border rounded-md"
+              required
+            />
+            <textarea
+              name="description"
+              placeholder="Description (optionnel)"
+              value={newCompetence.description}
+              onChange={handleCompetenceFormChange}
+              className="w-full p-2 border rounded-md"
+            />
+            <button
+              type="submit"
+              className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
+              disabled={addingCompetence}
+            >
+              {addingCompetence ? "Ajout en cours..." : "Ajouter la compétence"}
+            </button>
+          </form>
 
-  <h2 className="text-xl font-semibold text-slate-800 mb-2">Ajouter une compétence</h2>
-  <div style={{ display: "flex", flexDirection: "column", gap: "18rem" }}>
-    <form onSubmit={handleAddCompetence} className="space-y-2">
-        <input
-          type="text"
-          name="name"
-          placeholder="Nom de la compétence"
-          value={newCompetence.name}
-          onChange={handleCompetenceFormChange}
-          className="w-full p-2 border rounded-md"
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description (optionnel)"
-          value={newCompetence.description}
-          onChange={handleCompetenceFormChange}
-          className="w-full p-2 border rounded-md"
-        />
-        <button
-          type="submit"
-          className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
-          disabled={addingCompetence}
-        >
-          {addingCompetence ? "Ajout en cours..." : "Ajouter la compétence"}
-        </button>
-    </form>
-    {formData.competences.length > 0 && (
-    <div className="mb-2 p-2 border rounded bg-blue-50">
-      <strong>Compétences sélectionnées :</strong>{" "}
-      {competences
-        .filter((comp) => formData.competences.includes(comp.competence_id))
-        .map((comp) => comp.name)
-        .join(", ")}
-    </div>
-    )}
-  </div>
-</div>
-
+          {formData.competences.length > 0 && (
+            <div className="mt-4 p-2 border rounded bg-blue-50">
+              <strong>Compétences sélectionnées :</strong>{" "}
+              {competences
+                .filter((comp) => formData.competences.includes(comp.competence_id))
+                .map((comp) => comp.name)
+                .join(", ")}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

@@ -20,11 +20,38 @@ exports.getAllTimesheets = async (req, res) => {
     }
 };
 
+// Récupérer la feuille de temps active pour un utilisateur
+exports.getActiveTimesheet = async (req, res) => {
+    try {
+        const userId = Number(req.params.userId);
+        const ts = await Timesheet.findOne({
+            where: { user_id: userId, end_date: null },
+        });
+        if (!ts) {
+            return res.json({ active: false });
+        }
+        return res.json({
+            active: true,
+            timesheet: {
+                timesheet_id: ts.timesheet_id,
+                user_id: ts.user_id,
+                start_date: ts.start_date,
+                end_date: ts.end_date,
+            },
+        });
+    } catch (error) {
+        console.error("getActiveTimesheet:", error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Récupérer une feuille de temps par ID
 exports.getTimesheetById = async (req, res) => {
     try {
         const timesheet = await Timesheet.findByPk(req.params.id);
-        if (!timesheet) return res.status(404).json({ message: "Timesheet non trouvé" });
+        if (!timesheet) {
+            return res.status(404).json({ message: "Timesheet non trouvé" });
+        }
         res.json(timesheet);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -35,8 +62,9 @@ exports.getTimesheetById = async (req, res) => {
 exports.updateTimesheet = async (req, res) => {
     try {
         const timesheet = await Timesheet.findByPk(req.params.id);
-        if (!timesheet) return res.status(404).json({ message: "Timesheet non trouvé" });
-
+        if (!timesheet) {
+            return res.status(404).json({ message: "Timesheet non trouvé" });
+        }
         await timesheet.update(req.body);
         res.json(timesheet);
     } catch (error) {
@@ -48,8 +76,9 @@ exports.updateTimesheet = async (req, res) => {
 exports.deleteTimesheet = async (req, res) => {
     try {
         const timesheet = await Timesheet.findByPk(req.params.id);
-        if (!timesheet) return res.status(404).json({ message: "Timesheet non trouvé" });
-
+        if (!timesheet) {
+            return res.status(404).json({ message: "Timesheet non trouvé" });
+        }
         await timesheet.destroy();
         res.json({ message: "Timesheet supprimé" });
     } catch (error) {
@@ -57,47 +86,40 @@ exports.deleteTimesheet = async (req, res) => {
     }
 };
 
-
+// Horodatage : pointage entrée
 exports.clockIn = async (req, res) => {
     try {
         const { userId } = req.body;
-
         if (!userId) {
             return res.status(400).json({ message: "L'ID utilisateur est requis" });
         }
-
         const timesheet = await Timesheet.create({
             user_id: userId,
-            start_date: new Date()
+            start_date: new Date(),
         });
-
         res.json({ message: "Heure d'entrée enregistrée", timesheet });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
+// Horodatage : pointage sortie
 exports.clockOut = async (req, res) => {
     try {
         const { userId } = req.body;
-
         if (!userId) {
             return res.status(400).json({ message: "L'ID utilisateur est requis" });
         }
-
         const timesheet = await Timesheet.findOne({
-            where: { user_id: userId, end_date: null }
+            where: { user_id: userId, end_date: null },
         });
-
         if (!timesheet) {
             return res.status(400).json({
-                message: "Aucune entrée trouvée pour cet utilisateur (déjà clock out ?)"
+                message: "Aucune entrée trouvée pour cet utilisateur (déjà clock out ?)",
             });
         }
-
         timesheet.end_date = new Date();
         await timesheet.save();
-
         res.json({ message: "Heure de sortie enregistrée", timesheet });
     } catch (error) {
         res.status(500).json({ error: error.message });

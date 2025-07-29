@@ -1,6 +1,6 @@
 import apiService from "./apiService";
 
-interface TimesheetResponse {
+export interface TimesheetResponse {
   message: string;
   timesheet: {
     timesheet_id: number;
@@ -10,22 +10,25 @@ interface TimesheetResponse {
   };
 }
 
-interface ActiveTimesheetResponse {
+export interface ActiveTimesheetResponse {
   active: boolean;
+  timesheet?: {
+    timesheet_id: number;
+    user_id: number;
+    start_date: string;
+    end_date: string | null;
+  };
 }
 
 const timesheetService = {
-  clockIn: async (userId: number): Promise<TimesheetResponse> => {
-    return apiService.post("/timesheets/clockin", { userId });
-  },
-  clockOut: async (userId: number): Promise<TimesheetResponse> => {
-    return apiService.post("/timesheets/clockout", { userId });
-  },
-  getActiveTimesheet: async (
-    userId: number
-  ): Promise<ActiveTimesheetResponse> => {
-    return apiService.get(`/timesheets/active/${userId}`);
-  },
+  clockIn: (userId: number): Promise<TimesheetResponse> =>
+    apiService.post("/timesheets/clockin", { userId }),
+
+  clockOut: (userId: number): Promise<TimesheetResponse> =>
+    apiService.post("/timesheets/clockout", { userId }),
+
+  getActiveTimesheet: (userId: number): Promise<ActiveTimesheetResponse> =>
+    apiService.get(`/timesheets/active/${userId}`),
 };
 
 export default timesheetService;

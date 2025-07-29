@@ -5,7 +5,7 @@ import userService from "../../services/userService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: any; // Typage à ajuster selon la structure de ton utilisateur
+  user: any;
   login: (token: string) => void;
   logout: () => void;
   updateUser: (updatedUser: any) => Promise<void>;

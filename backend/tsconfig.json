@@ -11,6 +11,24 @@
       "forceConsistentCasingInFileNames": true,
       "types": ["node", "jest"],
     },
-    "include": ["**/*.ts", "**/*.js", "jest.config.js"]
+    "include": ["**/*.ts", "**/*.js", "jest.config.js"],
+    // "exclude": [
+    //   "config/**/*.js",
+    //   "config/database.js",
+    //   "controllers/**/*.js",
+    //   "controllers/user.controller.js",
+    //   "middlewares/**/*.js",
+    //   "middlewares/auth.middleware.js",
+    //   "models/**/*.js",
+    //   "models/Competence.js",
+    //   "models/ConstructionSite.js",
+    //   "models/Role.js",
+    //   "models/Task.js",
+    //   "models/Timesheet.js",
+    //   "models/User.js",
+    //   "routes/**/*.js",
+    //   "server.js",
+    //   "jest.config.js"
+    // ]
   }
   

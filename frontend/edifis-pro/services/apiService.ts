@@ -17,7 +17,7 @@ const apiService = {
     return await response.json();
   },
 
-  post: async <T>(endpoint: string, data: any): Promise<T> => {
+  post: async <T>(endpoint: string, data: unknown): Promise<T> => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
@@ -34,7 +34,7 @@ const apiService = {
     return await response.json();
   },
 
-  put: async <T>(endpoint: string, data: any): Promise<T> => {
+  put: async <T>(endpoint: string, data: unknown): Promise<T> => {
     const token = localStorage.getItem("token");
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "PUT",

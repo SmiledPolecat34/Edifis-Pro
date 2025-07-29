@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import userService, { User } from "../../../services/userService";
+import { useAuth } from "../../context/AuthContext.tsx";
 
 import Loading from "../../components/loading/Loading";
 
@@ -8,27 +9,33 @@ import Loading from "../../components/loading/Loading";
 const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
 
 export default function Workers() {
+    const { user } = useAuth();
     const [workers, setWorkers] = useState<User[]>([]);
     const [filter, setFilter] = useState("all");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchWorkers = async () => {
-            try {
-                const data = await userService.getAllUsers();
-                setWorkers(data);
-                console.log("Data:", data);
-            } catch (err: any) {
-                setError("Erreur lors du chargement des employés.");
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const fetchWorkers = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Exemple : si Admin tu prends tous, sinon seulement les ouvriers
+      const data =
+        user?.role === "Admin"
+          ? await userService.getAllUsers()
+          : await userService.getAllWorkers();
+      setWorkers(data);
+    } catch {
+      setError("Erreur lors du chargement des employés.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchWorkers();
+}, [user?.role]);
 
-        fetchWorkers();
-    }, []);
+
 
     const filteredWorkers = workers.filter(
         (worker) =>
@@ -49,12 +56,20 @@ export default function Workers() {
         <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-4xl font-bold text-gray-900">Employés</h1>
-                <Link
-                    to="/AddWorker"
-                    className="text-gray-900 bg-gradient-to-r from-red-200 via-red-300 to-yellow-200 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-100 dark:focus:ring-red-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                    Ajouter
-                </Link>
+                <div className="flex space-x-2">
+                    <Link
+                        to="/AddWorker"
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                        + Employé
+                    </Link>
+                    <Link
+                        to="/competences/add"
+                        className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                    >
+                        + Compétence
+                    </Link>
+                </div>
             </div>
 
             <div className="mb-4">

@@ -13,9 +13,9 @@ router.post("/login", userController.login);
 
 router.post("/upload-profile", protect, setUploadType("profile"), upload.single("image"), userController.updateProfilePicture);
 
-router.get("/all/manager", protect, isAdmin, userController.getAllManagers);
+router.get("/all/manager", protect, userController.getAllManagers);
 router.get("/all", protect, isAdmin, userController.getAllUsers);
-router.get('/getallworkers', protect, userController.getAllWorkers);
+router.get('/getallworkers', protect, isAdmin, userController.getAllWorkers);
 router.get("/:id", protect, userController.getUserById);
 router.put("/:id", protect, userController.updateUser);
 router.delete("/:id", protect, isAdmin, userController.deleteUser);

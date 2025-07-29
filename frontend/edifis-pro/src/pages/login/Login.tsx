@@ -16,7 +16,8 @@ export default function Login() {
     });
 
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string>("");
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
@@ -35,14 +36,21 @@ export default function Login() {
         setError("");
 
         try {
-            const response = await authService.login(formData);
-            login(response.token);
-            navigate("/");
-        } catch (err: any) {
+          const { token } = await authService.login(formData);
+          login(token);
+          navigate("/");
+        } catch (err) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else if (typeof err === "string") {
             setError(err);
+          } else {
+            setError("Une erreur est survenue");
+          }
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
+
     };
 
     return (

@@ -4,6 +4,8 @@ const timesheetController = require("../controllers/timesheet.controller");
 const { protect, isAdmin } = require("../middlewares/auth.middleware");
 
 
+router.get("/active/:userId", timesheetController.getActiveTimesheet);
+
 router.post("/clockin", protect, timesheetController.clockIn);
 router.post("/clockout", protect, timesheetController.clockOut);
 router.post("/", timesheetController.createTimesheet);

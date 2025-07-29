@@ -17,6 +17,11 @@ import ConstructionDetails from "./pages/construction/ConstructionDetails";
 import Missions from "./pages/mission/Missions";
 import CreateTask from "./pages/mission/addtask";
 import EditTask from "./pages/mission/EditTask";
+import UserDetail from "./pages/user/UserDetail";
+import ManageCompetences from "./pages/competence/ManageCompetences";
+import AddCompetence    from "./pages/competence/AddCompetence";
+import EditCompetence   from "./pages/competence/EditCompetence";
+
 
 function App() {
     const { isAuthenticated } = useAuth();
@@ -42,6 +47,12 @@ function App() {
                         <Route path="/worker" element={<Worker />} />
                         <Route path="/AddWorker" element={<AddWorker />} />
                         <Route path="/worker/:id" element={<WorkerDetails />} />
+                        <Route path="/construction/:id" element={<ConstructionDetails />} />
+                        <Route path="/user/:id" element={<UserDetail />} />
+                        {/* Gestion des compétences */}
++                       <Route path="/competences"        element={<ManageCompetences />} />
++                       <Route path="/competences/add"    element={<AddCompetence />} />
++                       <Route path="/competences/edit/:id" element={<EditCompetence />} />
                     </Route>
                 </Route>
             </Route>
