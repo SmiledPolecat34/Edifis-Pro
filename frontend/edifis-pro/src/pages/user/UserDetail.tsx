@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import userService, { User } from "../../../services/userService";
 import Loading from "../../components/loading/Loading";
 
 export default function UserDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +31,12 @@ export default function UserDetail() {
 
   return (
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+      >
+        Retour
+      </button>
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
         <h1 className="text-2xl font-bold mb-4">
           {user.firstname} {user.lastname}

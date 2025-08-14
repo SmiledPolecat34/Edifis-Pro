@@ -11,7 +11,6 @@ interface UserPayload {
   lastname: string;
   email: string;
   numberphone: string;
-  password: string;
   role: RoleType;
   competences: Competence[]; // tableau d’objets Competence, pas seulement d’IDs
 }
@@ -47,16 +46,45 @@ export default function AddWorker() {
     fetchCompetences();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    let newValue = value;
-    if (name === "lastname") {
-      newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "").toUpperCase();
-    } else if (name === "firstname") {
-      newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "");
+  useEffect(() => {
+  // debounce: attend 350ms après la dernière frappe
+  const t = setTimeout(async () => {
+    const first = formData.firstname.trim();
+    const last  = formData.lastname.trim();
+
+    if (!first) {
+      setFormData((prev) => ({ ...prev, email: "" }));
+      return;
     }
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
-  };
+
+    try {
+      const { email } = await userService.suggestEmail(first, last);
+      setFormData(prev => ({ ...prev, email }));
+    } catch {
+      const local = last ? `${first.toLowerCase()}.${last.toLowerCase()}` : first.toLowerCase();
+      setFormData(prev => ({ ...prev, email: `${local}@edifis-pro.com` }));
+    }
+  }, 350);
+
+  return () => clearTimeout(t);
+}, [formData.firstname, formData.lastname]);
+
+const [submitting, setSubmitting] = useState(false);
+const [submitError, setSubmitError] = useState<string | null>(null);
+const [submitOk, setSubmitOk] = useState<string | null>(null); // pour afficher le mdp temporaire
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const { name, value } = e.target;
+  let newValue = value;
+
+  if (name === "lastname") {
+    newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "").toUpperCase();
+  } else if (name === "firstname") {
+    newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "");
+  }
+
+  setFormData((prev) => ({ ...prev, [name]: newValue }));
+};
 
   const handleCompetenceFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -91,35 +119,45 @@ export default function AddWorker() {
 
   // Soumettre le formulaire : on convertit d’abord les IDs en objets Competence[]
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
+  setSubmitting(true);
+  setSubmitError(null);
+  setSubmitOk(null);
 
-    // 1. Filtrer la liste complète pour ne garder que les objets dont l’ID est dans formData.competences
-    const selectedCompetences: Competence[] = competences.filter((comp) =>
-      formData.competences.includes(comp.competence_id)
-    );
+  const selectedCompetences: Competence[] = competences.filter((comp) =>
+    formData.competences.includes(comp.competence_id)
+  );
 
-    // 2. Construit l’objet attendu par createUser
-    const newUser: UserPayload = {
-      firstname: formData.firstname,
-      lastname: formData.lastname,
-      email: formData.email,
-      numberphone: formData.numberphone,
-      password: formData.password,
-      role: formData.role,
-      competences: selectedCompetences,
-    };
+  const newUser: UserPayload = {
+    firstname: formData.firstname,
+    lastname: formData.lastname,
+    email: formData.email,
+    numberphone: formData.numberphone,
+    role: formData.role,
+    competences: selectedCompetences,
+  };
 
     try {
-      const createdUser = await userService.createUser(newUser);
-      console.log("Utilisateur créé avec succès :", createdUser);
-      navigate("/worker");
-    } catch (error) {
-      console.error("Erreur lors de la création de l'employé :", error);
-    }
-  };
+    console.log("payload envoyé:", newUser);
+    const res = await userService.createUser(newUser);
+    setSubmitOk(`Utilisateur créé. Mot de passe provisoire : ${res.tempPassword ?? "généré"}`);
+    setTimeout(() => navigate("/worker"), 1200);
+  } catch (err: any) {
+  console.error("createUser error:", err); // va afficher Error: <message du serveur>
+  setSubmitError(err?.message || "Erreur inconnue.");
+} finally {
+  setSubmitting(false);
+}
+};
 
   return (
     <main className="min-h-[calc(100dvh-65px)] p-4 bg-gray-100">
+      <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+          >
+            Retour
+          </button>
       <div className="flex flex-col md:flex-row gap-4">
         {/* Formulaire d'ajout d'employé */}
         <div className="bg-white p-8 rounded-lg shadow-lg md:w-2/3">
@@ -127,17 +165,6 @@ export default function AddWorker() {
           <p className="text-sm text-slate-500 mb-4 text-center">Remplissez les informations ci-dessous</p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium">Nom</label>
-                <input
-                  type="text"
-                  name="lastname"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                />
-              </div>
               <div className="flex-1">
                 <label className="block text-sm font-medium">Prénom</label>
                 <input
@@ -149,17 +176,31 @@ export default function AddWorker() {
                   required
                 />
               </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium">Nom</label>
+                <input
+                  type="text"
+                  name="lastname"
+                  value={formData.lastname}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-              />
+              <div className="opacity-60 pointer-events-none">
+                <label className="block text-sm font-medium">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  readOnly
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium">Numéro de téléphone</label>
@@ -173,15 +214,18 @@ export default function AddWorker() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Mot de passe</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-              />
+              <div className="opacity-60 pointer-events-none">
+                <label className="block text-sm font-medium">Mot de passe</label>
+                <input
+                  type="password"
+                  name="password"
+                  value="edifispr@2025"
+                  onChange={handleChange}
+                  readOnly
+                  className="mt-1 block w-full p-2 border rounded-md"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium">Rôle</label>
@@ -216,11 +260,15 @@ export default function AddWorker() {
                 })}
               </div>
             </div>
+            {submitError && <p className="text-red-600 text-sm mb-2">{submitError}</p>}
+            {submitOk && <p className="text-green-600 text-sm mb-2">{submitOk}</p>}
+                          
             <button
               type="submit"
-              className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+              disabled={submitting}
+              className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
             >
-              Ajouter
+              {submitting ? "Création en cours…" : "Ajouter"}
             </button>
           </form>
         </div>

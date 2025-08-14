@@ -15,12 +15,18 @@ export default function Profile() {
             : "https://i.pinimg.com/736x/ab/32/b1/ab32b1c5a8fabc0b9ae72250ce3c90c2.jpg"
     );
 
-    // Gestion des changements des inputs texte
+    // Champs mot de passe
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const [pwError, setPwError] = useState("");
+    const [pwOk, setPwOk] = useState("");
+    const [pwLoading, setPwLoading] = useState(false);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUpdatedUser({ ...updatedUser, [e.target.name]: e.target.value });
     };
 
-    // Gestion du changement d'image
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setSelectedFile(e.target.files[0]);
@@ -31,26 +37,23 @@ export default function Profile() {
     const handleSave = async () => {
         try {
             let profilePictureUrl = user.profile_picture;
-    
-            // Si une nouvelle image est sélectionnée, on l'upload
             if (selectedFile) {
                 const uploadResponse = await userService.uploadProfilePicture(selectedFile);
                 profilePictureUrl = uploadResponse.profile_picture;
             }
-    
-            // Mise à jour des informations utilisateur avec la nouvelle image
+
             const userToUpdate = {
                 ...updatedUser,
                 profile_picture: profilePictureUrl,
             };
-    
+
             await updateUser(userToUpdate);
             setIsEditing(false);
         } catch (error) {
             console.error("Erreur lors de la mise à jour du profil :", error);
         }
     };
-    
+
     const handleCancel = () => {
         setUpdatedUser({ ...user });
         setPreviewImage(
@@ -60,6 +63,35 @@ export default function Profile() {
         );
         setSelectedFile(null);
         setIsEditing(false);
+    };
+
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setPwError("");
+        setPwOk("");
+
+        if (newPassword !== confirm) {
+            setPwError("Les mots de passe ne correspondent pas.");
+            return;
+        }
+        if (newPassword.length < 8) {
+            setPwError("Le mot de passe doit contenir au moins 8 caractères.");
+            return;
+        }
+
+        try {
+            setPwLoading(true);
+            // Appel API à créer côté backend
+            await userService.updatePassword(currentPassword, newPassword);
+            setPwOk("Mot de passe mis à jour avec succès.");
+            setCurrentPassword("");
+            setNewPassword("");
+            setConfirm("");
+        } catch (err: any) {
+            setPwError(err?.response?.data?.message || "Erreur lors de la mise à jour.");
+        } finally {
+            setPwLoading(false);
+        }
     };
 
     return (
@@ -82,7 +114,7 @@ export default function Profile() {
                                     name="firstname"
                                     value={updatedUser.firstname}
                                     onChange={handleChange}
-                                    className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1"
                                 />
                             ) : (
                                 user.firstname
@@ -93,7 +125,7 @@ export default function Profile() {
                                     name="lastname"
                                     value={updatedUser.lastname}
                                     onChange={handleChange}
-                                    className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1 text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1"
                                 />
                             ) : (
                                 user.lastname
@@ -112,14 +144,14 @@ export default function Profile() {
                     <div className="flex gap-2">
                         {isEditing && (
                             <button
-                                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2 cursor-pointer"
+                                className="bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2 rounded-md"
                                 onClick={handleCancel}
                             >
                                 Annuler
                             </button>
                         )}
                         <button
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 cursor-pointer"
+                            className="bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 rounded-md"
                             onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
                         >
                             {isEditing ? "Sauvegarder" : "Modifier"}
@@ -136,7 +168,7 @@ export default function Profile() {
                             value={updatedUser.email}
                             onChange={handleChange}
                             readOnly={!isEditing}
-                            className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm"
                         />
                         <input
                             type="tel"
@@ -144,21 +176,77 @@ export default function Profile() {
                             value={updatedUser.numberphone}
                             onChange={handleChange}
                             readOnly={!isEditing}
-                            className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm"
                         />
                     </form>
                 </div>
             </div>
 
             {isEditing && (
-                <div className="mt-4">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        className="block file:h-9 file:px-4 file:py-2 w-full text-sm text-slate-500 file:mr-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:transition-colors file:focus-visible:outline-1 file:outline-offset-4 file:disabled:pointer-events-none file:disabled:opacity-50 file:cursor-pointer"
-                    />
-                </div>
+                <>
+                    <div className="mt-4">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="block file:h-9 file:px-4 file:py-2 w-full text-sm text-slate-500"
+                        />
+                    </div>
+
+                    {/* Changer mon mot de passe */}
+                    <section className="border-t border-slate-200 pt-6 mt-6">
+                        <h2 className="font-semibold mb-3">Changer mon mot de passe</h2>
+                        <form onSubmit={handleChangePassword} className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-sm font-medium">Mot de passe actuel</label>
+                                <input
+                                    type="password"
+                                    autoComplete="current-password"
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    className="mt-1 block w-full p-2 border rounded-md"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Nouveau mot de passe</label>
+                                <input
+                                    type="password"
+                                    autoComplete="new-password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="mt-1 block w-full p-2 border rounded-md"
+                                    required
+                                    minLength={8}
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium">Confirmer le nouveau mot de passe</label>
+                                <input
+                                    type="password"
+                                    autoComplete="new-password"
+                                    value={confirm}
+                                    onChange={(e) => setConfirm(e.target.value)}
+                                    className="mt-1 block w-full p-2 border rounded-md"
+                                    required
+                                    minLength={8}
+                                />
+                            </div>
+
+                            <div className="lg:col-span-2 space-y-2">
+                                {pwError && <p className="text-sm text-red-600">{pwError}</p>}
+                                {pwOk && <p className="text-sm text-green-600">{pwOk}</p>}
+                                <button
+                                    type="submit"
+                                    disabled={pwLoading}
+                                    className="w-full lg:w-auto text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 rounded-md text-sm px-5 py-2.5"
+                                >
+                                    {pwLoading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </>
             )}
 
             <div className="h-96 w-full py-8">

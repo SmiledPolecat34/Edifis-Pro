@@ -120,6 +120,12 @@ export default function AddConstruction() {
 
   return (
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100 flex justify-center">
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+      >
+        Retour
+      </button>
       <div className="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           Ajouter un chantier

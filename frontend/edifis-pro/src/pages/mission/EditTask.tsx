@@ -111,9 +111,9 @@ export default function EditTask() {
     <main className="min-h-screen p-8 bg-gray-100">
       <button
         onClick={() => navigate(-1)}
-        className="mb-6 inline-flex items-center px-4 py-2 bg-slate-200 hover:bg-slate-300 rounded-md"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
       >
-        ← Retour
+        Retour
       </button>
 
       <h1 className="text-4xl font-bold text-gray-900 mb-6">

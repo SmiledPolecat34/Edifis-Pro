@@ -13,10 +13,12 @@ import constructionSiteService, {
 import userService, { User } from "../../../services/userService";
 import Loading from "../../components/loading/Loading";
 import Badge from "../../components/badge/Badge";
+import { useNavigate } from "react-router-dom";
 
 export default function ConstructionDetails() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [construction, setConstruction] =
     useState<ConstructionSite | null>(null);
@@ -203,12 +205,12 @@ export default function ConstructionDetails() {
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
       <div className="flex flex-col gap-4 bg-white p-8 rounded-lg border border-slate-200">
         <div className="flex justify-between items-center">
-          <Link
-            to="/construction"
+          <button
+            onClick={() => navigate(-1)}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
           >
-            Retour à la liste
-          </Link>
+            Retour
+          </button>
           {user?.role === "Admin" && (
             <div className="flex space-x-2">
               {isEditing && (

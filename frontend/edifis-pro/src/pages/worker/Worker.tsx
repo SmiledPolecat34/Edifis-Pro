@@ -63,12 +63,6 @@ export default function Workers() {
                     >
                         + Employé
                     </Link>
-                    <Link
-                        to="/competences/add"
-                        className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-                    >
-                        + Compétence
-                    </Link>
                 </div>
             </div>
 

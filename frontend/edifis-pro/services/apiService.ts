@@ -19,7 +19,7 @@ const apiService = {
 
   post: async <T>(endpoint: string, data: unknown): Promise<T> => {
     const token = localStorage.getItem("token");
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -27,12 +27,26 @@ const apiService = {
       },
       body: JSON.stringify(data),
     });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Une erreur est survenue");
+
+    let bodyText = "";
+    try {
+      bodyText = await res.text(); // on lit une seule fois
+      const json = bodyText ? JSON.parse(bodyText) : {};
+      if (!res.ok) {
+        console.error("API POST error:", res.status, json);
+        throw new Error(json.message || json.error || `HTTP ${res.status}`);
+      }
+      return json as T;
+    } catch (e) {
+      // si le body n’est pas du JSON
+      if (!res.ok) {
+        console.error("API POST error (raw):", res.status, bodyText);
+        throw new Error(`HTTP ${res.status} - ${bodyText || "Erreur inconnue"}`);
+      }
+      throw e;
     }
-    return await response.json();
   },
+
 
   put: async <T>(endpoint: string, data: unknown): Promise<T> => {
     const token = localStorage.getItem("token");

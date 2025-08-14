@@ -11,6 +11,11 @@ export default function WorkerDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
+  const [modalData, setModalData] = useState<{
+    title: string;
+    description: string;
+  } | null>(null);
+
   // State pour l'employé
   const [worker, setWorker] = useState<User | null>(null);
 
@@ -129,6 +134,12 @@ export default function WorkerDetails() {
 
   return (
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
+      <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+          >
+            Retour
+          </button>
       <div className="bg-white shadow-md rounded-lg p-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Détails de l'employé</h1>
         <div className="flex items-center mb-4">
