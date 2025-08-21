@@ -41,6 +41,18 @@ const ConstructionSite = sequelize.define("construction_site", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  chef_de_projet_id: { type: DataTypes.INTEGER, allowNull: true },
 });
+
+ConstructionSite.associate = (models) => {
+  ConstructionSite.belongsTo(models.User, {
+    foreignKey: "chef_de_projet_id",
+    as: "chefDeProjet"
+  });
+  models.User.hasMany(ConstructionSite, {
+    foreignKey: "chef_de_projet_id",
+    as: "managedSites"
+  });
+};
 
 module.exports = ConstructionSite;

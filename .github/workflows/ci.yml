@@ -1,0 +1,112 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  backend-tests:
+    name: Backend — Lint & Tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20]
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+          cache-dependency-path: backend/package.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Show environment
+        run: |
+          node -v
+          npm -v
+
+      - name: Run tests
+        run: npm test --silent
+        env:
+          # Valeurs par défaut non sensibles pour les tests
+          NODE_ENV: test
+          JWT_SECRET: test_secret
+          JWT_EXPIRES_IN: 1h
+          FRONTEND_URL: http://localhost:5173
+          PORT: 5000
+
+      - name: Upload coverage (ignore if missing)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-${{ matrix.node }}
+          path: backend/coverage
+          if-no-files-found: ignore
+
+  frontend-tests:
+    name: Frontend — Tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [18, 20]
+    defaults:
+      run:
+        working-directory: frontend/edifis-pro
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+          cache-dependency-path: frontend/edifis-pro/package.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          if npm run -s test; then
+            echo "Frontend tests executed";
+          else
+            echo "No frontend tests configured or failed"; exit 1;
+          fi
+        env:
+          NODE_ENV: test
+
+  security-audit:
+    name: Security — npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Backend audit
+        working-directory: backend
+        run: |
+          npm ci
+          # Emet un rapport sans casser la CI (rapport documenté dans les artefacts)
+          npm audit --audit-level=high || true
+
+      - name: Frontend audit
+        working-directory: frontend/edifis-pro
+        run: |
+          npm ci
+          npm audit --audit-level=high || true

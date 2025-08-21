@@ -17,7 +17,7 @@ exports.getAllTasks = async (req, res) => {
             include: [
                 {
                     model: User,
-                    through: { attributes: [] },
+
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"]
                 },
                 {
@@ -104,6 +104,8 @@ exports.assignUsersToTask = async (req, res) => {
 };
 
 
+const { Op, literal } = require("sequelize");
+
 exports.getTasksByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -114,13 +116,8 @@ exports.getTasksByUserId = async (req, res) => {
         }
 
         const tasks = await Task.findAll({
+            where: literal(`JSON_CONTAINS(assignees, '${userId}')`),
             include: [
-                {
-                    model: User,
-                    through: { attributes: [] },
-                    where: { user_id: userId },
-                    attributes: ["user_id", "firstname", "lastname", "email"]
-                },
                 {
                     model: ConstructionSite,
                     attributes: ["construction_site_id", "name", "state", "open_time", "end_time", 'start_date', 'end_date', 'image_url', 'chef_de_projet_id', 'adresse'],

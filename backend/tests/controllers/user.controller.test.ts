@@ -141,7 +141,6 @@ describe("User Controller", () => {
           {
             model: expect.anything(),
             attributes: ["name"],
-            through: { attributes: [] }
           }
         ]
       });

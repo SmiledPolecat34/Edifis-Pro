@@ -1,35 +1,48 @@
 const sequelize = require("../config/database");
-const { DataTypes } = require("sequelize");
 const User = require("./User");
 const Task = require("./Task");
 const Timesheet = require("./Timesheet");
 const ConstructionSite = require("./ConstructionSite");
 const Competence = require("./Competence");
+const Role = require("./Role");
+const PasswordResetToken = require("./PasswordResetToken");
 
-// Associations
+const models = { User, Task, Timesheet, ConstructionSite, Competence, Role, PasswordResetToken };
 
-// Un utilisateur peut être assigné à plusieurs tâches
-User.belongsToMany(Task, { through: "user_tasks", foreignKey: "user_id" });
-Task.belongsToMany(User, { through: "user_tasks", foreignKey: "task_id" });
+// --- Définition des associations ---
 
-// Un chantier peut contenir plusieurs tâches
+// User <-> Role (1-N)
+User.belongsTo(Role, { foreignKey: 'role_id' });
+Role.hasMany(User, { foreignKey: 'role_id' });
+
+// User <-> Competence (1-N)
+// Un utilisateur a une compétence principale, une compétence peut être assignée à plusieurs utilisateurs.
+User.belongsTo(Competence, { foreignKey: 'competence_id' });
+Competence.hasMany(User, { foreignKey: 'competence_id' });
+
+// User <-> Timesheet (1-N)
+User.hasMany(Timesheet, { foreignKey: 'user_id' });
+Timesheet.belongsTo(User, { foreignKey: 'user_id' });
+
+// User <-> PasswordResetToken (1-N)
+User.hasMany(PasswordResetToken, { foreignKey: 'user_id' });
+PasswordResetToken.belongsTo(User, { foreignKey: 'user_id' });
+
+// ConstructionSite <-> Task (1-N)
 ConstructionSite.hasMany(Task, { foreignKey: "construction_site_id" });
 Task.belongsTo(ConstructionSite, { foreignKey: "construction_site_id" });
 
-// Un utilisateur peut avoir plusieurs feuilles de temps (timesheets)
-User.hasMany(Timesheet, { foreignKey: "user_id" });
-Timesheet.belongsTo(User, { foreignKey: "user_id" });
-
-// Un chantier peut être associé à plusieurs feuilles de temps
+// ConstructionSite <-> Timesheet (1-N)
 ConstructionSite.hasMany(Timesheet, { foreignKey: "construction_site_id" });
 Timesheet.belongsTo(ConstructionSite, { foreignKey: "construction_site_id" });
 
-// Relation N-N entre `users` et `competences`
-User.belongsToMany(Competence, { through: "user_competences", foreignKey: "user_id" });
-Competence.belongsToMany(User, { through: "user_competences", foreignKey: "competence_id" });
+// ConstructionSite <-> User (Chef de projet) (1-N)
+ConstructionSite.belongsTo(User, { foreignKey: 'chef_de_projet_id', as: 'chefDeProjet' });
+User.hasMany(ConstructionSite, { foreignKey: 'chef_de_projet_id', as: 'managedSites' });
 
-// Un chantier a un chef de projet (clé étrangère `chef_de_projet_id` dans `ConstructionSite`)
-User.hasMany(ConstructionSite, { foreignKey: "chef_de_projet_id", as: "managedSites" });
-ConstructionSite.belongsTo(User, { foreignKey: "chef_de_projet_id", as: "chefDeProjet" });
 
-module.exports = { sequelize, User, Task, Timesheet, ConstructionSite, Competence };
+// Note: Les relations N-N User/Task et User/Competence ont été supprimées.
+// La relation User/Task est maintenant gérée via un champ JSON `assignees` dans le modèle Task.
+// La relation User/Competence est maintenant une relation 1-N.
+
+module.exports = { sequelize, ...models };

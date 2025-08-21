@@ -1,0 +1,102 @@
+%% MERISE — MCD/MLD/MPD (Mermaid ERD)
+%% Référence fonctionnelle: Edifis-Pro (Utilisateurs, Rôles, Tâches, Chantiers, Feuilles de temps, Compétences, Reset Tokens)
+
+erDiagram
+  USERS {
+    int user_id PK
+    string firstname
+    string lastname
+    string email UK
+    string numberphone UK
+    string profile_picture
+    string password
+    enum role "Admin|Worker|Manager"
+    datetime created_at
+  }
+
+  ROLES {
+    int role_id PK
+    enum name "Admin|Worker|Manager"
+  }
+
+  CONSTRUCTION_SITES {
+    int construction_site_id PK
+    string name
+    enum state "En cours|Terminé|Annulé|Prévu"
+    text description
+    string adresse
+    date start_date
+    date end_date
+    time open_time
+    time end_time
+    date date_creation
+    string image_url
+    int chef_de_projet_id FK
+  }
+
+  TASKS {
+    int task_id PK
+    string name
+    text description
+    enum status "En cours|Terminé|Annulé|Prévu"
+    datetime creation_date
+    datetime start_date
+    datetime end_date
+    int construction_site_id FK
+  }
+
+  TIMESHEETS {
+    int timesheet_id PK
+    datetime start_date
+    datetime end_date
+    int user_id FK
+    int construction_site_id FK
+  }
+
+  COMPETENCES {
+    int competence_id PK
+    string name
+  }
+
+  USER_TASKS {
+    int user_id FK
+    int task_id FK
+  }
+
+  USER_COMPETENCES {
+    int user_id FK
+    int competence_id FK
+  }
+
+  PASSWORD_RESET_TOKENS {
+    int id PK
+    int user_id FK
+    string token_hash "SHA-256 hex"
+    datetime expires_at
+    datetime used_at
+    string ip
+    string user_agent
+    datetime created_at
+  }
+
+  %% Associations (MCD)
+  USERS ||--o{ TIMESHEETS : "1,N (un utilisateur a plusieurs timesheets)"
+  USERS ||--o{ USER_TASKS : "1,N"
+  USER_TASKS }o--|| TASKS : "N,1"
+  USERS ||--o{ USER_COMPETENCES : "1,N"
+  USER_COMPETENCES }o--|| COMPETENCES : "N,1"
+  CONSTRUCTION_SITES ||--o{ TASKS : "1,N"
+  CONSTRUCTION_SITES ||--o{ TIMESHEETS : "1,N"
+  USERS ||--o{ CONSTRUCTION_SITES : "chef_de_projet (1,N)"
+  USERS ||--o{ PASSWORD_RESET_TOKENS : "1,N (tokens de reset)"
+
+  %% Contraintes (MLD/MPD - textuelles)
+  %% - USERS.email UNIQUE, USERS.numberphone UNIQUE
+  %% - TASKS.construction_site_id REFERENCES CONSTRUCTION_SITES.construction_site_id
+  %% - TIMESHEETS.user_id REFERENCES USERS.user_id
+  %% - TIMESHEETS.construction_site_id REFERENCES CONSTRUCTION_SITES.construction_site_id
+  %% - USER_TASKS(user_id, task_id) PK composite, FKs vers USERS/TASKS
+  %% - USER_COMPETENCES(user_id, competence_id) PK composite, FKs vers USERS/COMPETENCES
+  %% - CONSTRUCTION_SITES.chef_de_projet_id REFERENCES USERS.user_id
+  %% - PASSWORD_RESET_TOKENS.user_id REFERENCES USERS.user_id
+  %% - PASSWORD_RESET_TOKENS.token_hash UNIQUE

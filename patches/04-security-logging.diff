@@ -1,0 +1,180 @@
+--- a/backend/controllers/auth.controller.js
++++ b/backend/controllers/auth.controller.js
+@@ -20,6 +20,13 @@ exports.forgotPassword = async (req, res) => {
+     try {
+         const { email } = req.body;
+
++        // Validation et nettoyage de l'email
++        if (!email || typeof email !== 'string') {
++            logger.warn("Invalid email format in forgot password", {
++                ip: req.ip,
++                userAgent: req.headers["user-agent"]
++            });
++            return res.status(400).json({ message: "Email invalide" });
++        }
++
++        const cleanEmail = email.toLowerCase().trim();
++
+         // Réponse générique (anti-énumération d'utilisateurs)
+         const genericResponse = {
+             message:
+                 "Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.",
+         };
+
+-        const user = await User.findOne({ where: { email } });
++        const user = await User.findOne({ where: { email: cleanEmail } });
+         
+         // Log de sécurité : tentative de réinitialisation
+         logger.info("Password reset requested", {
+-            email: email,
++            email: cleanEmail,
+             ip: req.ip,
+             userAgent: req.headers["user-agent"],
+             userExists: !!user
+         });
+         
+         if (!user) {
+             return res.status(200).json(genericResponse);
+         }
+
+--- a/backend/middlewares/validator.middleware.js
++++ b/backend/middlewares/validator.middleware.js
+@@ -1,4 +1,5 @@
+ const Joi = require("joi");
++const logger = require("../config/logger");
+
+ /**
+  * Middleware générique de validation via Joi.
+@@ -14,6 +15,13 @@ const validate = (schema) => (req, res, next) => {
+
+     const { error, value } = schema.validate(req.body, options);
+     if (error) {
++        // Log des erreurs de validation pour détecter les tentatives d'attaque
++        logger.warn("Validation error", {
++            errors: error.details.map(d => d.message),
++            path: error.details.map(d => d.path.join('.')),
++            ip: req.ip,
++            endpoint: req.originalUrl
++        });
+         return res.status(400).json({
+             message: "Erreur de validation",
+             details: error.details.map((d) => d.message),
+
+--- a/backend/server.js
++++ b/backend/server.js
+@@ -70,6 +70,19 @@ app.use("/uploads/construction_sites", (req, res, next) => {
+ // Initialiser la base de données
+ initDB();
+
++// Middleware de logging des erreurs globales
++app.use((err, req, res, next) => {
++    logger.error("Unhandled application error", {
++        error: err.message,
++        stack: err.stack,
++        ip: req.ip,
++        method: req.method,
++        url: req.originalUrl,
++        userAgent: req.headers["user-agent"]
++    });
++    
++    res.status(500).json({ message: "Erreur serveur interne" });
++});
+
+ // Définir les routes API
+ app.use("/api", routes);
+
+--- a/backend/config/logger.js
++++ b/backend/config/logger.js
+@@ -47,6 +47,23 @@ const logger = createLogger({
+     ],
+ });
+
++// Ajouter des méthodes spécialisées pour la sécurité
++logger.security = {
++    authFailure: (data) => logger.warn("Authentication failure", { ...data, type: "auth_failure" }),
++    authSuccess: (data) => logger.info("Authentication success", { ...data, type: "auth_success" }),
++    accessDenied: (data) => logger.warn("Access denied", { ...data, type: "access_denied" }),
++    suspiciousActivity: (data) => logger.warn("Suspicious activity", { ...data, type: "suspicious" }),
++    dataExfiltration: (data) => logger.error("Potential data exfiltration", { ...data, type: "data_exfiltration" }),
++    bruteForce: (data) => logger.error("Brute force attempt", { ...data, type: "brute_force" }),
++    injection: (data) => logger.error("Injection attempt", { ...data, type: "injection" }),
++    xss: (data) => logger.error("XSS attempt", { ...data, type: "xss" }),
++    csrf: (data) => logger.error("CSRF attempt", { ...data, type: "csrf" }),
++    fileUpload: (data) => logger.warn("File upload event", { ...data, type: "file_upload" }),
++    configChange: (data) => logger.info("Configuration change", { ...data, type: "config_change" }),
++    privilegeEscalation: (data) => logger.error("Privilege escalation attempt", { ...data, type: "privilege_escalation" }),
++    accountLockout: (data) => logger.warn("Account lockout", { ...data, type: "account_lockout" })
++};
++
+ // Morgan stream bridge
+ logger.stream = {
+     write: (message) => {
+
+--- a/backend/middlewares/auth.middleware.js
++++ b/backend/middlewares/auth.middleware.js
+@@ -5,6 +5,11 @@ const protect = (req, res, next) => {
+     try {
+         const token = req.headers.authorization?.split(" ")[1];
+         if (!token) {
++            logger.security.authFailure({
++                reason: "missing_token",
++                ip: req.ip,
++                endpoint: req.originalUrl
++            });
+             return res.status(401).json({ message: "Accès refusé. Token manquant" });
+         }
+         
+@@ -12,7 +17,7 @@ const protect = (req, res, next) => {
+         req.user = decoded;
+         
+         // Log des accès authentifiés
+-        logger.debug("Authenticated access", {
++        logger.security.authSuccess({
+             userId: decoded.userId,
+             role: decoded.role,
+             ip: req.ip,
+@@ -22,7 +27,7 @@ const protect = (req, res, next) => {
+         
+         next();
+     } catch (error) {
+-        logger.warn("Authentication failed", {
++        logger.security.authFailure({
+             error: error.message,
+             ip: req.ip,
+             userAgent: req.headers["user-agent"],
+@@ -37,7 +42,7 @@ const protect = (req, res, next) => {
+ // Middleware pour vérifier si l'utilisateur est Admin
+ const isAdmin = (req, res, next) => {
+     if (!req.user || req.user.role !== "Admin") {
+-        logger.warn("Unauthorized admin access attempt", {
++        logger.security.accessDenied({
+             userId: req.user?.userId,
+             role: req.user?.role,
+             ip: req.ip,
+@@ -51,7 +56,7 @@ const isAdmin = (req, res, next) => {
+ // Middleware pour vérifier si l'utilisateur est Worker
+ const isWorker = (req, res, next) => {
+     if (!req.user || req.user.role !== "Worker") {
+-        logger.warn("Unauthorized worker access attempt", {
++        logger.security.accessDenied({
+             userId: req.user?.userId,
+             role: req.user?.role,
+             ip: req.ip,
+@@ -65,7 +70,7 @@ const isWorker = (req, res, next) => {
+ // Middleware pour vérifier si l'utilisateur est Manager
+ const isManager = (req, res, next) => {
+     if (!req.user || req.user.role !== "Manager") {
+-        logger.warn("Unauthorized manager access attempt", {
++        logger.security.accessDenied({
+             userId: req.user?.userId,
+             role: req.user?.role,
+             ip: req.ip,
+@@ -85,7 +90,7 @@ const checkAdminOrOwner = (req, res, next) => {
+         return next();
+     }
+
+-    logger.warn("Unauthorized resource access attempt", {
++    logger.security.accessDenied({
+         userId: userIdFromToken,
+         role: req.user?.role,
+         targetUserId: userIdFromParams,

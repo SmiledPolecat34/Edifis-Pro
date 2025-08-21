@@ -5,6 +5,8 @@ import "./App.css";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import PageLayout from "./layout/PageLayout";
 import Login from "./pages/login/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
 import Home from "./pages/home/Home";
 import Profile from "./pages/profile/Profile";
 import Worker from "./pages/worker/Worker";
@@ -57,7 +59,13 @@ function App() {
                 </Route>
             </Route>
 
-            {!isAuthenticated && <Route path="/login" element={<Login />} />}
+            {!isAuthenticated && (
+                <>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                </>
+            )}
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

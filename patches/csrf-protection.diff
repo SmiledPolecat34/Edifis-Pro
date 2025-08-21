@@ -1,0 +1,75 @@
+--- a/backend/package.json
++++ b/backend/package.json
+@@ -15,6 +15,7 @@
+     "bcryptjs": "^2.4.3",
+     "cors": "^2.8.5",
+     "dotenv": "^16.0.3",
++    "csurf": "^1.11.0",
+     "express": "^4.18.2",
+     "helmet": "^6.0.1",
+     "joi": "^17.7.0",
+
+--- a/backend/middlewares/csrf.middleware.js
++++ b/backend/middlewares/csrf.middleware.js
+@@ -0,0 +1,25 @@
++const csrf = require('csurf');
++
++/**
++ * Middleware CSRF pour protéger contre les attaques Cross-Site Request Forgery
++ * Utilise des cookies sécurisés pour stocker les tokens CSRF
++ */
++const csrfProtection = csrf({
++    cookie: {
++        httpOnly: true,
++        secure: process.env.NODE_ENV === 'production',
++        sameSite: 'strict',
++        maxAge: 3600000 // 1 heure
++    },
++    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
++});
++
++/**
++ * Middleware pour fournir le token CSRF au client
++ */
++const provideCsrfToken = (req, res, next) => {
++    res.locals.csrfToken = req.csrfToken();
++    next();
++};
++
++module.exports = { csrfProtection, provideCsrfToken };
+
+--- a/backend/server.js
++++ b/backend/server.js
+@@ -6,6 +6,7 @@ const path = require("path");
+ require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+ const logger = require("./config/logger");
+ 
++const { csrfProtection, provideCsrfToken } = require("./middlewares/csrf.middleware");
+ const initDB = require("./config/sequelize");
+ const routes = require("./routes");
+ 
+@@ -45,6 +46,10 @@ app.use(cors({
+ // Middleware pour gérer JSON et formulaires
+ app.use(express.json());
+ app.use(express.urlencoded({ extended: true }));
++
++// Protection CSRF (après les parsers)
++app.use(csrfProtection);
++app.use(provideCsrfToken);
+ 
+ app.use("/uploads/profile_pictures", (req, res, next) => {
+   res.setHeader("Access-Control-Allow-Origin", "*");
+
+--- a/backend/routes/index.js
++++ b/backend/routes/index.js
+@@ -4,6 +4,11 @@ const router = express.Router();
+ const authRoutes = require("./auth.routes");
+ const userRoutes = require("./user.routes");
+ 
++// Endpoint pour obtenir le token CSRF
++router.get("/csrf-token", (req, res) => {
++    res.json({ csrfToken: req.csrfToken() });
++});
++
+ // Routes d'authentification (publiques, pas de CSRF sur forgot/reset)
+ router.use("/auth", authRoutes);

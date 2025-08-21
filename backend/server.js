@@ -4,22 +4,47 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+const logger = require("./config/logger");
 
 const initDB = require("./config/sequelize");
 const routes = require("./routes");
+
+const FRONT_ORIGINS = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5173")
+  .split(",")
+  .map(o => o.trim())
+  .filter(Boolean);
+
 
 // Initialiser l'application Express
 const app = express();
 
 // Middleware de sécurité et logs
-app.use(helmet());
-app.use(morgan("dev"));
+app.use(helmet({
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "img-src": ["'self'", "data:", "http://localhost:5000"]
+    }
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  referrerPolicy: { policy: "no-referrer" },
+  hsts: process.env.NODE_ENV === "production" ? undefined : false
+}));
+app.use(morgan("combined", { stream: logger.stream }));
 
 // Configuration CORS (uniquement une fois)
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow non-browser clients
+    if (FRONT_ORIGINS.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
 
 // Middleware pour gérer JSON et formulaires
@@ -44,10 +69,6 @@ app.use("/uploads/construction_sites", (req, res, next) => {
 // Initialiser la base de données
 initDB();
 
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' data: http://localhost:5000;");
-  next();
-});
 
 // Définir les routes API
 app.use("/api", routes);

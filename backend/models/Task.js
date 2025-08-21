@@ -28,6 +28,19 @@ const Task = sequelize.define("Task", {
   end_date: {
     type: DataTypes.DATE,
   },
+  assignees: {
+    type: DataTypes.JSON,
+    allowNull: true, // Ou false si une tâche doit toujours avoir des assignés
+    defaultValue: [], // Valeur par défaut : un tableau vide
+  },
+  construction_site_id: { type: DataTypes.INTEGER, allowNull: true }, // chantier associé
+
 });
+
+Task.associate = (models) => {
+  // Une tâche appartient à un chantier
+  Task.belongsTo(models.ConstructionSite, { foreignKey: "construction_site_id" });
+  models.ConstructionSite.hasMany(Task, { foreignKey: "construction_site_id" });
+};
 
 module.exports = Task;

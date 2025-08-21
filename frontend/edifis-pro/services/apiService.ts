@@ -1,4 +1,8 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL =
+  // configurable via Vite: define VITE_API_URL in a .env file at frontend/edifis-pro
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  // fallback (dev): backend exposed by docker-compose on port 5001
+  "http://localhost:5001/api";
 
 const apiService = {
   get: async <T>(endpoint: string): Promise<T> => {
@@ -46,7 +50,6 @@ const apiService = {
       throw e;
     }
   },
-
 
   put: async <T>(endpoint: string, data: unknown): Promise<T> => {
     const token = localStorage.getItem("token");

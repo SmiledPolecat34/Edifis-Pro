@@ -1,4 +1,3 @@
-// services/authService.ts
 import axios, { AxiosError } from "axios";
 import { LoginData } from "../model/Auth";
 

@@ -93,6 +93,14 @@ export default function Login() {
                                         disabled={isDisabled()}>
                                         {loading ? "Connexion..." : "Se connecter"}
                                     </button>
+                                    <div className="text-center">
+                                        <Link 
+                                            to="/forgot-password" 
+                                            className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
+                                        >
+                                            Mot de passe oublié ?
+                                        </Link>
+                                    </div>
                                 </div>
                             </form>
                         </div>
