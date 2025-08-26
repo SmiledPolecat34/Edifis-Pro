@@ -3,7 +3,7 @@
 Statuts: OK / Partiel / Manquant
 
 ## 1. Authentification / Sécurité
-- [ ] Politique de mot de passe (min 12, 1 maj, 1 min, 1 chiffre, 1 spécial) — Statut: Manquant
+- [X] Politique de mot de passe (min 12, 1 maj, 1 min, 1 chiffre, 1 spécial) — Statut: Manquant
 - [ ] Changement de mot de passe sécurisé (vérif ancien mdp, policy, hash centralisé) — Statut: Partiel
 - [ ] Oubli / Reset mot de passe (token TTL, invalidation, email, rate limit) — Statut: Manquant
 - [ ] Hash sécurisé (bcrypt en place; option argon2) — Statut: Partiel

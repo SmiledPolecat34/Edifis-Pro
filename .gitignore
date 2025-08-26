@@ -5,7 +5,7 @@ package-lock.json
 frontend/edifis-pro/package-lock.json
 frontend/edifis-pro/.env
 backend/coverage
-frontend\edifis-pro\coverage
+frontend/edifis-pro/coverage
 .env
 
 pnpm-lock.yaml
@@ -61,10 +61,11 @@ accroche.md
 23-08-25.md
 CHECKLIST.md
 DOCUMENTATION_COMPLETE.md
-GUIDE_LANCEMENT.md
+GUIDE_DE_LANCEMENT.md
 TODO.md
+docus
 
-backend/docs
-
-
+complements
 25-08-25.md
+waw.txt
+complement
