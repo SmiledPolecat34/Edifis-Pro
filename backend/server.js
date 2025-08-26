@@ -6,7 +6,8 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const logger = require("./config/logger");
 
-const initDB = require("./config/sequelize");
+const sequelize = require("./config/sequelize");
+require("./models"); // Assurez-vous que les modèles sont chargés
 const routes = require("./routes");
 
 const FRONT_ORIGINS = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5173")
@@ -66,12 +67,93 @@ app.use("/uploads/construction_sites", (req, res, next) => {
   next();
 }, express.static("uploads/construction_sites"));
 
+async function dropAll() {
+  const qi = sequelize.getQueryInterface();
+  try {
+    console.warn('⚠️ DB_RESET: désactivation des clés étrangères…');
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+
+    // ORDRE ENFANTS → PARENTS
+    // Enfants de users/tasks/construction_site
+    await qi.dropTable('user_tasks');             // FK → users, Task
+    await qi.dropTable('password_reset_tokens');  // FK → users
+
+    // Tâches (enfant de construction_site)
+    await qi.dropTable('Task');                   // FK → construction_site
+
+    // Pivot users <-> competences (enfant de users + competences)
+    await qi.dropTable('user_competences');       // FK → users, competences
+
+    // Compétences (parent de user_competences)
+    await qi.dropTable('competences');
+
+    // Chantiers (parent de Task)
+    await qi.dropTable('construction_site');
+
+    // Users (parent de beaucoup de choses + référencé par construction_site.chef_de_projet_id)
+    await qi.dropTable('users');
+
+    // Rôles (parent de users.role_id)
+    await qi.dropTable('roles');
+
+    console.log('🧹 Drop terminé');
+  } catch (e) {
+    console.error('❌ Drop error:', e);
+  } finally {
+    console.warn('🔁 Réactivation des clés étrangères…');
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+  }
+}
+
 // Initialiser la base de données
+async function initDB() {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Connexion à la base de données réussie !');
+
+    if (process.env.DB_RESET === 'true') {
+      await dropAll();
+    }
+
+    // En routine, ne détruis pas: ajuste le schéma
+    await sequelize.sync({ alter: true });
+    console.log('✅ Schéma OK');
+  } catch (err) {
+    console.error('❌ Erreur d’initialisation DB :', err);
+  }
+}
+
 initDB();
+
+// Configuration de Swagger
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'API Edifis-Pro',
+      version: '1.0.0',
+      description: 'Documentation de l\'API pour la plateforme de gestion de chantiers Edifis-Pro',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 5000}`,
+        description: 'Serveur de développement',
+      },
+    ],
+  },
+  apis: ['./routes/*.js'], // Pointe vers les fichiers contenant les annotations
+};
+
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // Définir les routes API
 app.use("/api", routes);
+
 
 // Route par défaut
 app.get("/", (req, res) => {

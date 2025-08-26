@@ -52,5 +52,37 @@ const checkAdminOrOwner = (req, res, next) => {
     return res.status(403).json({ message: "Accès refusé. Seul un Admin ou le propriétaire du compte peut effectuer cette action." });
 };
 
-module.exports = { protect, isAdmin, isWorker, isManager, checkAdminOrOwner };
+const User = require('../models/User');
+
+const canManagerControl = async (req, res, next) => {
+    // Si l'utilisateur est un Admin, il a tous les droits.
+    if (req.user.role === 'Admin') {
+        return next();
+    }
+
+    // Si l'utilisateur est un Manager, on vérifie la cible.
+    if (req.user.role === 'Manager') {
+        try {
+            const targetUser = await User.findByPk(req.params.id);
+            if (!targetUser) {
+                return res.status(404).json({ message: "Utilisateur cible non trouvé" });
+            }
+
+            // Un Manager ne peut pas modifier un Admin ou un autre Manager.
+            if (targetUser.role === 'Admin' || targetUser.role === 'Manager') {
+                return res.status(403).json({ message: "Accès refusé: un Manager ne peut pas modifier un autre Manager ou un Admin." });
+            }
+
+            // Si la cible n'est ni Admin, ni Manager, le Manager a le droit.
+            return next();
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Si l'utilisateur n'est ni Admin ni Manager, il n'a pas le droit (sauf sur son propre profil, géré ailleurs).
+    return res.status(403).json({ message: "Accès refusé." });
+};
+
+module.exports = { protect, isAdmin, isWorker, isManager, checkAdminOrOwner, canManagerControl };
 

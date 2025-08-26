@@ -8,7 +8,7 @@ Objectifs: Garantir la conformité aux exigences CDA, la robustesse fonctionnell
 
 - Niveaux de test:
   - Unitaires: services (password, email), validators (Joi), middlewares (auth, rate limit).
-  - Intégration: contrôleurs (user, auth, constructionSite, task, timesheet), en simulant la couche ORM avec Jest.
+  - Intégration: contrôleurs (user, auth, constructionSite, task), en simulant la couche ORM avec Jest.
   - Sécurité: tests d&#39;en-têtes HTTP (Helmet), CORS restrictif, journalisation Winston.
 - Environnement:
   - Tests via Jest. Base de données: sqlite in-memory (déjà configuré pour certains tests).
@@ -104,9 +104,9 @@ Tests unitaires:
   - User ↔ Role (belongsTo/hasMany) — présent pour compat tests.
   - User ↔ Task (N-N via user_tasks).
   - User ↔ Competence (N-N via user_competences).
-  - User ↔ Timesheet (1-N).
+  
   - ConstructionSite ↔ Task (1-N).
-  - ConstructionSite ↔ Timesheet (1-N).
+  
   - User ↔ ConstructionSite (1-N as managedSites).
   - User ↔ PasswordResetToken (1-N).
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { House, Construction, Hammer, UserRound, LogOut } from "lucide-react";
-import timesheetService from "../../../services/timesheetService";
+
 
 const routes = [
   { to: "/", label: "Accueil", Icon: House },
@@ -12,23 +12,9 @@ const routes = [
 
 export default function SideBar() {
   const { logout, user } = useAuth();
-  const [isClockedIn, setIsClockedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
+  
 
-  // Au montage, on vérifie si l'utilisateur a un timesheet actif
-  useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    timesheetService
-      .getActiveTimesheet(user.user_id)
-      .then(({ active }) => {
-        setIsClockedIn(active);
-      })
-      .catch((err) => console.error("Erreur getActiveTimesheet:", err))
-      .finally(() => setLoading(false));
-  }, [user]); 
+   
 
   return (
     <aside className="fixed top-0 left-0 flex flex-col justify-between h-dvh w-[250px] bg-white border-r border-slate-200 pt-16 md:transform md:translate-x-0 transform -translate-x-full">

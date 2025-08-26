@@ -1,242 +1,191 @@
-# Cahier des Charges - Edifis Pro
+Cahier des Charges – Edifis Pro (v1.1 révisé)
+1. Contexte du Projet
+1.1 Présentation Générale
 
-## 1. Contexte du Projet
+Edifis Pro est une application web de gestion de chantiers destinée au secteur du BTP.
+Elle centralise la gestion des chantiers, des utilisateurs (rôles, compétences), des tâches et le suivi de leur avancement.
 
-### 1.1 Présentation Générale
-Edifis Pro est une application web de gestion de chantiers destinée au secteur du BTP. Elle permet de gérer les ressources humaines, les compétences, les tâches et le suivi temporel des projets de construction.
+1.2 Problématique
 
-### 1.2 Problématique
-Les entreprises du BTP font face à des défis majeurs :
-- Difficulté de coordination des équipes sur plusieurs chantiers
-- Manque de visibilité sur les compétences disponibles
-- Suivi chronophage des heures travaillées
-- Communication inefficace entre chefs de projet et ouvriers
+Les entreprises du BTP rencontrent :
 
-### 1.3 Solution Proposée
-Une plateforme web centralisée permettant :
-- La gestion unifiée des chantiers et des équipes
-- Le suivi en temps réel de l'avancement des projets
-- L'optimisation de l'allocation des ressources
-- La digitalisation des feuilles de temps
+Des difficultés à coordonner plusieurs chantiers simultanément
 
-## 2. Périmètre du Projet
+Un manque de visibilité sur les compétences disponibles par ouvrier
 
-### 2.1 Périmètre Fonctionnel
+Une perte de temps dans la répartition et le suivi des tâches
 
-**Inclus :**
-- Gestion des utilisateurs avec trois rôles (Admin, Manager, Worker)
-- Gestion des chantiers (CRUD complet)
-- Gestion des tâches et leur affectation
-- Gestion des compétences des ouvriers
-- Système de feuilles de temps (timesheets)
-- Authentification sécurisée avec JWT
-- Réinitialisation de mot de passe
+Une communication fragmentée entre managers et équipes
 
-**Exclus :**
-- Gestion financière et facturation
-- Module de paie
-- Application mobile native
-- Intégration avec des ERP tiers
+1.3 Solution Proposée
 
-### 2.2 Périmètre Technique
+Développer une plateforme web centralisée offrant :
 
-**Technologies retenues :**
-- Backend : Node.js avec Express.js
-- Base de données : MySQL avec Sequelize ORM
-- Frontend : React avec TypeScript et Vite
-- Authentification : JWT (JSON Web Tokens)
-- Conteneurisation : Docker
+La gestion unifiée des utilisateurs et de leurs compétences
 
-## 3. Acteurs du Système
+Le suivi en temps réel des chantiers et des tâches associées
 
-### 3.1 Administrateur (Admin)
-- **Rôle** : Gestion globale de la plateforme
-- **Responsabilités** :
-  - Créer et gérer tous les utilisateurs
-  - Superviser l'ensemble des chantiers
-  - Configurer les paramètres système
-  - Accéder à toutes les fonctionnalités
+Une allocation optimisée des ressources humaines
 
-### 3.2 Chef de Projet (Manager)
-- **Rôle** : Gestion opérationnelle des chantiers
-- **Responsabilités** :
-  - Créer et gérer ses chantiers
-  - Affecter des ouvriers aux tâches
-  - Valider les feuilles de temps
-  - Suivre l'avancement des projets
+Un système simple de réinitialisation de mot de passe
 
-### 3.3 Ouvrier (Worker)
-- **Rôle** : Exécution des tâches sur chantier
-- **Responsabilités** :
-  - Consulter ses affectations
-  - Remplir ses feuilles de temps
-  - Mettre à jour ses compétences
-  - Signaler l'avancement des tâches
+⚠️ Changement par rapport à la version précédente :
 
-### 3.4 Visiteur
-- **Rôle** : Utilisateur non authentifié
-- **Responsabilités** :
-  - Accéder à la page de connexion
-  - Demander une réinitialisation de mot de passe
 
-## 4. Exigences Fonctionnelles
 
-### 4.1 Gestion des Utilisateurs
-| ID | Exigence | Priorité |
-|----|----------|----------|
-| EF-01 | Création de compte utilisateur avec validation des données | Haute |
-| EF-02 | Authentification sécurisée par email/mot de passe | Haute |
-| EF-03 | Gestion des rôles (Admin, Manager, Worker) | Haute |
-| EF-04 | Modification du profil utilisateur | Moyenne |
-| EF-05 | Upload de photo de profil | Basse |
-| EF-06 | Réinitialisation de mot de passe par email | Haute |
+2. Périmètre du Projet
+2.1 Périmètre Fonctionnel
 
-### 4.2 Gestion des Chantiers
-| ID | Exigence | Priorité |
-|----|----------|----------|
-| EF-07 | Création de chantier avec informations complètes | Haute |
-| EF-08 | Modification et suppression de chantier | Haute |
-| EF-09 | Affectation d'un chef de projet | Haute |
-| EF-10 | Suivi de l'état du chantier (Prévu, En cours, Terminé, Annulé) | Haute |
-| EF-11 | Upload d'image pour le chantier | Moyenne |
+Inclus :
 
-### 4.3 Gestion des Tâches
-| ID | Exigence | Priorité |
-|----|----------|----------|
-| EF-12 | Création de tâches liées à un chantier | Haute |
-| EF-13 | Affectation d'ouvriers aux tâches | Haute |
-| EF-14 | Suivi du statut des tâches | Haute |
-| EF-15 | Définition des dates de début/fin | Moyenne |
+Gestion des utilisateurs avec trois rôles (Admin, Manager, Worker)
 
-### 4.4 Gestion des Compétences
-| ID | Exigence | Priorité |
-|----|----------|----------|
-| EF-16 | Création et gestion du référentiel de compétences | Moyenne |
-| EF-17 | Association compétences/ouvriers | Moyenne |
-| EF-18 | Recherche d'ouvriers par compétence | Basse |
+Gestion des chantiers (CRUD complet + image)
 
-### 4.5 Gestion des Feuilles de Temps
-| ID | Exigence | Priorité |
-|----|----------|----------|
-| EF-19 | Saisie des heures travaillées par chantier | Haute |
-| EF-20 | Validation des feuilles de temps par le manager | Haute |
-| EF-21 | Export des données de temps | Moyenne |
+Gestion des tâches (CRUD, multi-affectation)
 
-## 5. Exigences Non Fonctionnelles
+Gestion des compétences (référentiel + association aux ouvriers)
 
-### 5.1 Performance
-| ID | Exigence | Critère |
-|----|----------|---------|
-| ENF-01 | Temps de réponse des API | < 500ms pour 95% des requêtes |
-| ENF-02 | Temps de chargement des pages | < 3 secondes |
-| ENF-03 | Capacité de charge | 100 utilisateurs simultanés |
+Authentification sécurisée (JWT)
 
-### 5.2 Sécurité
-| ID | Exigence | Critère |
-|----|----------|---------|
-| ENF-04 | Authentification JWT sécurisée | Token avec expiration 24h |
-| ENF-05 | Politique de mot de passe forte | Min 12 caractères, complexité OWASP |
-| ENF-06 | Protection CORS | Liste blanche des origines |
-| ENF-07 | Headers de sécurité | Helmet.js avec CSP strict |
-| ENF-08 | Rate limiting | Protection anti brute-force |
-| ENF-09 | Validation des entrées | Joi sur tous les endpoints |
+Réinitialisation de mot de passe
 
-### 5.3 Disponibilité
-| ID | Exigence | Critère |
-|----|----------|---------|
-| ENF-10 | Disponibilité du service | 99% (hors maintenance) |
-| ENF-11 | Sauvegarde des données | Quotidienne avec rétention 30j |
+Exclus (v1) :
 
-### 5.4 Utilisabilité
-| ID | Exigence | Critère |
-|----|----------|---------|
-| ENF-12 | Interface responsive | Compatible mobile/tablette/desktop |
-| ENF-13 | Accessibilité | Niveau AA WCAG 2.1 |
-| ENF-14 | Support navigateurs | Chrome, Firefox, Safari, Edge |
+Gestion financière et facturation
 
-## 6. Contraintes
+Module de paie
 
-### 6.1 Contraintes Techniques
-- Utilisation obligatoire de Node.js LTS (v18 ou v20)
-- Base de données MySQL 8.0+
-- Déploiement via Docker
-- Code versionné sur Git
+Feuilles de temps détaillées (reporté v1.2)
 
-### 6.2 Contraintes Organisationnelles
-- Respect de la méthodologie Agile
-- Documentation technique à jour
-- Tests unitaires avec couverture > 70%
-- Revue de code obligatoire
+Application mobile native
 
-### 6.3 Contraintes Réglementaires
-- Conformité RGPD pour les données personnelles
-- Respect du droit du travail pour les feuilles de temps
-- Archivage légal des données (5 ans)
+Intégration avec des ERP tiers
 
-## 7. Critères d'Acceptation
+2.2 Périmètre Technique
 
-### 7.1 Critères Fonctionnels
-- [ ] Toutes les user stories priorité "Haute" implémentées
-- [ ] Tests d'acceptation validés par le client
-- [ ] Parcours utilisateurs fluides et sans erreur
+Backend : Node.js (Express.js)
 
-### 7.2 Critères Techniques
-- [ ] Couverture de tests > 70%
-- [ ] Audit de sécurité OWASP passé
-- [ ] Performance conforme aux exigences
-- [ ] Documentation technique complète
+Base de données : MySQL 8 (Sequelize ORM)
 
-### 7.3 Critères de Livraison
-- [ ] Code source avec historique Git
-- [ ] Documentation utilisateur
-- [ ] Guide de déploiement
-- [ ] Environnement de test fonctionnel
+Frontend : React + TypeScript + Vite
 
-## 8. Planning Prévisionnel
+Authentification : JWT
 
-### Phase 1 : Fondations (4 semaines)
-- Architecture technique
-- Modèle de données
-- Authentification/Autorisation
-- CRUD utilisateurs
+Conteneurisation : Docker
 
-### Phase 2 : Cœur Métier (6 semaines)
-- Gestion des chantiers
-- Gestion des tâches
-- Système de compétences
-- Interface utilisateur de base
+3. Acteurs du Système
 
-### Phase 3 : Fonctionnalités Avancées (4 semaines)
-- Feuilles de temps
-- Tableaux de bord
-- Exports de données
-- Optimisations
+Admin : gestion des utilisateurs, supervision globale
 
-### Phase 4 : Finalisation (2 semaines)
-- Tests complets
-- Corrections de bugs
-- Documentation
-- Déploiement
+Manager : création et gestion de ses chantiers, affectation d’ouvriers, suivi d’avancement
 
-## 9. Risques Identifiés
+Worker : consultation de ses tâches, mise à jour de l’avancement, gestion de ses compétences
 
-| Risque | Probabilité | Impact | Mitigation |
-|--------|-------------|--------|------------|
-| Retard de livraison | Moyenne | Élevé | Priorisation stricte des fonctionnalités |
-| Problèmes de performance | Faible | Moyen | Tests de charge réguliers |
-| Failles de sécurité | Moyenne | Élevé | Audits de sécurité fréquents |
-| Résistance au changement | Moyenne | Moyen | Formation des utilisateurs |
+Visiteur : accès à la page de connexion, demande de reset password
 
-## 10. Budget Estimatif
+4. Exigences Fonctionnelles
+4.1 Utilisateurs
 
-- Développement : 400 heures
-- Tests et recette : 80 heures
-- Documentation : 40 heures
-- Formation : 20 heures
-- **Total : 540 heures**
+EF-01 : Création de compte utilisateur avec validation
 
----
+EF-02 : Authentification sécurisée (email/mot de passe)
 
-*Document validé le : [Date]*  
-*Version : 1.0*  
-*Auteur : Équipe Edifis Pro*
+EF-03 : Gestion des rôles (Admin, Manager, Worker)
+
+EF-04 : Modification profil
+
+EF-05 : Upload photo profil
+
+EF-06 : Réinitialisation de mot de passe par email
+
+4.2 Chantiers
+
+EF-07 : Création chantier avec informations complètes
+
+EF-08 : Modification / suppression chantier
+
+EF-09 : Affectation d’un chef de projet
+
+EF-10 : Suivi état chantier (Prévu, En cours, Terminé, Annulé)
+
+EF-11 : Upload d’image
+
+4.3 Tâches
+
+EF-12 : Création de tâches liées à un chantier
+
+EF-13 : Multi-affectation ouvriers
+
+EF-14 : Suivi du statut des tâches
+
+EF-15 : Définition dates de début/fin
+
+4.4 Compétences
+
+EF-16 : Création du référentiel de compétences
+
+EF-17 : Association compétences/ouvriers
+
+EF-18 : Recherche par compétence
+
+5. Exigences Non Fonctionnelles
+
+Performance : API p95 < 500 ms, pages < 3s, 100 users simultanés
+
+Sécurité : Auth JWT, mots de passe hashés (bcrypt/Argon2), CORS whitelist, Helmet, validation Joi/Zod, rate limiting
+
+Disponibilité : 99% hors maintenance, sauvegardes quotidiennes
+
+Utilisabilité : Responsive (mobile/tablette/desktop), accessibilité WCAG 2.1 AA, support navigateurs récents
+
+6. Contraintes
+
+Techniques : Node.js LTS, MySQL 8+, Docker, Git
+
+Organisationnelles : méthode Agile (sprints 2 semaines), doc vivante, couverture tests > 70%, revues de code
+
+Réglementaires : RGPD (données persos), archivage légal (5 ans)
+
+7. Critères d’Acceptation
+
+User stories priorité haute validées
+
+Couverture tests > 70%
+
+Swagger/OpenAPI documenté
+
+Audit sécurité basique validé (OWASP)
+
+Déploiement Docker fonctionnel
+
+8. Planning Prévisionnel (v1)
+
+Phase 1 (4 semaines) : Architecture + Auth + Users
+
+Phase 2 (6 semaines) : Chantiers + Tâches + Compétences
+
+Phase 3 (2 semaines) : Export CSV + Dashboard simple
+
+Phase 4 (2 semaines) : Tests, doc, déploiement
+
+9. Risques Identifiés
+Risque	Probabilité	Impact	Mitigation
+Retard livraison	Moyenne	Élevé	Priorisation stricte
+Failles de sécurité	Moyenne	Élevé	Audits réguliers
+Manque d’adoption outil	Moyenne	Moyen	Formation utilisateurs
+10. Budget Estimatif
+
+Développement : 320 h
+
+Tests et recette : 60 h
+
+Documentation : 30 h
+
+DevOps & déploiement : 40 h
+
+Total : 450 h
+
+📌 Document validé le : [Date]
+📌 Version : 1.1
+📌 Auteur : Équipe Edifis Pro

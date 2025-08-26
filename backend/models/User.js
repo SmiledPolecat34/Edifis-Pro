@@ -23,7 +23,7 @@ const User = sequelize.define("users", {
   numberphone: {
     type: DataTypes.STRING(20),
     allowNull: false,
-    unique: true,
+    // unique: true, // Contrainte déjà présente dans le schéma SQL
   },
   profile_picture: {
     type: DataTypes.STRING,

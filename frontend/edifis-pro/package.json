@@ -10,7 +10,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest --coverage --verbose --detectOpenHandles --forceExit"
+    "test": "jest --coverage --verbose --detectOpenHandles --forceExit",
+    "e2e": "cypress open",
+    "e2e:ci": "cypress run"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.9",
@@ -34,6 +36,7 @@
     "@types/react-dom": "^19.1.6",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "cypress": "^15.0.0",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",

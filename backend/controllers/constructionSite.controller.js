@@ -60,17 +60,10 @@ exports.getAllConstructionSites = async (req, res) => {
             }
         ];
 
-        if (role === "Admin") {
-            console.log("Admin - Voir tous les chantiers");
-        }
-
-
-        else if (role === "Manager") {
-            whereCondition = { chef_de_projet_id: userId };
-        }
-
-
-        else if (role === "Worker") {
+        if (role === "Admin" || role === "Manager") {
+            console.log(`${role} - Voir tous les chantiers`);
+            // Aucune condition de filtrage, ils voient tout.
+        } else if (role === "Worker") {
             console.log("Worker - Voir les chantiers où il a des tâches");
 
             includeOptions.push({

@@ -45,13 +45,7 @@ erDiagram
     int construction_site_id FK
   }
 
-  TIMESHEETS {
-    int timesheet_id PK
-    datetime start_date
-    datetime end_date
-    int user_id FK
-    int construction_site_id FK
-  }
+  
 
   COMPETENCES {
     int competence_id PK
@@ -80,21 +74,20 @@ erDiagram
   }
 
   %% Associations (MCD)
-  USERS ||--o{ TIMESHEETS : "1,N (un utilisateur a plusieurs timesheets)"
+  
   USERS ||--o{ USER_TASKS : "1,N"
   USER_TASKS }o--|| TASKS : "N,1"
   USERS ||--o{ USER_COMPETENCES : "1,N"
   USER_COMPETENCES }o--|| COMPETENCES : "N,1"
   CONSTRUCTION_SITES ||--o{ TASKS : "1,N"
-  CONSTRUCTION_SITES ||--o{ TIMESHEETS : "1,N"
+  
   USERS ||--o{ CONSTRUCTION_SITES : "chef_de_projet (1,N)"
   USERS ||--o{ PASSWORD_RESET_TOKENS : "1,N (tokens de reset)"
 
   %% Contraintes (MLD/MPD - textuelles)
   %% - USERS.email UNIQUE, USERS.numberphone UNIQUE
   %% - TASKS.construction_site_id REFERENCES CONSTRUCTION_SITES.construction_site_id
-  %% - TIMESHEETS.user_id REFERENCES USERS.user_id
-  %% - TIMESHEETS.construction_site_id REFERENCES CONSTRUCTION_SITES.construction_site_id
+  
   %% - USER_TASKS(user_id, task_id) PK composite, FKs vers USERS/TASKS
   %% - USER_COMPETENCES(user_id, competence_id) PK composite, FKs vers USERS/COMPETENCES
   %% - CONSTRUCTION_SITES.chef_de_projet_id REFERENCES USERS.user_id

@@ -47,7 +47,7 @@ Ce plan d&#39;exécution détaille les étapes à réaliser suite à la validati
 ## Phase 6 — UML
 - [ ] Use case global + cas d&#39;utilisation Reset Password (Mermaid + PlantUML)
 - [ ] Diagramme de classes multicouche (Controllers, Services, Repositories, Models, DTO/Validators)
-- [ ] Séquences: login, change password, forgot/reset password, CRUD principal (ex. Timesheet)
+- [ ] Séquences: login, change password, forgot/reset password, CRUD principal
 - [ ] Fichiers: `docs/uml-*.mmd` et `docs/uml-*.puml`
 
 ## Phase 7 — CI/CD (GitHub Actions)

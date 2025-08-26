@@ -19,7 +19,7 @@ rectangle "Backend API (Edifis-Pro)" as System {
   usecase "Gérer les utilisateurs" as UC_Users
   usecase "Gérer les chantiers" as UC_Sites
   usecase "Gérer les tâches" as UC_Tasks
-  usecase "Gérer les feuilles de temps" as UC_Timesheets
+  
   usecase "Consulter ses affectations" as UC_ViewAssignments
 }
 
@@ -27,19 +27,19 @@ rectangle "Backend API (Edifis-Pro)" as System {
 Admin --> UC_Users
 Admin --> UC_Sites
 Admin --> UC_Tasks
-Admin --> UC_Timesheets
+
 Admin --> UC_Login
 Admin --> UC_ChangePwd
 
 Manager --> UC_Sites
 Manager --> UC_Tasks
-Manager --> UC_Timesheets
+
 Manager --> UC_ViewAssignments
 Manager --> UC_Login
 Manager --> UC_ChangePwd
 
 Worker --> UC_ViewAssignments
-Worker --> UC_Timesheets
+
 Worker --> UC_Login
 Worker --> UC_ChangePwd
 

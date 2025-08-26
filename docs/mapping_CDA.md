@@ -70,7 +70,7 @@
 ├── User.js              // Utilisateurs (Admin, Manager, Worker)
 ├── ConstructionSite.js  // Chantiers
 ├── Task.js              // Tâches
-├── Timesheet.js         // Feuilles de temps
+
 ├── Competence.js        // Compétences
 ├── Role.js              // Rôles
 └── PasswordResetToken.js // Tokens de réinitialisation
@@ -81,7 +81,7 @@
 - User ↔ Task (N:N via user_tasks)
 - User ↔ Competence (N:N via user_competences)
 - ConstructionSite ↔ Task (1:N)
-- User ↔ Timesheet (1:N)
+
 
 ### 2.3 Concevoir et Développer une Application Multicouche Répartie
 

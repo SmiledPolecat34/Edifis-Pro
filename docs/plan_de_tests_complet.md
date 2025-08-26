@@ -156,7 +156,7 @@ Ce plan de tests vise à garantir la qualité, la fiabilité et la sécurité de
 |---------|-------------|--------|------------------|
 | TE2E-SITE-01 | Création chantier | 1. Menu chantiers<br>2. Bouton créer<br>3. Remplir formulaire<br>4. Valider | Chantier créé et visible |
 | TE2E-TASK-01 | Affectation tâche | 1. Sélectionner chantier<br>2. Créer tâche<br>3. Affecter ouvrier<br>4. Sauvegarder | Tâche affectée |
-| TE2E-TIME-01 | Saisie temps | 1. Menu timesheet<br>2. Sélectionner jour<br>3. Ajouter heures<br>4. Valider | Temps enregistré |
+
 
 ## 5. Tests de Sécurité
 
@@ -340,7 +340,7 @@ Ce plan de tests vise à garantir la qualité, la fiabilité et la sécurité de
 |---------|-------------|--------|------------------|
 | TE2E-SITE-01 | Création chantier | 1. Menu chantiers<br>2. Bouton créer<br>3. Remplir formulaire<br>4. Valider | Chantier créé et visible |
 | TE2E-TASK-01 | Affectation tâche | 1. Sélectionner chantier<br>2. Créer tâche<br>3. Affecter ouvrier<br>4. Sauvegarder | Tâche affectée |
-| TE2E-TIME-01 | Saisie temps | 1. Menu timesheet<br>2. Sélectionner jour<br>3. Ajouter heures<br>4. Valider | Temps enregistré |
+
 
 ## 5. Tests de Sécurité
 

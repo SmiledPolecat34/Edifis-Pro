@@ -1,4 +1,4 @@
-const { User, Task, ConstructionSite, Timesheet, Competence, Role } = require("../../models");
+const { User, Task, ConstructionSite, Competence, Role } = require("../../models");
 
 describe("Models Associations", () => {
   it("User devrait appartenir à Role et Role devrait avoir plusieurs Users", () => {
@@ -19,12 +19,7 @@ describe("Models Associations", () => {
     expect(Task.associations).toHaveProperty("construction_site");
   });
 
-  it("User devrait avoir plusieurs Timesheets et Timesheet devrait appartenir à User", () => {
-    // L'association de User vers Timesheet est nommée "timesheets"
-    expect(User.associations).toHaveProperty("timesheets");
-    // L'association de Timesheet vers User est nommée "user"
-    expect(Timesheet.associations).toHaveProperty("user");
-  });
+  
 
   it("User devrait appartenir à plusieurs Competences et Competence devrait appartenir à plusieurs Users", () => {
     // L'association de User vers Competence est nommée "competences"

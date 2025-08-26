@@ -36,7 +36,7 @@ VALUES
   ('Plomberie', 'Remise aux normes', 'Prévu', 1);
 
 -- FEUILLES DE TEMPS (exemple sans rattacher d'utilisateur)
--- INSERT INTO timesheet (start_date, end_date, user_id, construction_site_id)
+
 -- VALUES ('2025-02-01 08:00:00', '2025-02-01 16:00:00', 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

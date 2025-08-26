@@ -20,7 +20,7 @@ Périmètre: Sécurité applicative, AuthN/AuthZ, qualité code/tests, middlewar
   - Middleware: `backend/middlewares/auth.middleware.js` (protect/isAdmin/isWorker/isManager/checkAdminOrOwner).
   - Contrôleur utilisateur: `backend/controllers/user.controller.js` (login, createUser, updateUser, deleteUser, changePassword, getAllUsers, etc.).
 - Modèles Sequelize (MySQL): `backend/models/`
-  - User, Role, Task, Timesheet, ConstructionSite, Competence (+ associations via includes).
+  - User, Role, Task, ConstructionSite, Competence (+ associations via includes).
 - Journalisation:
   - `morgan("dev")` côté serveur; pas de Winston.
 - Validation:

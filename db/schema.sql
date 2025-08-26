@@ -1,7 +1,7 @@
 -- Schema SQL relationnel — Edifis-Pro (MySQL InnoDB)
 -- Généré à partir des modèles Sequelize présents dans backend/models/*
 -- Tables: roles, users, competences, user_competences, construction_site, Task, user_tasks,
---         timesheet, password_reset_tokens
+--         password_reset_tokens
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -10,7 +10,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
   role_id INT AUTO_INCREMENT PRIMARY KEY,
-  name ENUM('Admin','Worker','Manager') NOT NULL
+  name ENUM('Admin','Worker','Manager',) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 2) Utilisateurs
@@ -110,23 +110,7 @@ CREATE TABLE user_tasks (
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 8) Feuilles de temps (timesheet)
-DROP TABLE IF EXISTS timesheet;
-CREATE TABLE timesheet (
-  timesheet_id INT AUTO_INCREMENT PRIMARY KEY,
-  start_date DATETIME NOT NULL,
-  end_date DATETIME NULL,
-  user_id INT NOT NULL,
-  construction_site_id INT NULL,
-  CONSTRAINT fk_timesheet_user FOREIGN KEY (user_id)
-    REFERENCES users(user_id)
-    ON UPDATE CASCADE
-    ON DELETE CASCADE,
-  CONSTRAINT fk_timesheet_site FOREIGN KEY (construction_site_id)
-    REFERENCES construction_site(construction_site_id)
-    ON UPDATE CASCADE
-    ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- 9) Jetons de réinitialisation de mot de passe
 DROP TABLE IF EXISTS password_reset_tokens;
