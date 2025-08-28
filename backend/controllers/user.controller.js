@@ -87,7 +87,7 @@ exports.createUser = async (req, res) => {
             firstname,
             lastname,
             email,
-            role_id: role_id, // Use role_id consistently
+            role_id,
             numberphone,
             password: hashedPassword,
         });
@@ -100,40 +100,13 @@ exports.createUser = async (req, res) => {
             }
         }
 
-        // Fetch the created user with their role to return complete data
-        const createdUserWithRole = await User.findByPk(user.user_id, {
-            include: [{ model: Role, as: 'userRole', attributes: ['name'] }]
-        });
-
-        const responseUser = createdUserWithRole.toJSON();
-        responseUser.role = responseUser.userRole ? responseUser.userRole.name : null;
-        delete responseUser.userRole;
-        delete responseUser.password;
-
         return res.status(201).json({
             message: "Utilisateur créé avec succès",
-            user: responseUser
+            user: { user_id: user.user_id, firstname: user.firstname }
         });
     } catch (error) {
         console.error("createUser:", error);
         return res.status(500).json({ error: error.message });
-    }
-}
-
-// ---------- UPDATE / DELETE ----------
-exports.updateUser = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
-
-        if (req.body.password) {
-            req.body.password = await hashPassword(req.body.password);
-        }
-
-        await user.update(req.body);
-        res.json({ message: "Utilisateur mis à jour", user });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
     }
 };
 
@@ -198,7 +171,12 @@ exports.login = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: { exclude: ["password"] }
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
+            where: { role_id: { [Op.ne]: 1 } },
+            include: [
+                { model: Role, attributes: ["name"], required: true },
+                { model: Competence, attributes: ["name"] }
+            ]
         });
         res.json(users);
     } catch (error) {
@@ -374,12 +352,12 @@ exports.changePassword = async (req, res) => {
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        const ok = await comparePassword(currentPassword, user.password);
+        const ok = await bcrypt.compare(currentPassword, user.password);
         if (!ok) {
             return res.status(400).json({ message: "Mot de passe actuel incorrect" });
         }
 
-        const hashed = await hashPassword(newPassword);
+        const hashed = await bcrypt.hash(newPassword, 10);
         await user.update({ password: hashed });
 
         return res.json({ message: "Mot de passe mis à jour" });

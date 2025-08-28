@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../config/database');
 
 const Competence = sequelize.define('Competence', {
   competence_id: {
@@ -11,6 +11,10 @@ const Competence = sequelize.define('Competence', {
     type: DataTypes.STRING(255),
     allowNull: false,
     unique: true
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true,
   },
   isDeleted: {
     type: DataTypes.BOOLEAN,

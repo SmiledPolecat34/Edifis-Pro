@@ -8,7 +8,7 @@ const Role = sequelize.define("roles", {
     autoIncrement: true,
   },
   name: {
-    type: DataTypes.ENUM("Admin", "Worker", "Manager", "Project_Manager"), 
+    type: DataTypes.ENUM("Admin", "Worker", "Manager"),
     allowNull: false,
   },
 });

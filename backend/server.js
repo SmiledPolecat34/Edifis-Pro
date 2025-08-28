@@ -6,7 +6,8 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const logger = require("./config/logger");
 
-const sequelize = require("./config/sequelize");
+const sequelize = require("./config/database");
+const initDB = require("./config/sequelize");
 require("./models"); // Assurez-vous que les modèles sont chargés
 const routes = require("./routes");
 
@@ -106,23 +107,6 @@ async function dropAll() {
 }
 
 // Initialiser la base de données
-async function initDB() {
-  try {
-    await sequelize.authenticate();
-    console.log('✅ Connexion à la base de données réussie !');
-
-    // if (process.env.DB_RESET === 'true') {
-    //   await dropAll();
-    // }
-
-    // En routine, ne détruis pas: ajuste le schéma
-    await sequelize.sync({ alter: true });
-    console.log('✅ Schéma OK');
-  } catch (err) {
-    console.error('❌ Erreur d’initialisation DB :', err);
-  }
-}
-
 initDB();
 
 // Configuration de Swagger
