@@ -52,15 +52,25 @@ export default function Workers() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-gray-900">Employés</h1>
         
-        {canCreate && (
           <Link
             to="/workers/add"
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          >
+            >
             + Employé
           </Link>
-        )}
       </div>
+      <button
+        onClick={() => setSearchQuery("")}
+        className="ml-2 inline-flex items-center justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+        Réinitialiser
+    </button>
+    <Link
+        to="/workers/add"
+        className="ml-2 inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        >
+        Ajouter un ouvrier
+    </Link>
 
       <div className="mb-4">
         <select

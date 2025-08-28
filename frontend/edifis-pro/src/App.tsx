@@ -50,6 +50,10 @@
                             <Route path="/workers/add" element={<AddWorker />} />
                             <Route path="/workers/:id" element={<WorkerDetails />} />
 
+                            <Route path="/missions/:id" element={<Missions />} />
+                            <Route path="/tasks/:id" element={<EditTask />} />
+                            <Route path="/AddTask" element={<CreateTask />} />
+
                             <Route path="/construction/:id" element={<ConstructionDetails />} />
                             <Route path="/user/:id" element={<UserDetail />} />
                             {/* Gestion des compétences */}
