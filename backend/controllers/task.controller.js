@@ -16,18 +16,19 @@ exports.getAllTasks = async (req, res) => {
         const tasks = await Task.findAll({
             include: [
                 {
-                    model: User,
-
-                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"]
-                },
-                {
                     model: ConstructionSite,
                     attributes: ["construction_site_id", "name", "state", "open_time", "end_time"]
+                },
+                {
+                    model: User, // Include the User model
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
+                    through: { attributes: [] } // Exclude attributes from the join table
                 }
             ]
         });
         res.json(tasks);
     } catch (error) {
+        console.error("Error in getAllTasks:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -116,8 +117,13 @@ exports.getTasksByUserId = async (req, res) => {
         }
 
         const tasks = await Task.findAll({
-            where: literal(`JSON_CONTAINS(assignees, '${userId}')`),
             include: [
+                {
+                    model: User,
+                    where: { user_id: userId },
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
+                    through: { attributes: [] } // Exclude attributes from the join table
+                },
                 {
                     model: ConstructionSite,
                     attributes: ["construction_site_id", "name", "state", "open_time", "end_time", 'start_date', 'end_date', 'image_url', 'chef_de_projet_id', 'adresse'],

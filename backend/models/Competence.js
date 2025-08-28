@@ -11,10 +11,19 @@ const Competence = sequelize.define('Competence', {
     type: DataTypes.STRING(255),
     allowNull: false,
     unique: true
+  },
+  isDeleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false,
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
   }
 }, {
   tableName: 'competences',
-  timestamps: false
+  timestamps: true
 });
 
 module.exports = Competence;

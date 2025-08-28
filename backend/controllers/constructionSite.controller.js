@@ -1,3 +1,4 @@
+const { Op, literal } = require("sequelize");
 const ConstructionSite = require("../models/ConstructionSite");
 const User = require("../models/User");
 const Task = require("../models/Task");
@@ -62,23 +63,13 @@ exports.getAllConstructionSites = async (req, res) => {
 
         if (role === "Admin" || role === "Manager") {
             console.log(`${role} - Voir tous les chantiers`);
-            // Aucune condition de filtrage, ils voient tout.
+            // No additional filtering needed for Admin/Manager
         } else if (role === "Worker") {
             console.log("Worker - Voir les chantiers où il a des tâches");
-
-            includeOptions.push({
-                model: Task,
-                as: "Tasks",
-                attributes: [],
-                required: true,
-                include: [
-                    {
-                        model: User,
-                        attributes: [], // Pas besoin d'afficher les users
-                        where: { user_id: userId } //  Filtrer sur le bon ID utilisateur
-                    }
-                ]
-            });
+            // Filter construction sites where the worker is assigned to at least one task
+            whereCondition[Op.and] = [
+                literal(`EXISTS (SELECT 1 FROM tasks AS Task WHERE Task.construction_site_id = ConstructionSite.construction_site_id AND EXISTS (SELECT 1 FROM user_tasks WHERE user_tasks.task_id = Task.task_id AND user_tasks.user_id = ${userId}))`)
+            ];
         }
 
         // Récupération des chantiers avec le filtre dynamique
@@ -246,27 +237,27 @@ exports.getConstructionSitesByUserId = async (req, res) => {
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        // 1. Trouver les tâches assignées à l'utilisateur
-        const tasks = await Task.findAll({
-            attributes: ["construction_site_id"],
-            where: literal(`JSON_CONTAINS(assignees, '"${userId}"')`)
-        });
-
-        // 2. Extraire les IDs uniques des chantiers
-        const siteIds = [...new Set(tasks.map(t => t.construction_site_id))].filter(id => id !== null);
-
-        if (siteIds.length === 0) {
-            return res.status(404).json({ message: "Aucun chantier trouvé pour cet utilisateur" });
-        }
-
-        // 3. Récupérer les chantiers correspondants
         const sites = await ConstructionSite.findAll({
-            where: { construction_site_id: { [Op.in]: siteIds } },
+            include: [{
+                model: Task,
+                as: 'Tasks',
+                required: true,
+                attributes: [],
+                include: [{
+                    model: User,
+                    where: { user_id: userId },
+                    attributes: []
+                }]
+            }],
             attributes: [
                 "construction_site_id", "name", "state", "description",
                 "adresse", "start_date", "end_date", "open_time", "end_time", "date_creation", "image_url"
             ]
         });
+
+        if (sites.length === 0) {
+            return res.status(404).json({ message: "Aucun chantier trouvé pour cet utilisateur" });
+        }
 
         res.json(sites);
     } catch (error) {

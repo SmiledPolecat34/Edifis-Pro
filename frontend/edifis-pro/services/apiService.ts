@@ -16,7 +16,7 @@ const apiService = {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
     }
     return await response.json();
   },
@@ -63,7 +63,7 @@ const apiService = {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
     }
     return await response.json();
   },
@@ -79,7 +79,7 @@ const apiService = {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
     }
     return await response.json();
   },
@@ -95,7 +95,7 @@ const apiService = {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
     }
     return await response.json();
   },

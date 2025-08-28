@@ -85,4 +85,3 @@ const canManagerControl = async (req, res, next) => {
 };
 
 module.exports = { protect, isAdmin, isWorker, isManager, checkAdminOrOwner, canManagerControl };
-

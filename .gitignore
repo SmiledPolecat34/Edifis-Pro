@@ -1,8 +1,6 @@
 node_modules/
 npm-debug.log
 yarn-error.log
-package-lock.json
-frontend/edifis-pro/package-lock.json
 frontend/edifis-pro/.env
 backend/coverage
 frontend/edifis-pro/coverage

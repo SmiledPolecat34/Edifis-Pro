@@ -287,13 +287,22 @@ export default function CreateTask() {
           </select>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          {loading ? "Création..." : "Créer la mission"}
-        </button>
+        <div className="flex items-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            {loading ? "Création..." : "Créer la mission"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 ml-2"
+          >
+            Retour
+          </button>
+        </div>
       </form>
     </main>
   );

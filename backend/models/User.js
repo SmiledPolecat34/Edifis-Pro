@@ -33,28 +33,13 @@ const User = sequelize.define("users", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  role_label: {
-    type: DataTypes.ENUM("Admin", "Worker", "Manager"),
-    allowNull: false,
-    defaultValue: "Worker",
-    field: "role",
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  // Clé étrangère pour la compétence principale de l'utilisateur
-  competence_id: {
+  role_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'competences', // Nom de la table des compétences
-      key: 'competence_id',
+      model: 'roles',
+      key: 'role_id',
     },
-  },
-  role_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true
   },
 });
 

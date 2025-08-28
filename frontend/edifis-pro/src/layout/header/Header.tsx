@@ -5,9 +5,14 @@ import logo from "../../assets/images/logo.svg";
 
 export default function Header() {
   const { user } = useAuth();
-  console.log(
-    `Profile picture URL: http://localhost:5000/uploads/profile_pictures/${user.profile_picture}`
-  );
+
+  if (!user) {
+    return (
+        <header className="sticky top-0 flex justify-between items-center w-full h-16 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:pr-8 pr-4 z-20">
+            {/* Skeleton loader can be placed here */}
+        </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 flex justify-between items-center w-full h-16 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:pr-8 pr-4 z-20">

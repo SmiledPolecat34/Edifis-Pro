@@ -26,8 +26,8 @@ export default function Workers() {
           ? await userService.getAllUsers()
           : await userService.getAllWorkers();
       setWorkers(data);
-    } catch {
-      setError("Erreur lors du chargement des employés.");
+    } catch (err: any) {
+      setError(err.message || "Erreur lors du chargement des employés.");
     } finally {
       setLoading(false);
     }
@@ -78,40 +78,46 @@ export default function Workers() {
                 </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-                {filteredWorkers.map((worker) => (
-                    <Link
-                        to={`/worker/${worker.user_id}`}
-                        key={worker.user_id}
-                        className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center hover:scale-105 transition"
-                    >
-                        <img
-                            src={worker.profile_picture || DEFAULT_IMAGE}
-                            alt={worker.firstname}
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                        />
-                        <h2 className="text-lg font-semibold text-gray-900">
-                            {worker.firstname} {worker.lastname}
-                        </h2>
-                        <p className="text-sm text-gray-600">
-                            {worker.competences && worker.competences.length > 0
-                                ? worker.competences.map((comp) => comp.name).join(", ")
-                                : "Compétences non renseignées"}
-                        </p>
-
-                        <p className="text-sm text-slate-500">{worker.numberphone}</p>
-                        <p className="text-sm text-slate-500">{worker.email}</p>
-                        <span
-                            className={`mt-2 px-3 py-1 rounded-md text-sm ${worker.role === "Worker"
-                                ? "bg-blue-200 text-blue-800"
-                                : "bg-green-200 text-green-800"
-                                }`}
+            {filteredWorkers.length === 0 ? (
+                <div className="text-center text-gray-500 py-10">
+                    <p>Aucun travailleur trouvé.</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+                    {filteredWorkers.map((worker) => (
+                        <Link
+                            to={`/worker/${worker.user_id}`}
+                            key={worker.user_id}
+                            className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center hover:scale-105 transition"
                         >
-                            {worker.role === "Worker" ? "Ouvrier" : "Chef de projet"}
-                        </span>
-                    </Link>
-                ))}
-            </div>
+                            <img
+                                src={worker.profile_picture || DEFAULT_IMAGE}
+                                alt={worker.firstname}
+                                className="w-full h-48 object-cover rounded-lg mb-4"
+                            />
+                            <h2 className="text-lg font-semibold text-gray-900">
+                                {worker.firstname} {worker.lastname}
+                            </h2>
+                            <p className="text-sm text-gray-600">
+                                {worker.competences && worker.competences.length > 0
+                                    ? worker.competences.map((comp) => comp.name).join(", ")
+                                    : "Compétences non renseignées"}
+                            </p>
+
+                            <p className="text-sm text-slate-500">{worker.numberphone}</p>
+                            <p className="text-sm text-slate-500">{worker.email}</p>
+                            <span
+                                className={`mt-2 px-3 py-1 rounded-md text-sm ${worker.role === "Worker"
+                                    ? "bg-blue-200 text-blue-800"
+                                    : "bg-green-200 text-green-800"
+                                    }`}
+                            >
+                                {worker.role === "Worker" ? "Ouvrier" : "Chef de projet"}
+                            </span>
+                        </Link>
+                    ))}
+                </div>
+            )}
         </main>
     );
 }

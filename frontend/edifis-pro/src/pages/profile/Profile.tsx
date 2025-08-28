@@ -137,6 +137,8 @@ export default function Profile() {
                                 : user.role === "Worker"
                                 ? "Ouvrier"
                                 : user.role === "Manager"
+                                ? "Manager"
+                                : user.role === "Project_Manager"
                                 ? "Chef de projet"
                                 : user.role}
                         </p>

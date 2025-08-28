@@ -1,6 +1,8 @@
 const crypto = require("crypto");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const { User, PasswordResetToken } = require("../models");
 const { sendMail } = require("../services/email.service");
@@ -12,6 +14,50 @@ function sha256Hex(input) {
     return crypto.createHash("sha256").update(input).digest("hex");
 }
 
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+
+exports.login = async (req, res) => {
+    try {
+        const { email, password } = req.body ?? {};
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email et mot de passe requis' });
+        }
+
+        const user = await User.findOne({ where: { email } });
+        if (!user) return res.status(401).json({ message: 'Identifiants invalides' });
+
+        const ok = await bcrypt.compare(password, user.password);
+        if (!ok) return res.status(401).json({ message: 'Identifiants invalides' });
+
+        // 👇 récupérer le nom du rôle (Admin/Manager/Worker…)
+        let roleName = null;
+        if (user.role_id) {
+            const role = await Role.findByPk(user.role_id);
+            roleName = role?.name ?? null;
+        }
+
+        const token = jwt.sign(
+            { sub: user.user_id, email: user.email, role: roleName, role_id: user.role_id ?? null },
+            process.env.JWT_SECRET || 'dev_secret',
+            { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+        );
+
+        // 👇 renvoyer "role" ET "role_id" pour compat front
+        return res.json({
+            token,
+            user: {
+                id: user.user_id,
+                email: user.email,
+                role: roleName,          //  <-- le front lit ceci
+                role_id: user.role_id,   //  <-- utile si besoin
+            },
+        });
+    } catch (e) {
+        console.error('login error', e);
+        return res.status(500).json({ message: 'Erreur serveur' });
+    }
+}
 // POST /api/auth/forgot-password
 // Body: { email }
 exports.forgotPassword = async (req, res) => {

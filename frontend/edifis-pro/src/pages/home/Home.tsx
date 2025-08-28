@@ -12,6 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchTasks = async () => {
+      if (!user?.user_id) return;
       try {
         let data;
         if (user.role === "Admin") {
@@ -32,8 +33,12 @@ export default function Home() {
     fetchTasks();
   }, [user]);
 
-  if (loading)
+  if (!user?.role) {
     return <p className="text-center text-gray-500">Chargement...</p>;
+  }
+
+  if (loading)
+    return <p className="text-center text-gray-500">Chargement des missions...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
@@ -45,8 +50,10 @@ export default function Home() {
           </h1>
           <p className="text-sm text-slate-500">
             {user.role === "Admin"
-              ? "Administrateur"
+              ? "Responsable"
               : user.role === "Manager"
+              ? "Manager"
+              : user.role === "Project_Manager"
               ? "Chef de projet"
               : user.role === "Worker"
               ? "Ouvrier"

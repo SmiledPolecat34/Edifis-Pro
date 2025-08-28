@@ -111,9 +111,9 @@ async function initDB() {
     await sequelize.authenticate();
     console.log('✅ Connexion à la base de données réussie !');
 
-    if (process.env.DB_RESET === 'true') {
-      await dropAll();
-    }
+    // if (process.env.DB_RESET === 'true') {
+    //   await dropAll();
+    // }
 
     // En routine, ne détruis pas: ajuste le schéma
     await sequelize.sync({ alter: true });

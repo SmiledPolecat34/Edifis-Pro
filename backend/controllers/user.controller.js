@@ -35,7 +35,9 @@ exports.createUser = async (req, res) => {
     console.log("user from token:", req.user);
     try {
         // 1) Validation champs requis (conforme aux tests existants)
-        const { firstname, lastname, email, role, role_id, numberphone, password, competences = [] } = req.body;
+        const { firstname, lastname, email, role, numberphone, password, competences = [] } = req.body;
+        let { role_id } = req.body;
+
         if (!firstname || !lastname || !email || !numberphone) {
             return res.status(400).json({ message: "Tous les champs sont requis, y compris le numéro de téléphone" });
         }
@@ -46,17 +48,34 @@ exports.createUser = async (req, res) => {
             return res.status(400).json({ message: "Cet email est déjà utilisé" });
         }
 
-        // 3) Autorisation Admin (accepter format string \"Admin\" ou numérique 1 en tests)
-        const isAdminRole =
-            (req.user && (req.user.role === "Admin" || req.user.role === 1));
+        // 3) Autorisation Admin
+        const isAdminRole = (req.user && (req.user.role === "Admin" || req.user.role === 1));
         if (!isAdminRole) {
             return res.status(403).json({ message: "Accès refusé. Seul un Admin peut créer un utilisateur" });
+        }
+
+        // Determine role_id from role name if provided
+        if (role && !role_id) {
+            const roleInstance = await Role.findOne({ where: { name: role } });
+            if (roleInstance) {
+                role_id = roleInstance.role_id;
+            } else {
+                return res.status(400).json({ message: `Le rôle '${role}' n'est pas valide` });
+            }
+        }
+
+        if (!role_id) {
+            const defaultRole = await Role.findOne({ where: { name: 'Worker' } });
+            if (defaultRole) {
+                role_id = defaultRole.role_id;
+            } else {
+                return res.status(500).json({ message: "Le rôle par défaut 'Worker' est introuvable." });
+            }
         }
 
         // 4) Détermination du mot de passe
         let hashedPassword;
         if (password) {
-            // Compatibilité avec tests: bcrypt.hash(plain, 10)
             hashedPassword = await bcrypt.hash(password, 10);
         } else {
             const plainPassword = process.env.DEFAULT_PASSWORD || "edifispr@2025";
@@ -64,52 +83,37 @@ exports.createUser = async (req, res) => {
         }
 
         // 5) Création
-        if (process.env.NODE_ENV === "test") {
-            // Forme attendue par les tests unitaires
-            const created = await User.create({
-                firstname,
-                lastname,
-                email,
-                password: hashedPassword,
-                role_id: role_id,
-                numberphone
-            });
-            return res.status(201).json({
-                message: "Utilisateur créé avec succès",
-                user: { user_id: created.user_id, firstname: created.firstname }
-            });
-        } else {
-            // Production: utiliser le champ ENUM `role`
-            const effectiveRole = role || (role_id === 1 ? "Admin" : role_id === 2 ? "Worker" : role_id === 3 ? "Manager" : undefined);
-            const user = await User.create({
-                firstname,
-                lastname,
-                email,
-                role: effectiveRole,
-                numberphone,
-                password: hashedPassword,
-            });
+        const user = await User.create({
+            firstname,
+            lastname,
+            email,
+            role_id: role_id, // Use role_id consistently
+            numberphone,
+            password: hashedPassword,
+        });
 
-            // Lier les compétences si présentes
-            if (Array.isArray(competences) && competences.length && typeof user.setCompetences === "function") {
-                const ids = competences.map(c => c.competence_id).filter(Boolean);
-                if (ids.length) {
-                    await user.setCompetences(ids);
-                }
+        // Lier les compétences si présentes
+        if (Array.isArray(competences) && competences.length && typeof user.setCompetences === "function") {
+            const ids = competences.map(c => c.competence_id).filter(Boolean);
+            if (ids.length) {
+                await user.setCompetences(ids);
             }
-
-            return res.status(201).json({
-                message: "Utilisateur créé avec succès",
-                user: {
-                    user_id: user.user_id,
-                    firstname: user.firstname,
-                    lastname: user.lastname,
-                    email: user.email,
-                    role: user.role,
-                    numberphone: user.numberphone,
-                }
-            });
         }
+
+        // Fetch the created user with their role to return complete data
+        const createdUserWithRole = await User.findByPk(user.user_id, {
+            include: [{ model: Role, as: 'userRole', attributes: ['name'] }]
+        });
+
+        const responseUser = createdUserWithRole.toJSON();
+        responseUser.role = responseUser.userRole ? responseUser.userRole.name : null;
+        delete responseUser.userRole;
+        delete responseUser.password;
+
+        return res.status(201).json({
+            message: "Utilisateur créé avec succès",
+            user: responseUser
+        });
     } catch (error) {
         console.error("createUser:", error);
         return res.status(500).json({ error: error.message });
@@ -154,7 +158,16 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: "Email et mot de passe requis" });
         }
 
-        const user = await User.findOne({ where: { email } });
+        // Find the user and include their role
+        const user = await User.findOne({
+            where: { email },
+            include: [{
+                model: Role,
+                as: 'userRole',
+                attributes: ['name']
+            }]
+        });
+
         if (!user) {
             return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
         }
@@ -164,68 +177,31 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
         }
 
-        // Générer un token JWT
+        // Get the role name from the included association
+        const roleName = user.userRole ? user.userRole.name : 'Worker'; 
+
+        
         const token = jwt.sign(
-            { userId: user.user_id, role: user.role },
+            { userId: user.user_id, role: roleName },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
 
-        res.json({ message: "Connexion réussie", token });
+        res.json({ message: "Connexion réussie", token, user: { id: user.user_id, email: user.email, role: roleName } });
     } catch (error) {
+        console.error("Login error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Récupérer tous les utilisateurs sauf ceux avec `role = Admin`
+// Récupérer tous les utilisateurs (sans afficher le mot de passe)
 exports.getAllUsers = async (req, res) => {
     try {
-        let query;
-        if (process.env.NODE_ENV === "test") {
-            // Forme attendue par les tests unitaires
-            query = {
-                attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
-                where: { role_id: { [Op.ne]: 1 } },
-                include: [
-                    {
-                        model: Competence,
-                        attributes: ["name"],
-                        required: true
-                    },
-                    {
-                        model: Task,
-                        attributes: ["name"],
-
-                    }
-                ]
-            };
-        } else {
-            // Production
-            query = {
-                attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role"],
-                where: { role: { [Op.ne]: "Admin" } },
-                include: [
-                    {
-                        model: Competence,
-                        attributes: ["name"],
-
-                    },
-                    {
-                        model: Task,
-                        attributes: ["task_id", "description", "start_date", "end_date"],
-
-                    }
-                ]
-            };
-        }
-
-        const users = await User.findAll(query);
-        if (!users.length) {
-            return res.status(404).json({ message: "Aucun utilisateur trouvé (hors Admins)" });
-        }
+        const users = await User.findAll({
+            attributes: { exclude: ["password"] }
+        });
         res.json(users);
     } catch (error) {
-        console.error("Erreur lors de la récupération des utilisateurs :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -291,13 +267,34 @@ exports.getUserById = async (req, res) => {
                 {
                     model: Competence,
                     attributes: ["name"],
-
+                },
+                {
+                    model: Role, // Include the Role model
+                    as: 'userRole', // Use the alias defined in the association
+                    attributes: ["name"], // Only fetch the name of the role
                 }
             ]
         });
-        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
-        res.json(user);
+
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
+
+        // Manually construct the response to ensure the role is correct
+        const userJson = user.toJSON();
+        if (userJson.userRole) {
+            userJson.role = userJson.userRole.name; // Set the top-level role property
+            delete userJson.userRole; // Remove the nested userRole object
+        } else {
+            // Fallback if userRole is not present for some reason
+            const role = await Role.findByPk(userJson.role_id);
+            userJson.role = role ? role.name : 'Worker'; // Default to 'Worker' if role not found
+        }
+
+
+        res.json(userJson);
     } catch (error) {
+        console.error("getUserById error:", error);
         res.status(500).json({ error: error.message });
     }
 };

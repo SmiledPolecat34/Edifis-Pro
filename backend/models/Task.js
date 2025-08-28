@@ -15,11 +15,10 @@ const Task = sequelize.define(
     creation_date: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     start_date: { type: DataTypes.DATE, allowNull: true },
     end_date: { type: DataTypes.DATE, allowNull: true },
-    assignees: { type: DataTypes.JSON, allowNull: true, defaultValue: [] },
     construction_site_id: { type: DataTypes.INTEGER, allowNull: true },
   },
   {
-    tableName: 'Task',
+    tableName: 'tasks',
     timestamps: false,
     underscored: true,
   }

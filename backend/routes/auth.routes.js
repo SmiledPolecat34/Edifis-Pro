@@ -7,9 +7,9 @@ const { rateLimitIPAndEmail, rateLimitIP } = require("../middlewares/rateLimit.m
 
 /**
  * @swagger
- * /api/v1/auth/forgot-password:
+ * /api/auth/login:
  *   post:
- *     summary: Envoie un email de réinitialisation de mot de passe
+ *     summary: Connexion utilisateur
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -17,34 +17,39 @@ const { rateLimitIPAndEmail, rateLimitIP } = require("../middlewares/rateLimit.m
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
+ *             required: [email, password]
  *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 description: L'email de l'utilisateur qui a oublié son mot de passe.
+ *               email: { type: string, format: email }
+ *               password: { type: string, minLength: 6 }
  *     responses:
- *       200:
- *         description: "Email de réinitialisation envoyé avec succès."
- *       400:
- *         description: "Erreur de validation (ex: email invalide)."
- *       404:
- *         description: "Aucun utilisateur trouvé avec cet email."
+ *       200: { description: OK }
+ *       401: { description: Identifiants invalides }
  */
-// Mot de passe oublié
+router.post(
+  "/login",
+  rateLimitIPAndEmail(),                    // anti brute-force
+  validate(schemas.login),
+  authController.login
+);
+
+/**
+ * @swagger
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Envoie un email de réinitialisation de mot de passe
+ *     tags: [Auth]
+ */
 router.post(
   "/forgot-password",
-  rateLimitIPAndEmail(),              // limite par IP + email
-  validate(schemas.forgotPassword),   // valide { email }
+  rateLimitIPAndEmail(),
+  validate(schemas.forgotPassword),
   authController.forgotPassword
 );
 
-// Réinitialisation du mot de passe
 router.post(
   "/reset-password",
-  rateLimitIP(),                      // limite par IP
-  validate(schemas.resetPassword),    // valide { token, newPassword, confirmNewPassword }
+  rateLimitIP(),
+  validate(schemas.resetPassword),
   authController.resetPassword
 );
 

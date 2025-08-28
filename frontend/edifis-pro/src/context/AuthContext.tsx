@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<any>(""); // Utilisateur connecté
+  const [user, setUser] = useState<any>(null); // Utilisateur connecté
   const [tokenId, setTokenId] = useState<any>(null);
   const navigate = useNavigate();
 
@@ -44,34 +44,36 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     if (tokenId) {
       try {
         const response = await userService.getById(tokenId);
-        if (response) {
+        if (response && response.role) {
           setUser(response);
         } else {
           console.error(
             "La réponse de l'API ne correspond pas au format attendu :",
             response
           );
+          logout();
         }
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des informations utilisateur :",
           error
         );
+        logout();
       }
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (tokenId) {
       userData();
     }
-  }, [isAuthenticated]);
+  }, [tokenId]);
 
   const login = (token: string) => {
     localStorage.setItem("token", token);
     const decoded = jwtDecode<any>(token);
-    setIsAuthenticated(true);
     setTokenId(decoded.userId); // Assigne uniquement l'ID utilisateur
+    setIsAuthenticated(true);
   };
 
   const logout = () => {

@@ -6,13 +6,15 @@ const Competence = require("./Competence");
 const Role = require("./Role");
 const PasswordResetToken = require("./PasswordResetToken");
 
-const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken };
+const UserTask = require("./UserTask");
+
+const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken, UserTask };
 
 // --- Définition des associations ---
 
 // User <-> Role (1-N)
-User.belongsTo(Role, { foreignKey: 'role_id' });
-Role.hasMany(User, { foreignKey: 'role_id' });
+User.belongsTo(Role, { foreignKey: 'role_id', as: 'userRole' });
+Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
 // User <-> Competence (1-N)
 // Un utilisateur a une compétence principale, une compétence peut être assignée à plusieurs utilisateurs.
@@ -31,9 +33,9 @@ Task.belongsTo(ConstructionSite, { foreignKey: "construction_site_id" });
 ConstructionSite.belongsTo(User, { foreignKey: 'chef_de_projet_id', as: 'chefDeProjet' });
 User.hasMany(ConstructionSite, { foreignKey: 'chef_de_projet_id', as: 'managedSites' });
 
+// User <-> Task (N-N)
+User.belongsToMany(Task, { through: UserTask, foreignKey: 'user_id' });
+Task.belongsToMany(User, { through: UserTask, foreignKey: 'task_id' });
 
-// Note: Les relations N-N User/Task et User/Competence ont été supprimées.
-// La relation User/Task est maintenant gérée via un champ JSON `assignees` dans le modèle Task.
-// La relation User/Competence est maintenant une relation 1-N.
 
 module.exports = { sequelize, ...models };
