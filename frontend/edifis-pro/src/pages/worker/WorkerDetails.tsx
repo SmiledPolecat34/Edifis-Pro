@@ -25,6 +25,7 @@ export default function WorkerDetails() {
 
   // State pour l'employé
   const [worker, setWorker] = useState<User | null>(null);
+  const [edited, setEdited] = useState<User | null>(null);
 
   // State pour la liste complète des compétences récupérées depuis l'API
   const [allSkills, setAllSkills] = useState<Competence[]>([]);
@@ -34,29 +35,27 @@ export default function WorkerDetails() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Récupère les infos du worker
-        const data = (await userService.getById(Number(id))) as User; // <-- cast en User
-        if (!data.competences) {
-          data.competences = [];
-        }
+  const fetchData = async () => {
+    try {
+      const raw = await userService.getById(Number(id));
+      const normalized: User = {
+        ...raw,
+        role: (raw as any).role?.name ?? (raw as any).role ?? "Worker",
+        competences: raw.competences ?? [],
+      };
+      const skills = await competenceService.getAllCompetences();
 
-        // Récupère TOUTES les compétences
-        const skills = await competenceService.getAllCompetences();
+      setWorker(normalized);
+      setAllSkills(skills);
+    } catch (err) {
+      setError("Impossible de charger les données.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, [id]);
 
-        // Mets à jour les 2 states
-        setWorker(data);
-        setAllSkills(skills);
-      } catch (err) {
-        console.error("Erreur lors du chargement des données :", err);
-        setError("Impossible de charger les données.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [id]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -111,16 +110,28 @@ export default function WorkerDetails() {
   };
 
   const handleSave = async () => {
-    if (!worker || worker.user_id === undefined) return;
+    if (!worker || worker.user_id == null) return;
     try {
-      console.log("Enregistrement des modifications pour le worker :", worker);
-      await userService.update(worker.user_id, worker);
+      // -> number[] propre
+      const competenceIds: number[] = (worker.competences ?? [])
+        .map((c) => c.competence_id)
+        .filter((id): id is number => typeof id === "number");
+
+      await userService.update(worker.user_id, {
+        firstname: worker.firstname,
+        lastname: worker.lastname,
+        email: worker.email,
+        numberphone: worker.numberphone,
+        role: worker.role,             // nom du rôle
+        competences: competenceIds,    // IDs seulement
+      });
+
       setIsEditing(false);
-      console.log("Mise à jour réussie !");
     } catch (err) {
       console.error("Erreur lors de la sauvegarde :", err);
     }
   };
+
 
   if (loading) {
     return (
@@ -215,20 +226,19 @@ export default function WorkerDetails() {
           {isEditing ? (
             <select
               name="role"
-              value={worker.role?.name || ""}
-              onChange={handleChange}
+              value={worker.role}
+              onChange={(e) => setWorker(prev => prev ? { ...prev, role: e.target.value as any } : prev)}
               className="border border-gray-300 rounded p-1"
             >
-              {Object.entries(roleLabels).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
+              <option value="Worker">Ouvrier</option>
+              <option value="Manager">Chef de projet</option>
+              <option value="Admin">Responsable</option>
             </select>
           ) : (
-            roleLabels[worker.role?.name || ""] || "Non défini"
+            roleLabels[worker.role] || "Non défini"
           )}
         </p>
+
 
         {!isEditing && (
           <>
@@ -273,9 +283,24 @@ export default function WorkerDetails() {
 
         {isEditing && (
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {/* Zone d’édition des compétences si tu veux brancher handleSkillChange */}
+            {allSkills.map((skill) => {
+              const assigned = worker?.competences?.some(
+                (c) => c.competence_id === skill.competence_id
+              );
+              return (
+                <label key={skill.competence_id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={!!assigned}
+                    onChange={() => handleSkillChange(skill.competence_id)}
+                  />
+                  {skill.name}
+                </label>
+              );
+            })}
           </div>
         )}
+
 
         {modalData && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">

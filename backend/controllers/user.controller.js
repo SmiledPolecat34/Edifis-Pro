@@ -258,95 +258,99 @@ async function getRoleIds() {
 // Mettre à jour un utilisateur (avec hash si le mdp est modifié)
 exports.updateUser = async (req, res) => {
     try {
-        const targetId = req.params.id;
-        const me = req.user; // { userId, role }
-        const user = await User.findByPk(targetId);
+        const user = await User.findByPk(req.params.id, {
+            include: [{ model: Role, as: "role", attributes: ["name", "role_id"] }],
+        });
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-        // Autorisation basique (tu as déjà canManageUsers au niveau routes, donc ça sécurise déjà)
-        // Ici, on sécurise surtout le changement de rôle.
-        const { role, password, ...rest } = req.body;
+        const payload = { ...req.body }; // Copie des données du corps de la requête
 
-        // Si on veut changer le rôle via 'role' (string), on le convertit en role_id
-        if (role) {
-            // Seul Admin ou HR peuvent changer le rôle
-            if (!(me.role === "Admin" || me.role === "HR")) {
-                return res.status(403).json({ message: "Seul Admin/HR peuvent modifier le rôle" });
-            }
-            const newRoleId = await resolveRoleIdByName(role);
-            if (!newRoleId) {
-                return res.status(400).json({ message: `Rôle invalide: ${role}` });
-            }
-            rest.role_id = newRoleId;
+        // Si rôle envoyé par NOM -> map vers role_id
+        if (payload.role && !payload.role_id) {
+            const role = await Role.findOne({ where: { name: payload.role } });
+            if (!role) return res.status(400).json({ message: `Rôle '${payload.role}' invalide` });
+            payload.role_id = role.role_id;
+            delete payload.role;
         }
 
-        // Hash mdp si fourni (tu avais déjà la logique ailleurs)
-        if (password) {
-            const { hash: hashPassword } = require("../services/password.service");
-            rest.password = await hashPassword(password);
+        // Hash si password présent
+        if (payload.password) {
+            payload.password = await hashPassword(payload.password);
         }
 
-        await user.update(rest);
-        // renvoyons le user + rôle normalisé
-        const roleRow = await Role.findByPk(user.role_id);
+        // Sauvegarde des champs simples
+        await user.update(payload);
+
+        // Gestion des compétences (si un tableau est envoyé)
+        // accepte soit [{competence_id,...}], soit [id1, id2, ...]
+        if (Array.isArray(req.body.competences)) {
+            let ids = [];
+            if (req.body.competences.length > 0 && typeof req.body.competences[0] === "object") {
+                ids = req.body.competences.map(c => c.competence_id).filter(Boolean);
+            } else {
+                ids = req.body.competences.map(Number).filter(Boolean);
+            }
+            if (typeof user.setCompetences === "function") {
+                await user.setCompetences(ids);
+            }
+        }
+
+        // Retour avec rôle (nom)
+        const updated = await User.findByPk(user.user_id, {
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
+            include: [
+                { model: Role, as: "role", attributes: ["name"] },
+                { model: Competence, as: "competences", attributes: ["competence_id", "name"], through: { attributes: [] } }
+            ],
+        });
+
         return res.json({
             message: "Utilisateur mis à jour",
             user: {
-                user_id: user.user_id,
-                firstname: user.firstname,
-                lastname: user.lastname,
-                email: user.email,
-                numberphone: user.numberphone,
-                role: roleRow?.name || null
+                user_id: updated.user_id,
+                firstname: updated.firstname,
+                lastname: updated.lastname,
+                email: updated.email,
+                numberphone: updated.numberphone,
+                profile_picture: updated.profile_picture,
+                role: updated.role?.name || null,
+                competences: updated.competences || []
             }
         });
     } catch (error) {
         console.error("updateUser:", error);
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error.message });
     }
 };
-
-// >>> NOUVELLE LISTE filtrée selon le rôle du demandeur
+// >>> LISTE filtrée selon le rôle du demandeur
 exports.getDirectory = async (req, res) => {
     try {
-        const meRole = req.user?.role;
-        const roleIds = await getRoleIds(); // { Admin:7, Manager:8, Worker:9, HR:10, Project_Chief:11, ... }
+        const me = req.user?.role;
 
-        let where = {};
-        if (meRole === "Admin") {
-            // voit tout
-            where = {};
-        } else if (meRole === "HR" || meRole === "Manager") {
-            // voit tout SAUF Admin
-            if (roleIds.Admin) {
-                where.role_id = { [require("sequelize").Op.ne]: roleIds.Admin };
-            }
-        } else if (meRole === "Project_Chief") {
-            // ne voit que les workers
-            if (roleIds.Worker) {
-                where.role_id = roleIds.Worker;
-            } else {
-                where = { role_id: -1 }; // aucun si non trouvé
-            }
-        } else if (meRole === "Worker") {
-            // au strict minimum: se voit lui-même (si tu préfères tout masquer)
-            where = { user_id: req.user.userId };
-        } else {
-            // rôle inconnu => rien
-            where = { user_id: -1 };
+        let whereRole = {};
+        if (me === "Admin") {
+            // rien : tous
+        } else if (me === "HR" || me === "Manager") {
+            // tout le monde sauf Admin
+            const adminRole = await Role.findOne({ where: { name: "Admin" } });
+            if (adminRole) whereRole = { role_id: { [Op.ne]: adminRole.role_id } };
+        } else if (me === "Project_Chief" || me === "Worker") {
+            // uniquement Workers
+            const workerRole = await Role.findOne({ where: { name: "Worker" } });
+            if (workerRole) whereRole = { role_id: workerRole.role_id };
         }
 
         const users = await User.findAll({
-            where,
             attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role_id"],
+            where: whereRole,
             include: [
                 { model: Role, as: "role", attributes: ["name"] },
-                { model: Competence, as: "competences", attributes: ["name"], through: { attributes: [] } }
+                { model: Competence, as: "competences", attributes: ["competence_id", "name"], through: { attributes: [] } }
             ],
-            order: [["lastname", "ASC"], ["firstname", "ASC"]]
+            order: [["lastname", "ASC"], ["firstname", "ASC"]],
         });
 
-        const formatted = users.map(u => ({
+        const out = users.map(u => ({
             user_id: u.user_id,
             firstname: u.firstname,
             lastname: u.lastname,
@@ -354,15 +358,16 @@ exports.getDirectory = async (req, res) => {
             numberphone: u.numberphone,
             profile_picture: u.profile_picture,
             role: u.role?.name || null,
-            competences: (u.competences || []).map(c => ({ name: c.name }))
+            competences: u.competences || []
         }));
 
-        return res.json(formatted);
+        return res.json(out);
     } catch (err) {
         console.error("getDirectory:", err);
         return res.status(500).json({ message: "Erreur serveur" });
     }
 };
+
 
 // Mettre à jour l’image de profil
 exports.updateProfilePicture = async (req, res) => {

@@ -39,12 +39,16 @@ export interface CreateUserResponse {
   tempPassword?: string;
 }
 
-const userService = {
-  // nouvelle liste filtrée selon le rôle du demandeur
-  getDirectory: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/list");
-  },
+export interface UpdateUserPayload {
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  numberphone?: string;
+  role?: RoleType | string;      // on envoie le nom du rôle
+  competences?: number[];         // <-- IDs uniquement !
+}
 
+const userService = {
   // (tu peux garder tes anciennes méthodes si utilisées ailleurs)
   getAllWorkers: async (): Promise<User[]> => {
     return await apiService.get<User[]>("/users/getallworkers");
@@ -62,8 +66,12 @@ const userService = {
     return await apiService.get(`/users/${id}`);
   },
 
-  update: async (id: number, data: Partial<User>): Promise<User> => {
-    return await apiService.put<User>(`/users/${id}`, data);
+  getDirectory: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/list");
+  },
+
+  update: async (id: number, data: UpdateUserPayload) => {
+    return await apiService.put(`/users/${id}`, data);
   },
 
   createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {

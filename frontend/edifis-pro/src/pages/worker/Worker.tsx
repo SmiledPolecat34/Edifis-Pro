@@ -12,26 +12,23 @@ export default function Workers() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const canCreate = ["Admin", "HR", "Manager"].includes(user?.role ?? "");
 
   useEffect(() => {
-    let cancelled = false;
-    async function fetchWorkers() {
-      setLoading(true);
-      setError(null);
-      try {
-        console.log("[Workers] GET /users/list as", user?.role);
-        const data = await userService.getDirectory();
-        if (!cancelled) setWorkers(data);
-      } catch (err: any) {
-        console.error("[Workers] Erreur chargement:", err);
-        if (!cancelled) setError(err?.message || "Erreur lors du chargement des employés");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+  let cancelled = false;
+  async function fetchWorkers() {
+    try {
+      const data = await userService.getDirectory();
+      if (!cancelled) setWorkers(data);
+    } catch (err:any) {
+      if (!cancelled) setError(err?.message || "Erreur lors du chargement des employés");
+    } finally {
+      if (!cancelled) setLoading(false);
     }
-    fetchWorkers();
-    return () => { cancelled = true; };
-  }, [user?.role]);
+  }
+  fetchWorkers();
+  return () => { cancelled = true; };
+}, [user?.role]);
 
   const filteredWorkers = workers.filter(
     (worker) =>
@@ -53,16 +50,15 @@ export default function Workers() {
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-4xl font-bold text-gray-900">Employés</h1>
-        <div className="flex space-x-2">
-          {(user?.role === "Admin" || user?.role === "HR" || user?.role === "Manager") && (
-            <Link
-              to="/workers/add"
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              + Employé
-            </Link>
-          )}
-        </div>
+        
+        {canCreate && (
+          <Link
+            to="/workers/add"
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            + Employé
+          </Link>
+        )}
       </div>
 
       <div className="mb-4">
