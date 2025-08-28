@@ -13,13 +13,12 @@ const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetTo
 // --- Définition des associations ---
 
 // User <-> Role (1-N)
-User.belongsTo(Role, { foreignKey: 'role_id', as: 'userRole' });
+User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
-// User <-> Competence (1-N)
-// Un utilisateur a une compétence principale, une compétence peut être assignée à plusieurs utilisateurs.
-User.belongsTo(Competence, { foreignKey: 'competence_id' });
-Competence.hasMany(User, { foreignKey: 'competence_id' });
+// User <-> Competence (N-N)
+User.belongsToMany(Competence, { through: 'user_competences', as: 'competences', foreignKey: 'user_id', otherKey: 'competence_id' });
+Competence.belongsToMany(User, { through: 'user_competences', as: 'users', foreignKey: 'competence_id', otherKey: 'user_id' });
 
 // User <-> PasswordResetToken (1-N)
 User.hasMany(PasswordResetToken, { foreignKey: 'user_id' });
@@ -27,7 +26,7 @@ PasswordResetToken.belongsTo(User, { foreignKey: 'user_id' });
 
 // ConstructionSite <-> Task (1-N)
 ConstructionSite.hasMany(Task, { foreignKey: "construction_site_id" });
-Task.belongsTo(ConstructionSite, { foreignKey: "construction_site_id" });
+Task.belongsTo(ConstructionSite, { foreignKey: "construction_site_id", as: 'construction_site' });
 
 // ConstructionSite <-> User (Chef de projet) (1-N)
 ConstructionSite.belongsTo(User, { foreignKey: 'chef_de_projet_id', as: 'chefDeProjet' });

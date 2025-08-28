@@ -37,6 +37,7 @@ jest.mock("../../middlewares/auth.middleware", () => ({
   isAdmin: (_req: Request, _res: Response, next: Function) => next(),
   isManager: (_req: Request, _res: Response, next: Function) => next(),
   isWorker: (_req: Request, _res: Response, next: Function) => next(),
+  canManagerControl: (_req: Request, _res: Response, next: Function) => next(),
 }));
 jest.mock("../../middlewares/rateLimit.middleware", () => ({
   rateLimitIP: () => (_req: Request, _res: Response, next: Function) => next(),
