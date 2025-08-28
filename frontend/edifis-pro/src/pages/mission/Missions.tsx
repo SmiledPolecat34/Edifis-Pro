@@ -21,12 +21,14 @@ export default function Missions() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
+
     async function fetchTasks() {
       try {
         let data: Task[];
-        if (user.role === "Admin") {
+        if (user?.role === "Admin") {
           data = await taskService.getAll();
-        } else {
+        } else if (user) {
           data = await taskService.getByUserId(user.user_id);
         }
         setTasks(data);
@@ -37,6 +39,7 @@ export default function Missions() {
         setLoading(false);
       }
     }
+
     fetchTasks();
   }, [user]);
 
@@ -64,7 +67,7 @@ export default function Missions() {
     <main className="min-h-screen p-8 bg-gray-100">
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
         <h1 className="text-4xl font-bold text-gray-900">Missions</h1>
-        {(user.role === "Admin" || user.role === "Manager") && (
+        {(user?.role === "Admin" || user?.role === "Manager") && (
           <Link
             to="/addamission"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-sm"
@@ -166,7 +169,7 @@ export default function Missions() {
                   </div>
                 )}
 
-                {(user.role === "Admin" || user.role === "Manager") && (
+                {(user?.role === "Admin" || user?.role === "Manager") && (
                   <Link
                     to={`/editmission/${task.task_id}`}
                     className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600"
