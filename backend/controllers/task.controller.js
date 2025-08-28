@@ -1,6 +1,7 @@
 const Task = require("../models/Task");
 const User = require("../models/User");
 const ConstructionSite = require("../models/ConstructionSite");
+const Role = require("../models/Role");
 
 // CRUD identique à `users`
 exports.createTask = async (req, res) => {
@@ -17,12 +18,20 @@ exports.getAllTasks = async (req, res) => {
             include: [
                 {
                     model: ConstructionSite,
+                    as: "construction_site",
                     attributes: ["construction_site_id", "name", "state", "open_time", "end_time"]
                 },
                 {
                     model: User, // Include the User model
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
-                    through: { attributes: [] } // Exclude attributes from the join table
+                    through: { attributes: [] },
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
                 }
             ]
         });
@@ -46,20 +55,43 @@ exports.getTaskById = async (req, res) => {
 };
 
 // task by userid
-
-
-
 exports.updateTask = async (req, res) => {
     try {
-        const task = await Task.findByPk(req.params.id);
+        const { id } = req.params;
+        const { userIds, ...taskData } = req.body;
+        // taskData = tous les champs simples (name, description, status, dates...)
+        // userIds = tableau d'IDs d'utilisateurs assignés
+
+        const task = await Task.findByPk(id, {
+            include: [{ model: User }]
+        });
         if (!task) return res.status(404).json({ message: "Tâche non trouvée" });
 
-        await task.update(req.body);
-        res.json(task);
+        // 1️⃣ Update des champs simples
+        await task.update(taskData);
+
+        // 2️⃣ Update des utilisateurs assignés (si fourni)
+        if (userIds && Array.isArray(userIds)) {
+            const users = await User.findAll({ where: { user_id: userIds } });
+            await task.setUsers(users);
+            // remplace l’ancienne liste par la nouvelle
+        }
+
+        // 3️⃣ Récup complète (avec users + chantier)
+        const updatedTask = await Task.findByPk(id, {
+            include: [
+                { model: User, attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], through: { attributes: [] } },
+                { model: ConstructionSite, as: "construction_site", attributes: ["construction_site_id", "name", "state", "start_date", "end_date", "adresse"] }
+            ]
+        });
+
+        res.json(updatedTask);
     } catch (error) {
+        console.error("Erreur updateTask:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
 
 exports.deleteTask = async (req, res) => {
     try {
@@ -111,9 +143,17 @@ exports.getTasksByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const user = await User.findByPk(userId);
-        if (!user) {
-            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        const user = await User.findByPk(userId, { include: [{ model: Role, as: "role" }] });
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
+        if (user.role && user.role.name === "Admin") {
+            const allTasks = await Task.findAll({
+                include: [
+                    { model: User, attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], through: { attributes: [] } },
+                    { model: ConstructionSite, as: "construction_site", attributes: ["construction_site_id", "name", "state", "start_date", "end_date", "adresse"] }
+                ]
+            });
+            return res.json(allTasks);
         }
 
         const tasks = await Task.findAll({
@@ -121,19 +161,41 @@ exports.getTasksByUserId = async (req, res) => {
                 {
                     model: User,
                     where: { user_id: userId },
-                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
-                    through: { attributes: [] } // Exclude attributes from the join table
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
+                    through: { attributes: [] },
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
                 },
                 {
                     model: ConstructionSite,
-                    attributes: ["construction_site_id", "name", "state", "open_time", "end_time", 'start_date', 'end_date', 'image_url', 'chef_de_projet_id', 'adresse'],
+                    attributes: [
+                        "construction_site_id",
+                        "name",
+                        "state",
+                        "open_time",
+                        "end_time",
+                        "start_date",
+                        "end_date",
+                        "image_url",
+                        "chef_de_projet_id",
+                        "adresse"
+                    ]
                 }
             ]
         });
+
+
+
 
         res.json(tasks);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 

@@ -1,16 +1,20 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/sequelize');
 
-const Role = sequelize.define("roles", {
+const Role = sequelize.define('Role', {
   role_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   name: {
-    type: DataTypes.ENUM("Admin", "Worker", "Manager"),
+    type: DataTypes.STRING(50),
     allowNull: false,
+    unique: true,
   },
+}, {
+  tableName: 'roles',
+  timestamps: true,
 });
 
 module.exports = Role;

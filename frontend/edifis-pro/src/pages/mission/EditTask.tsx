@@ -1,233 +1,160 @@
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import taskService, { Task } from "../../../services/taskService";
 import userService, { User } from "../../../services/userService";
-import constructionService, {
-  ConstructionSite,
-} from "../../../services/constructionSiteService";
-import { useAuth } from "../../context/AuthContext";
+import Loading from "../../components/loading/Loading";
 
-export default function EditTask() {
+export default function EditMission() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("En attente");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [selectedConstruction, setSelectedConstruction] = useState<number | null>(null);
-
+  const [mission, setMission] = useState<Task | null>(null);
   const [users, setUsers] = useState<User[]>([]);
-  const [constructions, setConstructions] = useState<ConstructionSite[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchData() {
-      // 1) Charger la mission
+    const fetchData = async () => {
       try {
-        const task: Task = await taskService.getById(Number(id));
-        setName(task.name ?? "");
-        setDescription(task.description ?? "");
-        setStatus(task.status ?? "En attente");
-        setStartDate(task.start_date?.split("T")[0] ?? "");
-        setEndDate(task.end_date?.split("T")[0] ?? "");
-        setSelectedConstruction(task.construction_site_id ?? null);
-        setSelectedUsers(task.users?.map((u) => u.user_id) ?? []);
+        const missionData = await taskService.getById(Number(id));
+        const usersData = await userService.getAll();
+        setMission(missionData);
+        setUsers(usersData);
       } catch (err) {
-        console.error(err);
-        setError("Erreur lors du chargement des données.");
-        return;
+        setError("Erreur lors du chargement de la mission.");
+      } finally {
+        setLoading(false);
       }
-
-      // 2) Charger les assignables selon le rôle
-      try {
-        if (user?.role === "Admin") {
-          const [workers, managers] = await Promise.all([
-            userService.getAllWorkers(),
-            userService.getAllManagers(),
-          ]);
-          setUsers([...workers, ...managers]);
-        } else {
-          const workers = await userService.getAllWorkers();
-          setUsers(workers);
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Erreur lors du chargement des utilisateurs.");
-      }
-
-      // 3) Charger les chantiers
-      try {
-        const cs = await constructionService.getAll();
-        setConstructions(cs);
-      } catch (err) {
-        console.error(err);
-        setError("Erreur lors du chargement des chantiers.");
-      }
-    }
+    };
     fetchData();
-  }, [id, user?.role]);
+  }, [id]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    if (!selectedConstruction) {
-      setError("Veuillez sélectionner un chantier.");
-      setLoading(false);
-      return;
-    }
-    try {
-      await taskService.update(Number(id), {
-        name,
-        description,
-        status,
-        start_date: startDate,
-        end_date: endDate,
-        construction_site_id: selectedConstruction,
-      });
-      if (selectedUsers.length) {
-        await taskService.assignUsers(Number(id), selectedUsers);
-      }
-      navigate(-1);
-    } catch (err) {
-      console.error(err);
-      setError("Erreur lors de la mise à jour de la mission.");
-    } finally {
-      setLoading(false);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (!mission) return;
+    setMission({ ...mission, [e.target.name]: e.target.value });
   };
 
-  const handleUserChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const vals = Array.from(e.target.selectedOptions, (opt) => Number(opt.value));
-    setSelectedUsers(vals);
+  const handleUserAssign = (userId: number) => {
+    if (!mission) return;
+    const alreadyAssigned = mission.users.some((u) => u.user_id === userId);
+    let updatedUsers;
+    if (alreadyAssigned) {
+      updatedUsers = mission.users.filter((u) => u.user_id !== userId);
+    } else {
+      const user = users.find((u) => u.user_id === userId);
+      if (!user) return;
+      updatedUsers = [...mission.users, user];
+    }
+    setMission({ ...mission, users: updatedUsers });
   };
+
+  const handleSave = async () => {
+  if (!mission) return;
+  try {
+    // On envoie mission + users
+    await taskService.update(mission.task_id, {
+      ...mission,
+      userIds: mission.users.map(u => u.user_id)
+    });
+    alert("Mission mise à jour avec succès !");
+    navigate("/missions");
+  } catch (err) {
+    console.error("Erreur update mission:", err);
+    alert("Erreur lors de la mise à jour de la mission.");
+  }
+};
+
+
+  if (loading) return <Loading />;
+  if (error) return <p className="text-red-500">{error}</p>;
+  if (!mission) return <p className="text-gray-500">Mission introuvable</p>;
 
   return (
-    <main className="min-h-screen p-8 bg-gray-100">
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-      >
-        Retour
-      </button>
+    <main className="p-8 bg-gray-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">Modifier la mission</h1>
 
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">
-        Modifier la mission #{id}
-      </h1>
+      <div className="bg-white p-6 rounded-lg shadow-md space-y-4">
+        <input
+          type="text"
+          name="name"
+          value={mission.name}
+          onChange={handleChange}
+          placeholder="Nom de la mission"
+          className="w-full border p-2 rounded"
+        />
 
-      {error && <p className="mb-4 text-red-500">{error}</p>}
+        <textarea
+          name="description"
+          value={mission.description}
+          onChange={handleChange}
+          placeholder="Description"
+          className="w-full border p-2 rounded"
+        />
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 shadow-lg rounded-lg space-y-6">
-        {/* Nom, Description, Statut */}
-        <div>
-          <label className="block text-gray-700 mb-1">Nom :</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-1">Description :</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700 mb-1">Statut :</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="Prévu">Prévu</option>
-            <option value="En cours">En cours</option>
-            <option value="Annulé">Annulé</option>
-            <option value="Terminé">Terminé</option>
-          </select>
-        </div>
-
-        {/* Chantier */}
-        <div>
-          <label className="block text-gray-700 mb-1">Chantier :</label>
-          <select
-            value={selectedConstruction ?? ""}
-            onChange={(e) => setSelectedConstruction(Number(e.target.value))}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="">Sélectionnez un chantier</option>
-            {constructions.map((c) => (
-              <option
-                key={c.construction_site_id}
-                value={c.construction_site_id}
-              >
-                {c.name} — {c.adresse}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Dates */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-gray-700 mb-1">Date de début :</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-1">Date de fin :</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-              className="w-full p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
+          <input
+            type="datetime-local"
+            name="start_date"
+            value={mission.start_date ? new Date(mission.start_date).toISOString().slice(0, 16) : ""}
+            onChange={handleChange}
+            className="border p-2 rounded"
+          />
+          <input
+            type="datetime-local"
+            name="end_date"
+            value={mission.end_date ? new Date(mission.end_date).toISOString().slice(0, 16) : ""}
+            onChange={handleChange}
+            className="border p-2 rounded"
+          />
         </div>
 
-        {/* Utilisateurs assignés */}
-        <div>
-          <label className="block text-gray-700 mb-1">Assigner des utilisateurs :</label>
-          <select
-            multiple
-            value={selectedUsers}
-            onChange={handleUserChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            {users.map((u) => (
-              <option key={u.user_id} value={u.user_id}>
-                {u.firstname} {u.lastname}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        <select
+          name="status"
+          value={mission.status}
+          onChange={handleChange}
+          className="border p-2 rounded w-full"
         >
-          {loading ? "Mise à jour…" : "Modifier la mission"}
-        </button>
-      </form>
+          <option value="En cours">En cours</option>
+          <option value="Prévu">Prévu</option>
+          <option value="Terminé">Terminé</option>
+          <option value="Annulé">Annulé</option>
+        </select>
+
+        {/* Liste des utilisateurs assignés */}
+        <div>
+          <h2 className="text-lg font-semibold mb-2">👥 Assigner des utilisateurs</h2>
+          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border p-2 rounded">
+            {users.map((u) => {
+              const assigned = mission.users.some((usr) => usr.user_id === u.user_id);
+              return (
+                <label key={u.user_id} className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={assigned}
+                    onChange={() => handleUserAssign(u.user_id)}
+                  />
+                  {u.firstname} {u.lastname}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex gap-4 mt-6">
+          <button
+            onClick={handleSave}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Sauvegarder
+          </button>
+          <button
+            onClick={() => navigate("/missions")}
+            className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
     </main>
   );
 }

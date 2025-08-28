@@ -31,9 +31,19 @@ const ProtectedRoute = ({ requiredRoles }: ProtectedRouteProps) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (requiredRoles && !requiredRoles.includes(user?.role)) {
-        return <Navigate to="/" replace />;
+    if (requiredRoles && user?.role) {
+        const roleName =
+            typeof user.role === "string" ? user.role : user.role.name;
+        
+        const normalizedRole = roleName?.toLowerCase();
+        const normalizedRequired = requiredRoles.map(r => r.toLowerCase());
+        
+        if (!normalizedRequired.includes(normalizedRole)) {
+            return <Navigate to="/" replace />;
+        }
     }
+
+
 
     return <Outlet />;
 };

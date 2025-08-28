@@ -8,13 +8,11 @@ const routes = [
   { to: "/", label: "Accueil", Icon: House },
   { to: "/missions", label: "Missions", Icon: Hammer },
   { to: "/construction", label: "Chantiers", Icon: Construction },
+  { to: "/workers", label: "Employés", Icon: UserRound }
 ];
 
 export default function SideBar() {
   const { logout, user } = useAuth();
-  
-
-   
 
   return (
     <aside className="fixed top-0 left-0 flex flex-col justify-between h-dvh w-[250px] bg-white border-r border-slate-200 pt-16 md:transform md:translate-x-0 transform -translate-x-full">
@@ -31,17 +29,6 @@ export default function SideBar() {
             </li>
           </NavLink>
         ))}
-        {user?.role === "Admin" && (
-          <NavLink
-            to="/worker"
-            className="rounded-md cursor-pointer bg-transparent transition-colors hover:bg-slate-200"
-          >
-            <li className="flex items-center space-x-2 h-8 px-2.5">
-              <UserRound size={18} />
-              <span className="text-slate-950 text-sm">Employés</span>
-            </li>
-          </NavLink>
-        )}
       </ul>
 
       <div className="flex flex-col items-center p-4 space-y-4">

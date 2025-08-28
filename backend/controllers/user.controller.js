@@ -11,22 +11,6 @@ const { Op } = require("sequelize");
 const { hash: hashPassword, compare: comparePassword, validatePolicy } = require("../services/password.service");
 const logger = require("../config/logger");
 
-
-// Récupérer tous les utilisateurs (sans afficher le mot de passe)
-// exports.getAllUsers = async (req, res) => {
-//     try {
-//         const users = await User.findAll({
-//             attributes: { exclude: ["password"] }
-//         });
-//         res.json(users);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// };
-
-
-
-
 // Récupérer tous les utilisateurs sauf ceux avec `role_id = 1` (Responsables)
 // Inscription (Création de compte avec JWT)
 exports.createUser = async (req, res) => {
@@ -134,11 +118,9 @@ exports.login = async (req, res) => {
         // Find the user and include their role
         const user = await User.findOne({
             where: { email },
-            include: [{
-                model: Role,
-                as: 'userRole',
-                attributes: ['name']
-            }]
+            include: [
+                { model: Role, as: 'role', attributes: ['name'] }
+            ]
         });
 
         if (!user) {
@@ -151,14 +133,15 @@ exports.login = async (req, res) => {
         }
 
         // Get the role name from the included association
-        const roleName = user.userRole ? user.userRole.name : 'Worker'; 
+        const roleName = user.role ? user.role.name : 'Worker';
 
-        
+
         const token = jwt.sign(
             { userId: user.user_id, role: roleName },
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRES_IN }
         );
+
 
         res.json({ message: "Connexion réussie", token, user: { id: user.user_id, email: user.email, role: roleName } });
     } catch (error) {
@@ -172,12 +155,12 @@ exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.findAll({
             attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
-            where: { role_id: { [Op.ne]: 1 } },
             include: [
-                { model: Role, attributes: ["name"], required: true },
-                { model: Competence, attributes: ["name"] }
+                { model: Role, as: "role", attributes: ["name"] },
+                { model: Competence, as: "competences", attributes: ["name"], through: { attributes: [] } }
             ]
         });
+
         res.json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -186,28 +169,32 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getAllWorkers = async (req, res) => {
     try {
-        const users = await User.findAll({
-            attributes: [
-                "user_id",
-                "firstname",
-                "lastname",
-                "email",
-                "numberphone",
-                "profile_picture",
-                "role"
-            ],
-            where: { role: "Worker" },
+        const workers = await User.findAll({
             include: [
                 {
-                    model: Competence,
-                    attributes: ["name"],
+                    model: Role,
+                    as: "role",
+                    attributes: ["name"]
                 }
-            ]
+            ],
+            where: { role_id: 9 } // 9 = Worker
         });
-        return res.json(users);
+
+        // Normaliser la réponse
+        const formatted = workers.map(w => ({
+            user_id: w.user_id,
+            firstname: w.firstname,
+            lastname: w.lastname,
+            email: w.email,
+            numberphone: w.numberphone,
+            profile_picture: w.profile_picture,
+            role: w.role?.name || "Worker"
+        }));
+
+        res.json(formatted);
     } catch (error) {
-        console.error("getAllWorkers:", error);
-        return res.status(500).json({ error: error.message });
+        console.error("Erreur getAllWorkers:", error);
+        res.status(500).json({ message: "Erreur serveur" });
     }
 };
 
@@ -236,66 +223,146 @@ exports.getAllManagers = async (req, res) => {
     }
 };
 
+
 // Récupérer un utilisateur par ID
 exports.getUserById = async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id, {
-            attributes: { exclude: ["password"] },
             include: [
-                {
-                    model: Competence,
-                    attributes: ["name"],
-                },
-                {
-                    model: Role, // Include the Role model
-                    as: 'userRole', // Use the alias defined in the association
-                    attributes: ["name"], // Only fetch the name of the role
-                }
+                { model: Role, as: "role", attributes: ["role_id", "name"] }
             ]
         });
 
-        if (!user) {
-            return res.status(404).json({ message: "Utilisateur non trouvé" });
-        }
-
-        // Manually construct the response to ensure the role is correct
-        const userJson = user.toJSON();
-        if (userJson.userRole) {
-            userJson.role = userJson.userRole.name; // Set the top-level role property
-            delete userJson.userRole; // Remove the nested userRole object
-        } else {
-            // Fallback if userRole is not present for some reason
-            const role = await Role.findByPk(userJson.role_id);
-            userJson.role = role ? role.name : 'Worker'; // Default to 'Worker' if role not found
-        }
-
-
-        res.json(userJson);
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+        res.json(user);
     } catch (error) {
-        console.error("getUserById error:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
+// util: resolve role name -> role_id
+async function resolveRoleIdByName(roleName) {
+    if (!roleName) return null;
+    const found = await Role.findOne({ where: { name: roleName } });
+    return found ? found.role_id : null;
+}
+
+// util: get role ids map { Admin: 7, Manager: 8, Worker: 9, ... }
+async function getRoleIds() {
+    const rows = await Role.findAll({ attributes: ["role_id", "name"] });
+    const map = {};
+    for (const r of rows) map[r.name] = r.role_id;
+    return map;
+}
 
 // Mettre à jour un utilisateur (avec hash si le mdp est modifié)
 exports.updateUser = async (req, res) => {
     try {
-        const user = await User.findByPk(req.params.id);
+        const targetId = req.params.id;
+        const me = req.user; // { userId, role }
+        const user = await User.findByPk(targetId);
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-        const { firstname, lastname, email, password, role } = req.body;
+        // Autorisation basique (tu as déjà canManageUsers au niveau routes, donc ça sécurise déjà)
+        // Ici, on sécurise surtout le changement de rôle.
+        const { role, password, ...rest } = req.body;
 
-        if (password) {
-            req.body.password = await hashPassword(password);
+        // Si on veut changer le rôle via 'role' (string), on le convertit en role_id
+        if (role) {
+            // Seul Admin ou HR peuvent changer le rôle
+            if (!(me.role === "Admin" || me.role === "HR")) {
+                return res.status(403).json({ message: "Seul Admin/HR peuvent modifier le rôle" });
+            }
+            const newRoleId = await resolveRoleIdByName(role);
+            if (!newRoleId) {
+                return res.status(400).json({ message: `Rôle invalide: ${role}` });
+            }
+            rest.role_id = newRoleId;
         }
 
-        await user.update(req.body);
-        res.json({ message: "Utilisateur mis à jour", user });
+        // Hash mdp si fourni (tu avais déjà la logique ailleurs)
+        if (password) {
+            const { hash: hashPassword } = require("../services/password.service");
+            rest.password = await hashPassword(password);
+        }
+
+        await user.update(rest);
+        // renvoyons le user + rôle normalisé
+        const roleRow = await Role.findByPk(user.role_id);
+        return res.json({
+            message: "Utilisateur mis à jour",
+            user: {
+                user_id: user.user_id,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                numberphone: user.numberphone,
+                role: roleRow?.name || null
+            }
+        });
     } catch (error) {
+        console.error("updateUser:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
+// >>> NOUVELLE LISTE filtrée selon le rôle du demandeur
+exports.getDirectory = async (req, res) => {
+    try {
+        const meRole = req.user?.role;
+        const roleIds = await getRoleIds(); // { Admin:7, Manager:8, Worker:9, HR:10, Project_Chief:11, ... }
+
+        let where = {};
+        if (meRole === "Admin") {
+            // voit tout
+            where = {};
+        } else if (meRole === "HR" || meRole === "Manager") {
+            // voit tout SAUF Admin
+            if (roleIds.Admin) {
+                where.role_id = { [require("sequelize").Op.ne]: roleIds.Admin };
+            }
+        } else if (meRole === "Project_Chief") {
+            // ne voit que les workers
+            if (roleIds.Worker) {
+                where.role_id = roleIds.Worker;
+            } else {
+                where = { role_id: -1 }; // aucun si non trouvé
+            }
+        } else if (meRole === "Worker") {
+            // au strict minimum: se voit lui-même (si tu préfères tout masquer)
+            where = { user_id: req.user.userId };
+        } else {
+            // rôle inconnu => rien
+            where = { user_id: -1 };
+        }
+
+        const users = await User.findAll({
+            where,
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role_id"],
+            include: [
+                { model: Role, as: "role", attributes: ["name"] },
+                { model: Competence, as: "competences", attributes: ["name"], through: { attributes: [] } }
+            ],
+            order: [["lastname", "ASC"], ["firstname", "ASC"]]
+        });
+
+        const formatted = users.map(u => ({
+            user_id: u.user_id,
+            firstname: u.firstname,
+            lastname: u.lastname,
+            email: u.email,
+            numberphone: u.numberphone,
+            profile_picture: u.profile_picture,
+            role: u.role?.name || null,
+            competences: (u.competences || []).map(c => ({ name: c.name }))
+        }));
+
+        return res.json(formatted);
+    } catch (err) {
+        console.error("getDirectory:", err);
+        return res.status(500).json({ message: "Erreur serveur" });
+    }
+};
 
 // Mettre à jour l’image de profil
 exports.updateProfilePicture = async (req, res) => {

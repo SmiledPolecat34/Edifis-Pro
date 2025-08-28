@@ -24,21 +24,43 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const decoded = jwtDecode<any>(token);
-        const expirationTime = decoded.exp * 1000; // Expiration en ms
-        if (expirationTime > Date.now()) {
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      const decoded = jwtDecode<any>(token);
+      console.log("[AuthContext] Token décodé au mount :", decoded);
+
+      const expirationTime = decoded.exp * 1000;
+      if (expirationTime > Date.now()) {
+        const uid = decoded.userId || decoded.user_id || decoded.sub;
+        console.log("[AuthContext] UID extrait au mount:", uid);
+
+        if (uid) {
+          setTokenId(uid);
           setIsAuthenticated(true);
-          setTokenId(decoded.userId);
+
+          userService.getById(uid)
+            .then((response) => {
+              setUser(response);
+              console.log("[AuthContext] user chargé au mount:", response);
+            })
+            .catch((err) => {
+              console.error("[AuthContext] Erreur récupération user au mount:", err);
+              logout();
+            });
         }
-      } catch (error) {
+      } else {
         setIsAuthenticated(false);
         setTokenId(null);
       }
+    } catch (error) {
+      console.error("[AuthContext] Erreur décodage token:", error);
+      setIsAuthenticated(false);
+      setTokenId(null);
     }
-  }, []);
+  }
+}, []);
+
 
   const userData = async () => {
     if (tokenId) {
@@ -64,16 +86,32 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    if (tokenId) {
-      userData();
-    }
+    console.log("[AuthContext] tokenId:", tokenId);
   }, [tokenId]);
 
-  const login = (token: string) => {
+  useEffect(() => {
+    console.log("[AuthContext] user mis à jour:", user);
+  }, [user]);
+
+  const login = async (token: string) => {
     localStorage.setItem("token", token);
-    const decoded = jwtDecode<any>(token);
-    setTokenId(decoded.userId); // Assigne uniquement l'ID utilisateur
+   const decoded = jwtDecode<any>(token);
+    console.log("[AuthContext] Token décodé :", decoded);
+      
+    // 👇 essaye plusieurs clés possibles (sub, userId, user_id…)
+    const uid = decoded.userId || decoded.user_id || decoded.sub;
+    console.log("[AuthContext] UID extrait :", uid);
+      
+    setTokenId(uid);
+
     setIsAuthenticated(true);
+
+    try {
+      const response = await userService.getById(uid);
+      setUser(response);
+    } catch (err) {
+      console.error("Erreur récupération user après login:", err);
+    }
   };
 
   const logout = () => {

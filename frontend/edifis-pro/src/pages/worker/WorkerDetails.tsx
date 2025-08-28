@@ -7,6 +7,13 @@ import { Link } from "react-router-dom";
 
 const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
 
+// Table de correspondance pour afficher les rôles
+const roleLabels: Record<string, string> = {
+  Worker: "Ouvrier",
+  Manager: "Chef de projet",
+  Admin: "Responsable",
+};
+
 export default function WorkerDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -30,7 +37,7 @@ export default function WorkerDetails() {
     const fetchData = async () => {
       try {
         // Récupère les infos du worker
-        const data = await userService.getById(Number(id));
+        const data = (await userService.getById(Number(id))) as User; // <-- cast en User
         if (!data.competences) {
           data.competences = [];
         }
@@ -69,6 +76,7 @@ export default function WorkerDetails() {
     });
   };
 
+  // (Optionnel, non encore utilisé — tu peux le commenter si besoin)
   const handleSkillChange = (skillId: number) => {
     if (!worker) return;
 
@@ -77,11 +85,10 @@ export default function WorkerDetails() {
     let updatedSkills;
 
     if (exists) {
-      // Supprime la compétence
       updatedSkills = currentSkills.filter((c) => c.competence_id !== skillId);
     } else {
-      // Ajoute la compétence
-      const skillName = allSkills.find((s) => s.competence_id === skillId)?.name || "";
+      const skillName =
+        allSkills.find((s) => s.competence_id === skillId)?.name || "";
       updatedSkills = [...currentSkills, { competence_id: skillId, name: skillName }];
     }
 
@@ -95,7 +102,7 @@ export default function WorkerDetails() {
       try {
         if (worker && worker.user_id !== undefined) {
           await userService.delete(worker.user_id);
-          navigate("/worker");
+          navigate("/workers");
         }
       } catch (err) {
         console.error("Erreur lors de la suppression :", err);
@@ -107,7 +114,6 @@ export default function WorkerDetails() {
     if (!worker || worker.user_id === undefined) return;
     try {
       console.log("Enregistrement des modifications pour le worker :", worker);
-      // Mise à jour via userService.update
       await userService.update(worker.user_id, worker);
       setIsEditing(false);
       console.log("Mise à jour réussie !");
@@ -135,13 +141,15 @@ export default function WorkerDetails() {
   return (
     <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
       <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-          >
-            Retour
-          </button>
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+      >
+        Retour
+      </button>
       <div className="bg-white shadow-md rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Détails de l'employé</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+          Détails de l'employé
+        </h1>
         <div className="flex items-center mb-4">
           <img
             src={worker.profile_picture || DEFAULT_IMAGE}
@@ -207,27 +215,29 @@ export default function WorkerDetails() {
           {isEditing ? (
             <select
               name="role"
-              value={worker.role}
+              value={worker.role?.name || ""}
               onChange={handleChange}
               className="border border-gray-300 rounded p-1"
             >
-              <option value="Worker">Ouvrier</option>
-              <option value="Manager">Chef de projet</option>
-              <option value="Admin">Responsable</option>
+              {Object.entries(roleLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
             </select>
-          ) : worker.role === "Worker" ? (
-            "Ouvrier"
-          ) : worker.role === "Manager" ? (
-            "Chef de projet"
           ) : (
-            "Responsable"
+            roleLabels[worker.role?.name || ""] || "Non défini"
           )}
         </p>
+
         {!isEditing && (
           <>
             <p>
               <strong>
-                <Link to="/competences" className="underline hover:text-blue-600">
+                <Link
+                  to="/competences"
+                  className="underline hover:text-blue-600"
+                >
                   Compétences
                 </Link>
                 :
@@ -236,7 +246,10 @@ export default function WorkerDetails() {
             <div className="flex flex-wrap gap-2">
               {worker.competences && worker.competences.length > 0 ? (
                 worker.competences.map((c) => (
-                  <div key={c.competence_id} className="flex items-center space-x-1">
+                  <div
+                    key={c.competence_id}
+                    className="flex items-center space-x-1"
+                  >
                     <span>{c.name}</span>
                     <button
                       onClick={() =>
@@ -260,11 +273,10 @@ export default function WorkerDetails() {
 
         {isEditing && (
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {/* ton code d’édition existant */}
+            {/* Zone d’édition des compétences si tu veux brancher handleSkillChange */}
           </div>
         )}
 
-        {/* --- Pop-up modal --- */}
         {modalData && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">

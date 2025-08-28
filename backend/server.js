@@ -6,8 +6,7 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const logger = require("./config/logger");
 
-const sequelize = require("./config/database");
-const initDB = require("./config/sequelize");
+const sequelize = require("./config/sequelize");
 require("./models"); // Assurez-vous que les modèles sont chargés
 const routes = require("./routes");
 
@@ -68,41 +67,15 @@ app.use("/uploads/construction_sites", (req, res, next) => {
   next();
 }, express.static("uploads/construction_sites"));
 
-async function dropAll() {
-  const qi = sequelize.getQueryInterface();
+async function initDB() {
   try {
-    console.warn('⚠️ DB_RESET: désactivation des clés étrangères…');
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    await sequelize.authenticate();
+    console.log('✅ Connexion à la base de données réussie !');
 
-    // ORDRE ENFANTS → PARENTS
-    // Enfants de users/tasks/construction_site
-    await qi.dropTable('user_tasks');             // FK → users, Task
-    await qi.dropTable('password_reset_tokens');  // FK → users
-
-    // Tâches (enfant de construction_site)
-    await qi.dropTable('Task');                   // FK → construction_site
-
-    // Pivot users <-> competences (enfant de users + competences)
-    await qi.dropTable('user_competences');       // FK → users, competences
-
-    // Compétences (parent de user_competences)
-    await qi.dropTable('competences');
-
-    // Chantiers (parent de Task)
-    await qi.dropTable('construction_site');
-
-    // Users (parent de beaucoup de choses + référencé par construction_site.chef_de_projet_id)
-    await qi.dropTable('users');
-
-    // Rôles (parent de users.role_id)
-    await qi.dropTable('roles');
-
-    console.log('🧹 Drop terminé');
-  } catch (e) {
-    console.error('❌ Drop error:', e);
-  } finally {
-    console.warn('🔁 Réactivation des clés étrangères…');
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    await sequelize.sync({ alter: true });
+    console.log('✅ Schéma OK');
+  } catch (err) {
+    console.error('❌ Erreur d’initialisation DB :', err);
   }
 }
 

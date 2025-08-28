@@ -141,7 +141,7 @@ const [submitOk, setSubmitOk] = useState<string | null>(null); // pour afficher 
     console.log("payload envoyé:", newUser);
     const res = await userService.createUser(newUser);
     setSubmitOk(`Utilisateur créé. Mot de passe provisoire : ${res.tempPassword ?? "généré"}`);
-    setTimeout(() => navigate("/worker"), 1200);
+    setTimeout(() => navigate("/workers"), 1200);
   } catch (err: any) {
   console.error("createUser error:", err); // va afficher Error: <message du serveur>
   setSubmitError(err?.message || "Erreur inconnue.");

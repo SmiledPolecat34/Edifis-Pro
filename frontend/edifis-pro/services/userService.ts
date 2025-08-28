@@ -1,21 +1,22 @@
 import apiService from "./apiService";
 import { Competence } from "./competenceService";
 
-type RoleType = "Admin" | "Worker" | "Manager";
-// Interface principale User
+type RoleType = "Admin" | "Worker" | "Manager" | "HR" | "Project_Chief";
+
 export interface User {
   user_id?: number;
   firstname: string;
   lastname: string;
   email: string;
-  password: string;
+  password?: string;
   numberphone: string;
-  role: RoleType;
+  role: RoleType | string;
   profile_picture?: string;
   competences?: Competence[];
   createdAt?: string;
   updatedAt?: string;
 }
+
 export interface CreateUserPayload {
   firstname: string;
   lastname: string;
@@ -35,43 +36,42 @@ export interface CreateUserResponse {
     role: RoleType;
     numberphone: string;
   };
-  tempPassword?: string; // <- renvoyé par le back
+  tempPassword?: string;
 }
 
 const userService = {
-  // Créer un user (registre)
-  createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
-    return await apiService.post<CreateUserResponse>("/users/register", payload);
+  // nouvelle liste filtrée selon le rôle du demandeur
+  getDirectory: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/list");
   },
 
-  // Récupérer tous les users
-  getAllUsers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/all");
-  },
-
-  // Récupérer tous les managers
-  getAllManagers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/all/manager");
-  },
-
-  // Récupérer tous les workers
+  // (tu peux garder tes anciennes méthodes si utilisées ailleurs)
   getAllWorkers: async (): Promise<User[]> => {
     return await apiService.get<User[]>("/users/getallworkers");
   },
 
-  // Récupérer un user par ID
-  getById: async (id: number): Promise<User> => {
-    return await apiService.get<User>(`/users/${id}`);
+  getAllUsers: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/all");
   },
 
-  // Supprimer un user
-  delete: async (id: number): Promise<void> => {
-    return await apiService.delete(`/users/${id}`);
+  getAllManagers: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/all/manager");
   },
 
-  // Mettre à jour un user (PUT /users/:id)
+  getById: async (id: number) => {
+    return await apiService.get(`/users/${id}`);
+  },
+
   update: async (id: number, data: Partial<User>): Promise<User> => {
     return await apiService.put<User>(`/users/${id}`, data);
+  },
+
+  createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
+    return await apiService.post<CreateUserResponse>("/users/register", payload);
+  },
+
+  delete: async (id: number): Promise<void> => {
+    return await apiService.delete(`/users/${id}`);
   },
 
   changePassword: async (payload: { currentPassword: string; newPassword: string; }): Promise<{ message: string }> => {
@@ -82,10 +82,7 @@ const userService = {
     return await apiService.post<{ message: string }>("/users/update-password", payload);
   },
 
-  // Upload d’une photo de profil
-  uploadProfilePicture: async (
-    file: File
-  ): Promise<{ profile_picture: string }> => {
+  uploadProfilePicture: async (file: File): Promise<{ profile_picture: string }> => {
     const formData = new FormData();
     formData.append("image", file);
     return await apiService.postForm<{ profile_picture: string }>(
@@ -93,6 +90,7 @@ const userService = {
       formData
     );
   },
+
   suggestEmail: async (firstname: string, lastname: string): Promise<{ email: string }> => {
     const params = new URLSearchParams({ firstname, lastname });
     return await apiService.get<{ email: string }>(`/users/suggest-email?${params.toString()}`);

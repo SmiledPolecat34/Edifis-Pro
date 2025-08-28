@@ -48,8 +48,9 @@ export default function UserDetail() {
           <strong>Téléphone :</strong> {user.numberphone}
         </p>
         <p className="mb-2">
-          <strong>Rôle :</strong> {user.role}
+          <strong>Rôle :</strong> {user.role?.name || "Non défini"}
         </p>
+
         {user.competences && user.competences.length > 0 && (
           <div className="mt-4">
             <strong>Compétences :</strong>

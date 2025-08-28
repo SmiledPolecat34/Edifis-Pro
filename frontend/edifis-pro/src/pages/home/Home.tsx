@@ -11,20 +11,28 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Si pas d’utilisateur -> stoppe le chargement
+    if (!user) {
+      console.log("[Home] Pas d’utilisateur dans AuthContext");
+      setLoading(false);
+      return;
+    }
+
     const fetchTasks = async () => {
-      if (!user?.user_id) return;
       try {
-        let data;
-        if (user.role === "Admin") {
+        let data: Task[] = [];
+        if (user.role?.name === "Admin") {
+          console.log("[Home] Récupération de toutes les tâches");
           data = await taskService.getAll();
         } else {
-          data = await taskService.getByUserId(user.user_id);
+          console.log("[Home] Récupération des tâches de l’utilisateur", user.user_id);
+          data = await taskService.getByUserId(user.user_id!);
         }
-        console.log(data);
+        console.log("[Home] Tâches reçues :", data);
         setTasks(data);
       } catch (err) {
+        console.error("[Home] Erreur API:", err);
         setError("Erreur lors du chargement des missions.");
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -33,13 +41,14 @@ export default function Home() {
     fetchTasks();
   }, [user]);
 
-  if (!user?.role) {
+  if (loading)
     return <p className="text-center text-gray-500">Chargement...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
+
+  if (!user) {
+    return <p className="text-center text-gray-500">Chargement utilisateur...</p>;
   }
 
-  if (loading)
-    return <p className="text-center text-gray-500">Chargement des missions...</p>;
-  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <main className="grid xl:grid-cols-[7fr_3fr] grid-cols-1 gap-8 xl:max-h-[calc(100dvh-65px)] h-full bg-gray-100 md:p-8 p-4 overflow-hidden">
@@ -49,16 +58,15 @@ export default function Home() {
             Bienvenue, {user.firstname} {user.lastname}
           </h1>
           <p className="text-sm text-slate-500">
-            {user.role === "Admin"
-              ? "Responsable"
-              : user.role === "Manager"
-              ? "Manager"
-              : user.role === "Project_Manager"
+            {user.role?.name === "Admin"
+              ? "Administrateur"
+              : user.role?.name === "Manager"
               ? "Chef de projet"
-              : user.role === "Worker"
+              : user.role?.name === "Worker"
               ? "Ouvrier"
               : "Rôle inconnu"}
           </p>
+
         </div>
         <TimelineChart tasks={tasks} />
       </div>
@@ -67,7 +75,7 @@ export default function Home() {
         {tasks.length === 0 && <p className="text-slate-500">Aucune mission pour le moment.</p>}
         {tasks.map((task) => (
           <div
-            key={task.id}
+            key={task.task_id}
             className="bg-white border border-slate-200 rounded-xl p-4"
           >
             <div className="flex justify-between items-center flex-wrap mb-2">

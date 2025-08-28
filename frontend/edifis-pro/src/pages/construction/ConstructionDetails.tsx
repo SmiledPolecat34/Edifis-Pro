@@ -38,32 +38,29 @@ export default function ConstructionDetails() {
   // 1) Chargement initial du chantier + pré-remplissage du chef de projet
   useEffect(() => {
     async function fetchConstruction() {
-      try {
-        const data = await constructionSiteService.getById(Number(id));
-        setConstruction(data);
-        setInitialConstruction(data);
+  console.log("[ConstructionDetails] Chargement chantier id=", id);
+  try {
+    const data = await constructionSiteService.getById(Number(id));
+    console.log("[ConstructionDetails] Chantier reçu:", data);
+    setConstruction(data);
+    setInitialConstruction(data);
 
-        if (data.chef_de_projet_id) {
-          try {
-            const m = await userService.getById(data.chef_de_projet_id);
-            setManager(m);
-            setManagerInput(
-              `${m.user_id} - ${m.firstname} ${m.lastname} (${m.email})`
-            );
-          } catch (err) {
-            console.error(err);
-            setManagerError(
-              "Impossible de charger les infos du chef de projet."
-            );
-          }
-        }
-      } catch (err) {
-        console.error(err);
-        setError("Erreur lors du chargement du chantier.");
-      } finally {
-        setLoading(false);
-      }
+    if (data.chef_de_projet_id) {
+      console.log("[ConstructionDetails] Chef de projet id:", data.chef_de_projet_id);
+      const m = await userService.getById(data.chef_de_projet_id);
+      console.log("[ConstructionDetails] Manager reçu:", m);
+      setManager(m);
+      setManagerInput(`${m.user_id} - ${m.firstname} ${m.lastname} (${m.email})`);
     }
+  } catch (err) {
+    console.error("[ConstructionDetails] Erreur API chantier:", err);
+    setError("Erreur lors du chargement du chantier.");
+  } finally {
+    console.log("[ConstructionDetails] Fin fetch chantier");
+    setLoading(false);
+  }
+}
+
     fetchConstruction();
   }, [id]);
 
@@ -211,25 +208,41 @@ export default function ConstructionDetails() {
           >
             Retour
           </button>
-          {user?.role === "Admin" && (
+          {(user?.role === "Admin" || user?.role === "Manager") && (
             <div className="flex space-x-2">
               {isEditing && (
                 <button
                   onClick={handleCancel}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2 text-center cursor-pointer"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2"
                 >
                   Annuler
                 </button>
               )}
               <button
                 onClick={isEditing ? handleSave : () => setIsEditing(true)}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center cursor-pointer"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
               >
                 {isEditing ? "Enregistrer" : "Modifier"}
               </button>
             </div>
           )}
+
         </div>
+
+        {user?.role === "Admin" && !isEditing && (
+          <button
+            onClick={async () => {
+              if (window.confirm("Supprimer ce chantier ?")) {
+                await constructionSiteService.delete(Number(id));
+                navigate("/constructions"); // retour liste
+              }
+            }}
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 h-9 px-4 py-2"
+          >
+            Supprimer
+          </button>
+        )}
+
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">

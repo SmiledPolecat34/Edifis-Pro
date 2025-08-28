@@ -225,9 +225,6 @@ exports.updateConstructionImage = async (req, res) => {
 };
 
 
-
-
-
 exports.getConstructionSitesByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
