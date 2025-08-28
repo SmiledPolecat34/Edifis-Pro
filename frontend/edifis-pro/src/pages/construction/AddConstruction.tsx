@@ -26,6 +26,7 @@ export default function AddConstruction() {
     const fetchManagers = async () => {
       try {
         const managersData = await userService.getAllManagers();
+        console.log('Managers fetched:', managersData);
         setManagers(managersData);
       } catch (error) {
         console.error("Erreur lors de la récupération des managers :", error);

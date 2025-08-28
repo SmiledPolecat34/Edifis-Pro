@@ -27,6 +27,7 @@ CREATE TABLE users (
   role ENUM('Admin','Worker','Manager') NOT NULL DEFAULT 'Worker',
   role_id INT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_users_role_id FOREIGN KEY (role_id)
     REFERENCES roles(role_id)
     ON UPDATE CASCADE
@@ -77,9 +78,9 @@ CREATE TABLE construction_site (
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 6) Tâches (Task)
-DROP TABLE IF EXISTS Task;
-CREATE TABLE Task (
+-- 6) Tâches (tasks)
+DROP TABLE IF EXISTS tasks;
+CREATE TABLE tasks (
   task_id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
   description TEXT,
@@ -88,8 +89,13 @@ CREATE TABLE Task (
   start_date DATETIME,
   end_date DATETIME,
   construction_site_id INT NULL,
+  creator_id INT NULL,
   CONSTRAINT fk_task_site FOREIGN KEY (construction_site_id)
     REFERENCES construction_site(construction_site_id)
+    ON UPDATE CASCADE
+    ON DELETE SET NULL,
+  CONSTRAINT fk_task_creator FOREIGN KEY (creator_id)
+    REFERENCES users(user_id)
     ON UPDATE CASCADE
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -105,7 +111,7 @@ CREATE TABLE user_tasks (
     ON UPDATE CASCADE
     ON DELETE CASCADE,
   CONSTRAINT fk_ut_task FOREIGN KEY (task_id)
-    REFERENCES Task(task_id)
+    REFERENCES tasks(task_id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

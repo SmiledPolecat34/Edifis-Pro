@@ -177,7 +177,7 @@ exports.getAllWorkers = async (req, res) => {
                     attributes: ["name"]
                 }
             ],
-            where: { role_id: 9 } // 9 = Worker
+            where: { role_id: 2 } // 2 = Worker
         });
 
         // Normaliser la réponse
@@ -203,17 +203,10 @@ exports.getAllWorkers = async (req, res) => {
 exports.getAllManagers = async (req, res) => {
     try {
         const managers = await User.findAll({
-            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role"],
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
             where: {
-                role: "Manager" // Inclure uniquement les Managers
-            },
-            include: [
-                {
-                    model: Competence,
-                    attributes: ["name"],
-
-                }
-            ]
+                role_id: 3 // 3 = Manager
+            }
         });
 
         res.json(managers);
@@ -442,7 +435,7 @@ exports.changePassword = async (req, res) => {
 function slugifyName(s = "") {
     return s
         .normalize("NFD")                    // supprime les accents
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[̀-ͯ]/g, "")
         .replace(/[^a-zA-Z0-9- ]/g, "")      // garde lettres/chiffres/espaces/tirets
         .trim()
         .replace(/\s+/g, ".")                // espaces -> point (au cas où)
@@ -473,7 +466,7 @@ exports.suggestEmail = async (req, res) => {
         // Cherche le plus petit suffixe dispo (base, base2, base3, …)
         const used = new Set(
             existing.map(u => {
-                const m = u.email.match(new RegExp(`^${localPartBase}(\\d+)?@${domain}$`));
+                const m = u.email.match(new RegExp(`^${localPartBase}(\\d+)?@${domain}`))
                 // m[1] contient le nombre si présent
                 return m && m[1] ? parseInt(m[1], 10) : 0; // 0 = sans suffixe
             })
@@ -494,4 +487,25 @@ exports.suggestEmail = async (req, res) => {
     }
 };
 
+exports.assignCompetenceToUser = async (req, res) => {
+    try {
+        const { userId, competenceId } = req.body;
 
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
+
+        const competence = await Competence.findByPk(competenceId);
+        if (!competence) {
+            return res.status(404).json({ message: "Compétence non trouvée" });
+        }
+
+        await user.addCompetence(competence);
+
+        res.json({ message: "Compétence assignée avec succès" });
+    } catch (error) {
+        console.error("Erreur lors de l'assignation de la compétence :", error);
+        res.status(500).json({ error: error.message });
+    }
+};

@@ -29,11 +29,11 @@ VALUES
   ('Chantier A', 'En cours', 'Rénovation immeuble A', '10 Rue de Paris, 75000 Paris', '2025-01-10', '2025-06-30', '08:00:00', '17:00:00', NULL, NULL);
 
 -- TACHES
-INSERT INTO Task (name, description, status, construction_site_id)
+INSERT INTO tasks (name, description, status, construction_site_id, creator_id)
 VALUES
-  ('Démolition', 'Retrait des cloisons existantes', 'En cours', 1),
-  ('Électricité', 'Réfection complète du réseau', 'Prévu', 1),
-  ('Plomberie', 'Remise aux normes', 'Prévu', 1);
+  ('Démolition', 'Retrait des cloisons existantes', 'En cours', 1, 1),
+  ('Électricité', 'Réfection complète du réseau', 'Prévu', 1, 1),
+  ('Plomberie', 'Remise aux normes', 'Prévu', 1, 1);
 
 -- FEUILLES DE TEMPS (exemple sans rattacher d'utilisateur)
 

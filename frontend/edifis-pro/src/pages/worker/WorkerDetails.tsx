@@ -4,6 +4,7 @@ import userService, { User } from "../../../services/userService";
 import competenceService, { Competence } from "../../../services/competenceService";
 import Loading from "../../components/loading/Loading";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
 
@@ -12,11 +13,13 @@ const roleLabels: Record<string, string> = {
   Worker: "Ouvrier",
   Manager: "Chef de projet",
   Admin: "Responsable",
+  HR: "RH",
 };
 
 export default function WorkerDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   const [modalData, setModalData] = useState<{
     title: string;
@@ -25,7 +28,6 @@ export default function WorkerDetails() {
 
   // State pour l'employé
   const [worker, setWorker] = useState<User | null>(null);
-  const [edited, setEdited] = useState<User | null>(null);
 
   // State pour la liste complète des compétences récupérées depuis l'API
   const [allSkills, setAllSkills] = useState<Competence[]>([]);
@@ -34,27 +36,30 @@ export default function WorkerDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const raw = await userService.getById(Number(id));
-      const normalized: User = {
-        ...raw,
-        role: (raw as any).role?.name ?? (raw as any).role ?? "Worker",
-        competences: raw.competences ?? [],
-      };
-      const skills = await competenceService.getAllCompetences();
+  const canEdit = currentUser && ["Admin", "HR", "Manager"].includes(currentUser.role);
+  const canDelete = currentUser && ["Admin", "HR"].includes(currentUser.role);
 
-      setWorker(normalized);
-      setAllSkills(skills);
-    } catch (err) {
-      setError("Impossible de charger les données.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchData();
-}, [id]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const raw = await userService.getById(Number(id));
+        const normalized: User = {
+          ...raw,
+          role: (raw as any).role?.name ?? (raw as any).role ?? "Worker",
+          competences: raw.competences ?? [],
+        };
+        const skills = await competenceService.getAllCompetences();
+
+        setWorker(normalized);
+        setAllSkills(skills);
+      } catch (err) {
+        setError("Impossible de charger les données.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [id]);
 
 
   const handleChange = (
@@ -75,7 +80,6 @@ export default function WorkerDetails() {
     });
   };
 
-  // (Optionnel, non encore utilisé — tu peux le commenter si besoin)
   const handleSkillChange = (skillId: number) => {
     if (!worker) return;
 
@@ -112,7 +116,6 @@ export default function WorkerDetails() {
   const handleSave = async () => {
     if (!worker || worker.user_id == null) return;
     try {
-      // -> number[] propre
       const competenceIds: number[] = (worker.competences ?? [])
         .map((c) => c.competence_id)
         .filter((id): id is number => typeof id === "number");
@@ -122,8 +125,8 @@ export default function WorkerDetails() {
         lastname: worker.lastname,
         email: worker.email,
         numberphone: worker.numberphone,
-        role: worker.role,             // nom du rôle
-        competences: competenceIds,    // IDs seulement
+        role: worker.role,
+        competences: competenceIds,
       });
 
       setIsEditing(false);
@@ -233,6 +236,7 @@ export default function WorkerDetails() {
               <option value="Worker">Ouvrier</option>
               <option value="Manager">Chef de projet</option>
               <option value="Admin">Responsable</option>
+              <option value="HR">RH</option>
             </select>
           ) : (
             roleLabels[worker.role] || "Non défini"

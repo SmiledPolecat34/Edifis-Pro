@@ -11,7 +11,7 @@ export default function ManageCompetences() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    competenceService.getAll()
+    competenceService.getAllCompetences()
       .then(setList)
       .catch(() => setError("Impossible de charger les compétences."))
       .finally(() => setLoading(false));

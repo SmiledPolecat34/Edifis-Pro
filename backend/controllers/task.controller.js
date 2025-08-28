@@ -6,7 +6,8 @@ const Role = require("../models/Role");
 // CRUD identique à `users`
 exports.createTask = async (req, res) => {
     try {
-        const task = await Task.create(req.body);
+        const taskData = { ...req.body, creator_id: req.user.id };
+        const task = await Task.create(taskData);
         res.status(201).json(task);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -23,8 +24,21 @@ exports.getAllTasks = async (req, res) => {
                 },
                 {
                     model: User, // Include the User model
+                    as: "Users",
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
                     through: { attributes: [] },
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'creator',
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
                     include: [
                         {
                             model: Role,
@@ -46,7 +60,38 @@ exports.getAllTasks = async (req, res) => {
 
 exports.getTaskById = async (req, res) => {
     try {
-        const task = await Task.findByPk(req.params.id);
+        const task = await Task.findByPk(req.params.id, {
+            include: [
+                {
+                    model: ConstructionSite,
+                    as: "construction_site",
+                },
+                {
+                    model: User,
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
+                    through: { attributes: [] },
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'creator',
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
+                }
+            ]
+        });
         if (!task) return res.status(404).json({ message: "Tâche non trouvée" });
         res.json(task);
     } catch (error) {
@@ -111,19 +156,33 @@ exports.deleteTask = async (req, res) => {
 exports.assignUsersToTask = async (req, res) => {
     try {
         const { taskId, userIds } = req.body;
-        console.log(req.body
-        );
+        const assigner = req.user;
 
         if (!taskId || !userIds || userIds.length === 0) {
-            return res.status(400).json({ message: "L'ID de la tâche et au moins un utilisateur sont requis" });
+            return res.status(400).json({ message: "L\'ID de la tâche et au moins un utilisateur sont requis" });
         }
 
         const task = await Task.findByPk(taskId);
         if (!task) return res.status(404).json({ message: "Tâche non trouvée" });
 
-        const users = await User.findAll({ where: { user_id: userIds } });
+        const users = await User.findAll({ where: { user_id: userIds }, include: [{ model: Role, as: 'role' }] });
         if (users.length !== userIds.length) {
             return res.status(400).json({ message: "Un ou plusieurs utilisateurs sont invalides" });
+        }
+
+        const roleHierarchy = {
+            'Admin': 3,
+            'Manager': 2,
+            'Worker': 1
+        };
+
+        const assignerRoleLevel = roleHierarchy[assigner.role];
+
+        for (const user of users) {
+            const assigneeRoleLevel = roleHierarchy[user.role.name];
+            if (assignerRoleLevel <= assigneeRoleLevel) {
+                return res.status(403).json({ message: `Vous ne pouvez pas assigner une tâche à un utilisateur de rang égal ou supérieur (utilisateur: ${user.firstname} ${user.lastname}, rôle: ${user.role.name}).` });
+            }
         }
 
         // ⚡ Ajoute les utilisateurs à la tâche via la table pivot `user_tasks`
@@ -136,8 +195,6 @@ exports.assignUsersToTask = async (req, res) => {
     }
 };
 
-
-const { Op, literal } = require("sequelize");
 
 exports.getTasksByUserId = async (req, res) => {
     try {

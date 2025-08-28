@@ -36,5 +36,9 @@ User.hasMany(ConstructionSite, { foreignKey: 'chef_de_projet_id', as: 'managedSi
 User.belongsToMany(Task, { through: UserTask, foreignKey: 'user_id' });
 Task.belongsToMany(User, { through: UserTask, foreignKey: 'task_id' });
 
+// User <-> Task (Creator) (1-N)
+User.hasMany(Task, { foreignKey: 'creator_id', as: 'createdTasks' });
+Task.belongsTo(User, { foreignKey: 'creator_id', as: 'creator' });
+
 
 module.exports = { sequelize, ...models };

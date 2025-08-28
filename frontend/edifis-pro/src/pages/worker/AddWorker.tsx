@@ -38,7 +38,7 @@ export default function AddWorker() {
       try {
         const data = await competenceService.getAllCompetences();
         console.log("Compétences récupérées :", data);
-        setCompetences(data.competences);
+        setCompetences(data);
       } catch (error) {
         console.error("Erreur lors de la récupération des compétences :", error);
       }

@@ -1,28 +1,24 @@
-// routes/user.routes.js
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user.controller");
-const { protect, isAdmin, canManageUsers } = require("../middlewares/auth.middleware");
+const { protect, authorize, canManageUsers, ROLES } = require("../middlewares/auth.middleware");
 
-// Création : Admin, HR, Manager
-router.post(
-    "/",
-    protect,
-    (req, res, next) => {
-        if (["Admin", "HR", "Manager"].includes(req.user.role)) return next();
-        return res.status(403).json({ message: "Accès interdit" });
-    },
-    userController.createUser
-);
+// Visibility: Admin, HR, Manager
+router.get("/all", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllUsers);
+router.get("/all/manager", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllManagers);
+router.get("/list", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getDirectory);
+router.get("/getallworkers", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllWorkers);
+router.get("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getUserById);
 
-router.get("/list", protect, userController.getDirectory);
+// Creation: Admin, HR, Manager
+router.post("/", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.createUser);
 
-// Liste workers (laisse comme tu veux : admin only ou expose un /list filtré)
-router.get("/getallworkers", protect, isAdmin, userController.getAllWorkers);
-router.get("/all", protect, isAdmin, userController.getAllUsers);
+// Modification: Admin, HR, Manager
+router.put("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), canManageUsers, userController.updateUser);
 
-router.get("/:id", protect, userController.getUserById);
-router.put("/:id", protect, canManageUsers, userController.updateUser);
-router.delete("/:id", protect, canManageUsers, userController.deleteUser);
+// Deletion: Admin, HR
+router.delete("/:id", protect, authorize([ROLES.Admin, ROLES.HR]), canManageUsers, userController.deleteUser);
+
+router.post("/assign-competence", protect, authorize([ROLES.Admin, ROLES.Manager]), userController.assignCompetenceToUser);
 
 module.exports = router;

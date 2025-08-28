@@ -5,7 +5,7 @@ import React, {
   FocusEvent,
   MouseEvent,
 } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import constructionSiteService, {
   ConstructionSite,
@@ -13,7 +13,6 @@ import constructionSiteService, {
 import userService, { User } from "../../../services/userService";
 import Loading from "../../components/loading/Loading";
 import Badge from "../../components/badge/Badge";
-import { useNavigate } from "react-router-dom";
 
 export default function ConstructionDetails() {
   const { id } = useParams<{ id: string }>();
@@ -35,36 +34,30 @@ export default function ConstructionDetails() {
   const [managerInput, setManagerInput] = useState<string>("");
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
-  // 1) Chargement initial du chantier + pré-remplissage du chef de projet
+  const canEdit = user && ["Admin", "HR", "Manager"].includes(user.role);
+  const canDelete = user && ["Admin", "HR"].includes(user.role);
+
   useEffect(() => {
     async function fetchConstruction() {
-  console.log("[ConstructionDetails] Chargement chantier id=", id);
-  try {
-    const data = await constructionSiteService.getById(Number(id));
-    console.log("[ConstructionDetails] Chantier reçu:", data);
-    setConstruction(data);
-    setInitialConstruction(data);
+      try {
+        const data = await constructionSiteService.getById(Number(id));
+        setConstruction(data);
+        setInitialConstruction(data);
 
-    if (data.chef_de_projet_id) {
-      console.log("[ConstructionDetails] Chef de projet id:", data.chef_de_projet_id);
-      const m = await userService.getById(data.chef_de_projet_id);
-      console.log("[ConstructionDetails] Manager reçu:", m);
-      setManager(m);
-      setManagerInput(`${m.user_id} - ${m.firstname} ${m.lastname} (${m.email})`);
+        if (data.chef_de_projet_id) {
+          const m = await userService.getById(data.chef_de_projet_id);
+          setManager(m);
+          setManagerInput(`${m.user_id} - ${m.firstname} ${m.lastname} (${m.email})`);
+        }
+      } catch (err) {
+        setError("Erreur lors du chargement du chantier.");
+      } finally {
+        setLoading(false);
+      }
     }
-  } catch (err) {
-    console.error("[ConstructionDetails] Erreur API chantier:", err);
-    setError("Erreur lors du chargement du chantier.");
-  } finally {
-    console.log("[ConstructionDetails] Fin fetch chantier");
-    setLoading(false);
-  }
-}
-
     fetchConstruction();
   }, [id]);
 
-  // 2) Chargement des managers pour l'autocomplete dès qu'on passe en édition
   useEffect(() => {
     if (!isEditing) return;
     async function fetchUsers() {
@@ -78,7 +71,6 @@ export default function ConstructionDetails() {
     fetchUsers();
   }, [isEditing]);
 
-  // 3) À chaque changement de chef_de_projet_id, on recharge ses infos
   useEffect(() => {
     async function fetchManager() {
       if (!construction?.chef_de_projet_id) {
@@ -98,7 +90,6 @@ export default function ConstructionDetails() {
     fetchManager();
   }, [construction?.chef_de_projet_id]);
 
-  // Annuler les modifications et restaurer l'état initial
   const handleCancel = () => {
     if (initialConstruction) {
       setConstruction(initialConstruction);
@@ -124,7 +115,6 @@ export default function ConstructionDetails() {
     setManagerError(null);
   };
 
-  // Sauvegarder les modifications
   const handleSave = async () => {
     if (!construction) return;
     try {
@@ -140,13 +130,22 @@ export default function ConstructionDetails() {
     }
   };
 
-  // Gestion de la saisie dans le champ « Chef de projet »
+  const handleDelete = async () => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce chantier ?")) {
+      try {
+        await constructionSiteService.delete(Number(id));
+        navigate("/construction");
+      } catch (error) {
+        setError("Erreur lors de la suppression du chantier.");
+      }
+    }
+  };
+
   const onManagerInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setManagerInput(value);
     const q = value.trim().toLowerCase();
 
-    // 1) Extraction d'un préfixe numérique => on met à jour l'ID directement
     const idMatch = q.match(/^(\d+)/);
     if (idMatch) {
       const idNum = Number(idMatch[1]);
@@ -157,7 +156,6 @@ export default function ConstructionDetails() {
       return;
     }
 
-    // 2) Sinon on filtre la liste des managers par nom/prénom/email
     if (q.length > 0) {
       setFilteredUsers(
         allUsers.filter((u) => {
@@ -171,12 +169,10 @@ export default function ConstructionDetails() {
     }
   };
 
-  // Masquer la liste de suggestions après le blur (laisser passer le clic)
   const onManagerBlur = (e: FocusEvent<HTMLInputElement>) => {
     setTimeout(() => setFilteredUsers([]), 100);
   };
 
-  // Affichage selon l'état de chargement ou d'erreur
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100dvh-65px)] w-full p-8">
@@ -191,7 +187,6 @@ export default function ConstructionDetails() {
     return <p className="text-center text-slate-500">Chantier non trouvé</p>;
   }
 
-  // Pour la Badge
   const rawState = construction.state ?? "Prevu";
   const mappedState =
     rawState === "Prevu"
@@ -208,7 +203,7 @@ export default function ConstructionDetails() {
           >
             Retour
           </button>
-          {(user?.role === "Admin" || user?.role === "Manager") && (
+          {canEdit && (
             <div className="flex space-x-2">
               {isEditing && (
                 <button
@@ -226,23 +221,16 @@ export default function ConstructionDetails() {
               </button>
             </div>
           )}
-
         </div>
 
-        {user?.role === "Admin" && !isEditing && (
+        {canDelete && !isEditing && (
           <button
-            onClick={async () => {
-              if (window.confirm("Supprimer ce chantier ?")) {
-                await constructionSiteService.delete(Number(id));
-                navigate("/constructions"); // retour liste
-              }
-            }}
+            onClick={handleDelete}
             className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 h-9 px-4 py-2"
           >
             Supprimer
           </button>
         )}
-
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
@@ -392,7 +380,6 @@ export default function ConstructionDetails() {
           <div className="mt-2">
             <label className="text-sm font-medium">
               Détails du chef de projet: <br />
-              
             </label>
             {manager ? (
               <Link

@@ -74,8 +74,8 @@ const userService = {
     return await apiService.put(`/users/${id}`, data);
   },
 
-  createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
-    return await apiService.post<CreateUserResponse>("/users/register", payload);
+    createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
+    return await apiService.post<CreateUserResponse>("/users", payload);
   },
 
   delete: async (id: number): Promise<void> => {

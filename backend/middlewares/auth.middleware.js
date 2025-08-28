@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const Role = require("../models/Role");
+const { User, Role, Task } = require("../models");
 
 const protect = (req, res, next) => {
     try {
@@ -16,28 +15,13 @@ const protect = (req, res, next) => {
     }
 };
 
-// Vérifie si Admin
-const isAdmin = (req, res, next) => {
-    if (req.user.role !== "Admin") {
-        return res.status(403).json({ message: "Accès réservé à l’Admin" });
-    }
-    next();
-};
-
-// Vérifie si Manager
-const isManager = (req, res, next) => {
-    if (req.user.role !== "Manager") {
-        return res.status(403).json({ message: "Accès réservé aux Managers" });
-    }
-    next();
-};
-
-// Vérifie si RH
-const isHR = (req, res, next) => {
-    if (req.user.role !== "HR") {
-        return res.status(403).json({ message: "Accès réservé aux RH" });
-    }
-    next();
+const authorize = (allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user || !allowedRoles.includes(req.user.role)) {
+            return res.status(403).json({ message: "Accès non autorisé." });
+        }
+        next();
+    };
 };
 
 // Manager & Admin : peuvent gérer les users (mais pas Admin)
@@ -62,4 +46,64 @@ const canManageUsers = async (req, res, next) => {
     return res.status(403).json({ message: "Non autorisé" });
 };
 
-module.exports = { protect, isAdmin, isManager, isHR, canManageUsers };
+const ROLES = {
+    Admin: 'Admin',
+    HR: 'HR',
+    Manager: 'Manager',
+    Worker: 'Worker'
+};
+
+const roleHierarchy = {
+    [ROLES.Admin]: 3,
+    [ROLES.HR]: 2,
+    [ROLES.Manager]: 1,
+    [ROLES.Worker]: 0
+};
+
+const canUpdateTask = async (req, res, next) => {
+    try {
+        const task = await Task.findByPk(req.params.id);
+        if (!task) {
+            return res.status(404).json({ message: "Tâche non trouvée" });
+        }
+
+        // Allow if the user is the creator of the task
+        if (task.creator_id === req.user.id) {
+            return next();
+        }
+
+        const requesterRoleLevel = roleHierarchy[req.user.role];
+        
+        const creator = await User.findByPk(task.creator_id, { include: [{ model: Role, as: 'role' }] });
+        if (!creator) {
+            // Should not happen
+            return res.status(404).json({ message: "Créateur de la tâche non trouvé" });
+        }
+        const creatorRoleLevel = roleHierarchy[creator.role.name];
+
+        if (requesterRoleLevel < creatorRoleLevel) {
+            return res.status(403).json({ message: "Vous ne pouvez pas modifier une tâche créée par un utilisateur avec un rôle supérieur." });
+        }
+
+        next();
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const isAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'Admin') {
+        return next();
+    }
+    return res.status(403).json({ message: "Accès non autorisé. Seuls les Admins peuvent effectuer cette action." });
+};
+
+const isManager = (req, res, next) => {
+    if (req.user && req.user.role === 'Manager') {
+        return next();
+    }
+    return res.status(403).json({ message: "Accès non autorisé. Seuls les Managers peuvent effectuer cette action." });
+};
+
+
+module.exports = { protect, authorize, canManageUsers, ROLES, canUpdateTask, isAdmin, isManager };
