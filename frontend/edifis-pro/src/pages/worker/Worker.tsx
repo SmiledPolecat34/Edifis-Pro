@@ -34,7 +34,8 @@ export default function Workers() {
     (worker) =>
       filter === "all" ||
       (filter === "ouvrier" && worker.role === "Worker") ||
-      (filter === "chef" && worker.role === "Manager")
+      (filter === "chef" && worker.role === "Project_Chief") ||
+      (filter === "manager" && worker.role === "Manager")
   );
 
   if (loading) {
@@ -70,6 +71,7 @@ export default function Workers() {
           <option value="all">Tous</option>
           <option value="ouvrier">Ouvrier</option>
           <option value="chef">Chef de projet</option>
+          <option value="manager">Manager</option>
         </select>
       </div>
 
