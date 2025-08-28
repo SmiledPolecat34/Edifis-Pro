@@ -3,6 +3,7 @@
 import express, { Request, Response } from "express";
 import request from "supertest";
 import bcrypt from "bcrypt";
+import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 /**
@@ -87,7 +88,7 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
         role: "Admin",
         password: "hashed",
       } as any);
-      jest.spyOn(bcrypt, "compare").mockResolvedValue(true as any);
+      jest.spyOn(bcryptjs, "compare").mockResolvedValue(true as any);
       jest.spyOn(jwt, "sign").mockReturnValue("jwt.token" as any);
 
       const res = await request(app)
@@ -121,6 +122,29 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
         .send({ email: "john@example.com", password: "wrongPassword" });
 
       expect(res.status).toBe(401);
+    });
+  });
+
+  describe("POST /api/auth/login", () => {
+    it("devrait retourner 200 avec un JWT et le rôle de l'utilisateur", async () => {
+      const models = require("../../models");
+      jest.spyOn(models.User, "findOne").mockResolvedValue({
+        user_id: 1,
+        role_id: 2,
+        password: "hashed",
+        email: "john@example.com",
+      } as any);
+      jest.spyOn(bcryptjs, "compare").mockResolvedValue(true as any);
+      jest.spyOn(models.Role, "findByPk").mockResolvedValue({ name: "Manager" } as any);
+      jest.spyOn(jwt, "sign").mockReturnValue("jwt.token" as any);
+
+      const res = await request(app)
+        .post("/api/auth/login")
+        .send({ email: "john@example.com", password: "Sup3rPassword!" });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("token");
+      expect(res.body.user).toHaveProperty("role", "Manager");
     });
   });
 
