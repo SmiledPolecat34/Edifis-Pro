@@ -4,7 +4,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { User, PasswordResetToken } = require("../models");
+const { User, PasswordResetToken, Role } = require("../models");
 const { sendMail } = require("../services/email.service");
 const { hash: hashPassword } = require("../services/password.service");
 
