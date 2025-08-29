@@ -29,7 +29,13 @@ exports.createUser = async (req, res) => {
         // 2) Email unique
         const existing = await User.findOne({ where: { email } });
         if (existing) {
-            return res.status(400).json({ message: "Cet email est déjà utilisé" });
+            return res.status(409).json({ message: "Cet email est déjà utilisé" });
+        }
+
+        // 2b) Numéro de téléphone unique
+        const existingPhone = await User.findOne({ where: { numberphone } });
+        if (existingPhone) {
+            return res.status(409).json({ message: "Ce numéro de téléphone est déjà utilisé" });
         }
 
         // 3) Autorisation Admin
@@ -89,7 +95,18 @@ exports.createUser = async (req, res) => {
             user: { user_id: user.user_id, firstname: user.firstname }
         });
     } catch (error) {
-        console.error("createUser:", error);
+        console.error("createUser error:", error);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const field = error.errors[0].path;
+            if (field === 'numberphone') {
+                return res.status(409).json({ message: "Ce numéro de téléphone est déjà utilisé." });
+            }
+            if (field === 'email') {
+                return res.status(409).json({ message: "Cet email est déjà utilisé." });
+            }
+            // Fallback for other unique constraints
+            return res.status(409).json({ message: `La valeur pour le champ '${field}' est déjà utilisée.` });
+        }
         return res.status(500).json({ error: error.message });
     }
 };
@@ -210,6 +227,23 @@ exports.getAllManagers = async (req, res) => {
         });
 
         res.json(managers);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des chefs de projet :", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getAllProjectChiefs = async (req, res) => {
+    console.log('Hit getAllProjectChiefs');
+    try {
+        const projectChiefs = await User.findAll({
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
+            where: {
+                role_id: 4 // 4 = Project_Chief
+            }
+        });
+
+        res.json(projectChiefs);
     } catch (error) {
         console.error("Erreur lors de la récupération des chefs de projet :", error);
         res.status(500).json({ error: error.message });
@@ -454,10 +488,11 @@ exports.suggestEmail = async (req, res) => {
 
         const localPartBase = last ? `${first}.${last}` : first;
         const domain = "edifis-pro.com";
+        const finalLocalPart = localPartBase.replace(/\s/g, '');
 
         // On récupère tous les emails qui commencent par localPartBase
         // (ex: pierre.benoit@..., pierre.benoit2@..., pierre.benoit10@...)
-        const likePrefix = `${localPartBase}%@${domain}`;
+        const likePrefix = `${finalLocalPart}%@${domain}`;
         const existing = await User.findAll({
             attributes: ["email"],
             where: { email: { [Op.like]: likePrefix } },
@@ -466,18 +501,18 @@ exports.suggestEmail = async (req, res) => {
         // Cherche le plus petit suffixe dispo (base, base2, base3, …)
         const used = new Set(
             existing.map(u => {
-                const m = u.email.match(new RegExp(`^${localPartBase}(\\d+)?@${domain}`))
+                const m = u.email.match(new RegExp(`^${finalLocalPart}(\d+)?@${domain}`))
                 // m[1] contient le nombre si présent
                 return m && m[1] ? parseInt(m[1], 10) : 0; // 0 = sans suffixe
             })
         );
 
-        let candidate = `${localPartBase}@${domain}`;
+        let candidate = `${finalLocalPart}@${domain}`;
         if (used.has(0)) {
             // base déjà pris, on teste 2,3,4…
             let n = 2;
             while (used.has(n)) n++;
-            candidate = `${localPartBase}${n}@${domain}`;
+            candidate = `${finalLocalPart}${n}@${domain}`;
         }
 
         return res.json({ email: candidate });

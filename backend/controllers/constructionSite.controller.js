@@ -263,3 +263,24 @@ exports.getConstructionSitesByUserId = async (req, res) => {
     }
 };
 
+exports.getUsersOfConstructionSite = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const users = await User.findAll({
+            include: [{
+                model: Task,
+                required: true,
+                where: {
+                    construction_site_id: id
+                },
+                attributes: []
+            }],
+            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"]
+        });
+        res.json(users);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des utilisateurs du chantier :", error);
+        res.status(500).json({ error: error.message });
+    }
+};
+

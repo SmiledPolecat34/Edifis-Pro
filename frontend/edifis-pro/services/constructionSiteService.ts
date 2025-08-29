@@ -45,6 +45,10 @@ const constructionSiteService = {
   getById: async (id: number): Promise<ConstructionSite> => {
     return await apiService.get<ConstructionSite>(`/construction-sites/${id}`);
   },
+
+  getUsersOfConstructionSite: async (id: number): Promise<User[]> => {
+    return await apiService.get<User[]>(`/construction-sites/${id}/users`);
+  },
 };
 
 export default constructionSiteService;

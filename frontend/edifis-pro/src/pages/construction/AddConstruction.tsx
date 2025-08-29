@@ -5,7 +5,7 @@ import userService, { User } from "../../../services/userService";
 
 export default function AddConstruction() {
   const navigate = useNavigate();
-  const [managers, setManagers] = useState<User[]>([]);
+  const [projectChiefs, setProjectChiefs] = useState<User[]>([]);
 
   // On déclare un état pour tous nos champs
   const [formData, setFormData] = useState({
@@ -23,16 +23,16 @@ export default function AddConstruction() {
 
   // Au chargement, on récupère tous les managers
   useEffect(() => {
-    const fetchManagers = async () => {
+    const fetchProjectChiefs = async () => {
       try {
-        const managersData = await userService.getAllManagers();
-        console.log('Managers fetched:', managersData);
-        setManagers(managersData);
+        const projectChiefsData = await userService.getAllProjectChiefs();
+        console.log('Project chiefs fetched:', projectChiefsData);
+        setProjectChiefs(projectChiefsData);
       } catch (error) {
-        console.error("Erreur lors de la récupération des managers :", error);
+        console.error("Erreur lors de la récupération des chefs de projet :", error);
       }
     };
-    fetchManagers();
+    fetchProjectChiefs();
   }, []);
 
   // Gestion des champs "text", "select", etc.
@@ -168,10 +168,10 @@ export default function AddConstruction() {
             className="w-full p-3 border rounded"
             required
           >
-            <option value="">Sélectionner un chef de chantier</option>
-            {managers.map((manager) => (
-              <option key={manager.user_id} value={manager.user_id}>
-                {manager.firstname} {manager.lastname}
+            <option value="">Sélectionner un chef de projet</option>
+            {projectChiefs.map((chief) => (
+              <option key={chief.user_id} value={chief.user_id}>
+                {chief.firstname} {chief.lastname}
               </option>
             ))}
           </select>

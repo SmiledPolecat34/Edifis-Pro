@@ -27,7 +27,7 @@ export default function EditMission() {
     const fetchData = async () => {
       try {
         const missionData = await taskService.getById(Number(id));
-        const usersData = await userService.getAll();
+        const usersData = await userService.getAllUsers();
         setMission(missionData);
         setUsers(usersData);
 
@@ -155,7 +155,7 @@ export default function EditMission() {
         </select>
 
         <div>
-          <h2 className="text-lg font-semibold mb-2">👥 Assigner des utilisateurs</h2>
+          <h2 className="text-lg font-semibold mb-2">👥 Affecter des employés</h2>
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto border p-2 rounded">
             {users.map((u) => {
               const assigned = mission.users.some((usr) => usr.user_id === u.user_id);

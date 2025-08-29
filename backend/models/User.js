@@ -13,7 +13,7 @@ const User = sequelize.define("User", {
 }, {
   tableName: "users",
   underscored: true,
-  timestamps: false,
+  timestamps: true,
 });
 
 module.exports = User;

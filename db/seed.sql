@@ -9,7 +9,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 INSERT INTO roles (name) VALUES
   ('Admin'),
   ('Worker'),
-  ('Manager');
+  ('Manager'),
+  ('Project_Chief');
 
 -- COMPETENCES
 INSERT INTO competences (name) VALUES
@@ -21,7 +22,11 @@ INSERT INTO competences (name) VALUES
 -- UTILISATEURS
 -- Admin avec rôle Manager
 INSERT INTO users (firstname, lastname, email, numberphone, profile_picture, password, role, role_id)
-VALUES ('Admin', 'Manager', 'admin@edifis-pro.com', '0600000000', NULL, '$2b$10$6IDXPiSq7cGO2N4514VQgeGm4Ez2BL3nCKbwi3a.xvqw9u9wkWzHG', 'Manager', 3);
+VALUES ('Admin', 'Admin', 'admin@edifis-pro.com', '0600000000', NULL, '$2b$10$6IDXPiSq7cGO2N4514VQgeGm4Ez2BL3nCKbwi3a.xvqw9u9wkWzHG', 'Admin', 1);
+
+-- Chef de projet
+INSERT INTO users (firstname, lastname, email, numberphone, profile_picture, password, role, role_id)
+VALUES ('Chef', 'Projet', 'chef@edifis-pro.com', '0600000001', NULL, '$2b$10$6IDXPiSq7cGO2N4514VQgeGm4Ez2BL3nCKbwi3a.xvqw9u9wkWzHG', 'Project_Chief', 4);
 
 -- CHANTIERS
 INSERT INTO construction_site (name, state, description, adresse, start_date, end_date, open_time, end_time, image_url, chef_de_projet_id)

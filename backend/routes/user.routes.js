@@ -6,6 +6,7 @@ const { protect, authorize, canManageUsers, ROLES } = require("../middlewares/au
 // Visibility: Admin, HR, Manager
 router.get("/all", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllUsers);
 router.get("/all/manager", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllManagers);
+router.get("/all/project-chief", protect, userController.getAllProjectChiefs);
 router.get("/list", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getDirectory);
 router.get("/getallworkers", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllWorkers);
 router.get("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getUserById);

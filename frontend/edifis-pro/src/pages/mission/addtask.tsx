@@ -28,23 +28,6 @@ export default function CreateTask() {
   const [userFilter, setUserFilter] = useState("");
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        let data;
-        if (user.role === "Admin") {
-          data = await userService.getAllUsers(); // Récupère tous les utilisateurs sauf Admins
-        } else if (user.role === "Manager") {
-          data = await userService.getAllWorkers(); // Récupère uniquement les ouvriers
-        } else {
-          setError("Vous n'avez pas accès à cette ressource.");
-          return;
-        }
-        setUsers(data);
-      } catch (err) {
-        setError("Erreur lors du chargement des utilisateurs.");
-      }
-    };
-
     const fetchConstructions = async () => {
       try {
         const data = await constructionService.getAll();
@@ -54,7 +37,6 @@ export default function CreateTask() {
       }
     };
 
-    fetchUsers();
     fetchConstructions();
   }, [user]);
 
@@ -64,7 +46,7 @@ export default function CreateTask() {
     return `${dateString}T00:00`;
   };
 
-  const handleConstructionChange = (e) => {
+  const handleConstructionChange = async (e) => {
     const selectedId = Number(e.target.value);
     setSelectedConstruction(selectedId);
     const selectedConstructionData = constructions.find(
@@ -77,6 +59,15 @@ export default function CreateTask() {
       // Réinitialisation des dates de la mission
       setStartDate(formatDateForInput(selectedConstructionData.start_date));
       setEndDate(formatDateForInput(selectedConstructionData.end_date));
+
+      // Fetch users for the selected construction site
+      try {
+        const usersData = await constructionService.getUsersOfConstructionSite(selectedId);
+        setUsers(usersData);
+      } catch (err) {
+        setError("Erreur lors du chargement des utilisateurs du chantier.");
+      }
+
     }
   };
 
@@ -242,7 +233,7 @@ export default function CreateTask() {
         {/* Sélection des utilisateurs */}
         <div className="mb-4">
           <label className="block text-gray-700">
-            Assigner des utilisateurs :
+            Affecter des employés :
           </label>
           <select
             multiple

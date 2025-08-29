@@ -62,6 +62,10 @@ const userService = {
     return await apiService.get<User[]>("/users/all/manager");
   },
 
+  getAllProjectChiefs: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/all/project-chief");
+  },
+
   getById: async (id: number) => {
     return await apiService.get(`/users/${id}`);
   },

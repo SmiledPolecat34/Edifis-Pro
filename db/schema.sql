@@ -10,7 +10,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
   role_id INT AUTO_INCREMENT PRIMARY KEY,
-  name ENUM('Admin','Worker','Manager',) NOT NULL
+  name ENUM('Admin','Worker','Manager','Project_Chief') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- 2) Utilisateurs
@@ -24,7 +24,7 @@ CREATE TABLE users (
   profile_picture VARCHAR(255),
   password VARCHAR(255) NOT NULL,
   -- Le modèle Sequelize mappe le champ JS "role_label" vers la colonne SQL "role"
-  role ENUM('Admin','Worker','Manager') NOT NULL DEFAULT 'Worker',
+  role ENUM('Admin','Worker','Manager','Project_Chief') NOT NULL DEFAULT 'Worker',
   role_id INT NULL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

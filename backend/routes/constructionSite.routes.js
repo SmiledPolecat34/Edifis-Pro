@@ -7,6 +7,7 @@ const { upload, setUploadType } = require("../middlewares/upload.middleware");
 // Visibility for all except worker
 router.get("/", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), constructionController.getAllConstructionSites);
 router.get("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), constructionController.getConstructionSiteById);
+router.get("/:id/users", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), constructionController.getUsersOfConstructionSite);
 router.get("/user/:userId", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), constructionController.getConstructionSitesByUserId);
 
 // Creation for Admin, HR, Manager

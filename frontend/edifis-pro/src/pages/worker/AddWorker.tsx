@@ -131,7 +131,7 @@ const [submitOk, setSubmitOk] = useState<string | null>(null); // pour afficher 
   const newUser: UserPayload = {
     firstname: formData.firstname,
     lastname: formData.lastname,
-    email: formData.email,
+    email: formData.email.trim(),
     numberphone: formData.numberphone,
     role: formData.role,
     competences: selectedCompetences,
