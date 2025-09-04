@@ -3,7 +3,6 @@ import React, {
   useEffect,
   ChangeEvent,
   FocusEvent,
-  MouseEvent,
 } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -34,8 +33,13 @@ export default function ConstructionDetails() {
   const [managerInput, setManagerInput] = useState<string>("");
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
-  const canEdit = user && ["Admin", "HR", "Manager"].includes(user.role);
-  const canDelete = user && ["Admin", "HR"].includes(user.role);
+  const canEdit = user && user.role && ["Admin", "HR", "Manager"].includes(user.role.name) && construction && !["Annulé", "Terminé"].includes(construction.state || "");
+  const canDelete = user && user.role && ["Admin", "HR"].includes(user.role.name);
+
+  console.log("user", user);
+  console.log("construction", construction);
+  console.log("canEdit", canEdit);
+  console.log("canDelete", canDelete);
 
   useEffect(() => {
     async function fetchConstruction() {
@@ -62,7 +66,7 @@ export default function ConstructionDetails() {
     if (!isEditing) return;
     async function fetchUsers() {
       try {
-        const users = await userService.getAllManagers();
+        const users = await userService.getAllProjectChiefs();
         setAllUsers(users);
       } catch (err) {
         console.error("Erreur lors du chargement des utilisateurs :", err);
@@ -130,13 +134,21 @@ export default function ConstructionDetails() {
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce chantier ?")) {
+  const handleCancelProject = async () => {
+    if (!construction) return;
+    if (window.confirm("Êtes-vous sûr de vouloir annuler ce chantier ?")) {
       try {
-        await constructionSiteService.delete(Number(id));
-        navigate("/construction");
-      } catch (error) {
-        setError("Erreur lors de la suppression du chantier.");
+        setLoading(true);
+        const updatedConstruction = { ...construction, state: "Annulé" as const };
+        await constructionSiteService.update(Number(id), updatedConstruction);
+        setConstruction(updatedConstruction);
+        setInitialConstruction(updatedConstruction);
+        setIsEditing(false);
+      } catch (err) {
+        console.error(err);
+        setError("Erreur lors de l'annulation du chantier.");
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -187,9 +199,9 @@ export default function ConstructionDetails() {
     return <p className="text-center text-slate-500">Chantier non trouvé</p>;
   }
 
-  const rawState = construction.state ?? "Prevu";
+  const rawState = construction.state ?? "Prévu";
   const mappedState =
-    rawState === "Prevu"
+    rawState === "Prévu"
       ? "Prévu"
       : (rawState as "En cours" | "Terminé" | "Annulé" | "Prévu");
 
@@ -203,34 +215,44 @@ export default function ConstructionDetails() {
           >
             Retour
           </button>
-          {canEdit && (
-            <div className="flex space-x-2">
-              {isEditing && (
+          <div className="flex space-x-2">
+            {isEditing ? (
+              <>
                 <button
                   onClick={handleCancel}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-gray-200 text-gray-950 hover:bg-gray-300 h-9 px-4 py-2"
                 >
                   Annuler
                 </button>
-              )}
-              <button
-                onClick={isEditing ? handleSave : () => setIsEditing(true)}
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
-              >
-                {isEditing ? "Enregistrer" : "Modifier"}
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={handleSave}
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 h-9 px-4 py-2"
+                >
+                  Valider les modifications
+                </button>
+              </>
+            ) : (
+              <>
+                {canEdit && (
+                  <button
+                    onClick={handleCancelProject}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-yellow-400 text-yellow-950 hover:bg-yellow-500 h-9 px-4 py-2"
+                  >
+                    Annuler le projet
+                  </button>
+                )}
+                {canEdit && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
+                  >
+                    Modifier
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
-
-        {canDelete && !isEditing && (
-          <button
-            onClick={handleDelete}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-red-600 text-white hover:bg-red-700 h-9 px-4 py-2"
-          >
-            Supprimer
-          </button>
-        )}
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
@@ -330,58 +352,42 @@ export default function ConstructionDetails() {
               construction.end_date
             )}
           </p>
-
-          <div className="relative flex flex-col gap-1">
-            <label className="text-sm font-medium">Chef de projet</label>
-            {isEditing ? (
-              <>
-                <input
-                  type="text"
-                  placeholder="Tapez le nom du chef de projet"
-                  className="h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950"
-                  value={managerInput}
-                  onChange={onManagerInputChange}
-                  onBlur={onManagerBlur}
-                />
-                {filteredUsers.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded-md border border-slate-200 bg-white shadow-sm">
-                    {filteredUsers.map((u) => (
-                      <li
-                        key={u.user_id}
-                        className="cursor-pointer px-3 py-2 hover:bg-slate-100"
-                        onMouseDown={(e: MouseEvent) => {
-                          setConstruction((prev) =>
-                            prev
-                              ? { ...prev, chef_de_projet_id: u.user_id }
-                              : prev
-                          );
-                          setManagerInput(`${u.firstname} ${u.lastname}`);
-                          setFilteredUsers([]);
-                        }}
-                      >
-                        {u.firstname} {u.lastname} — {u.email}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            ) : construction.chef_de_projet_id ? (
-              <p className="text-sm text-slate-700">
-                {construction.chef_de_projet_id}
-              </p>
-            ) : (
-              <p className="text-sm text-slate-500">Non spécifié</p>
-            )}
-            {managerError && (
-              <p className="text-xs text-red-500">{managerError}</p>
-            )}
-          </div>
-
           <div className="mt-2">
             <label className="text-sm font-medium">
               Détails du chef de projet: <br />
             </label>
-            {manager ? (
+            {isEditing ? (
+              <div>
+                <input
+                  type="text"
+                  value={managerInput}
+                  onChange={onManagerInputChange}
+                  onBlur={onManagerBlur}
+                  placeholder="Rechercher un chef de projet..."
+                  className="h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                {filteredUsers.length > 0 && (
+                  <ul className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
+                    {filteredUsers.map((u) => (
+                      <li
+                        key={u.user_id}
+                        className="cursor-pointer p-2 hover:bg-gray-100"
+                        onClick={() => {
+                          if(construction) {
+                            setConstruction({ ...construction, chef_de_projet_id: u.user_id });
+                            setManager(u);
+                            setManagerInput(`${u.user_id} - ${u.firstname} ${u.lastname} (${u.email})`);
+                            setFilteredUsers([]);
+                          }
+                        }}
+                      >
+                        {u.firstname} {u.lastname} ({u.email})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : manager ? (
               <Link
                 to={`/user/${manager.user_id}`}
                 className="text-blue-600 hover:underline"
@@ -400,6 +406,11 @@ export default function ConstructionDetails() {
           <p className="mt-4">
             <strong>Date de création :</strong>{" "}
             {construction.start_date ?? "Non spécifiée"}
+          </p>
+
+          <p>
+            <strong>Date de mise à jour :</strong>{" "}
+            {construction.updated_at ?? "Non spécifiée"}
           </p>
         </div>
       </div>

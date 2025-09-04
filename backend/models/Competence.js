@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../config/database');
 
 const Competence = sequelize.define('Competence', {
   competence_id: {
@@ -27,7 +27,7 @@ const Competence = sequelize.define('Competence', {
   }
 }, {
   tableName: 'competences',
-  timestamps: true
+  timestamps: false
 });
 
 module.exports = Competence;

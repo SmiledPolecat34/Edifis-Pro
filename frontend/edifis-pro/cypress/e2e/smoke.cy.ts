@@ -1,12 +1,20 @@
 describe('Smoke Test', () => {
-  it('should load the home page', () => {
-    // Visite l'URL de base configurée dans cypress.config.ts (ou votre fichier de config)
+  it('should load the home page after login', () => {
+    // Visite l'URL de base
     cy.visit('/');
 
-    // Vérifie qu'un élément clé de votre page d'accueil est bien présent.
-    // Par exemple, si vous avez un titre h1 avec le nom de l'application.
-    // NOTE: Vous devrez peut-être ajuster le sélecteur ci-dessous pour qu'il corresponde
-    // au contenu réel de votre page d'accueil.
-    cy.get('h1').should('contain', 'Edifis-Pro');
+    // Entrer l'email et le mot de passe
+    cy.get('#email').type('admin@edifis-pro.com');
+    cy.get('#password').type('AdminEdifis2025!');
+
+    // Cliquer sur le bouton de connexion
+    cy.contains('Se connecter').click();
+
+    // Attendre que la page d'accueil se charge
+    cy.wait(1000); // attend 1 seconde
+
+    // Vérifier que l'on est bien sur la page d'accueil
+    // en cherchant un élément spécifique à cette page.
+    cy.get('h1').should('contain', 'Bienvenue, Admin Edifis');
   });
 });

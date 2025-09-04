@@ -13,8 +13,8 @@ export interface User {
   role: RoleType | string;
   profile_picture?: string;
   competences?: Competence[];
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CreateUserPayload {
@@ -44,12 +44,11 @@ export interface UpdateUserPayload {
   lastname?: string;
   email?: string;
   numberphone?: string;
-  role?: RoleType | string;      // on envoie le nom du rôle
-  competences?: number[];         // <-- IDs uniquement !
+  role?: RoleType | string;
+  competences?: number[];
 }
 
 const userService = {
-  // (tu peux garder tes anciennes méthodes si utilisées ailleurs)
   getAllWorkers: async (): Promise<User[]> => {
     return await apiService.get<User[]>("/users/getallworkers");
   },
@@ -63,22 +62,22 @@ const userService = {
   },
 
   getAllProjectChiefs: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/all/project-chief");
-  },
-
-  getById: async (id: number) => {
-    return await apiService.get(`/users/${id}`);
+    return await apiService.get<User[]>("/users/project-chiefs");
   },
 
   getDirectory: async (): Promise<User[]> => {
     return await apiService.get<User[]>("/users/list");
   },
 
+  getById: async (id: number) => {
+    return await apiService.get(`/users/${id}`);
+  },
+
   update: async (id: number, data: UpdateUserPayload) => {
     return await apiService.put(`/users/${id}`, data);
   },
 
-    createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
+  createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
     return await apiService.post<CreateUserResponse>("/users", payload);
   },
 

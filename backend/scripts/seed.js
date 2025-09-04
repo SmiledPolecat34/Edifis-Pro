@@ -11,7 +11,7 @@ const Task = require('../models/Task');
 async function run() {
     try {
         await sequelize.authenticate();
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
 
         // ---- ROLES
         const roleNames = ['Admin', 'Manager', 'Worker', 'HR', 'Project_Chief', 'User'];

@@ -5,6 +5,6 @@ describe('Application Smoke Test', () => {
 
     // Vérifie la présence d'un élément clé de la page de connexion
     // Note : Cet sélecteur peut avoir besoin d'être ajusté en fonction de votre code.
-    cy.contains('h2', 'Connexion').should('be.visible');
+    cy.contains('Entrez vos identifiants pour vous connecter').should('be.visible');
   });
 });

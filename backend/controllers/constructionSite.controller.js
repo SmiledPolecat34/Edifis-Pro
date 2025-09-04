@@ -11,13 +11,13 @@ const path = require("path");
 exports.createConstructionSite = async (req, res) => {
     try {
         console.log("Données reçues :", req.body);
-        const { name, state, description, adresse, start_date, end_date, open_time, end_time, chef_de_projet_id } = req.body;
+        const { name, state, description, adresse, start_date, end_date, chef_de_projet_id } = req.body;
 
         let chefDeProjet = null;
         if (chef_de_projet_id) {
             chefDeProjet = await User.findByPk(chef_de_projet_id);
-            if (!chefDeProjet || chefDeProjet.role !== "Manager") {
-                return res.status(400).json({ message: "L'utilisateur spécifié n'est pas un chef de projet valide" });
+            if (!chefDeProjet || (chefDeProjet.role_id !== 4 && chefDeProjet.role_id !== 3)) {
+                return res.status(400).json({ message: "L'utilisateur spécifié n'est pas un chef de projet ou un manager valide" });
             }
         }
 
@@ -34,8 +34,6 @@ exports.createConstructionSite = async (req, res) => {
             adresse,
             start_date,
             end_date,
-            open_time,
-            end_time,
             chef_de_projet_id: chefDeProjet ? chef_de_projet_id : null,
             image_url
         };
@@ -82,8 +80,6 @@ exports.getAllConstructionSites = async (req, res) => {
                 "adresse",
                 "start_date",
                 "end_date",
-                "open_time",
-                "end_time",
                 "date_creation",
                 "image_url",
                 "chef_de_projet_id"
@@ -118,8 +114,6 @@ exports.getConstructionSiteById = async (req, res) => {
                     "adresse",
                     "start_date",
                     "end_date",
-                    "open_time",
-                    "end_time",
                     "date_creation",
                     "image_url",
                     "chef_de_projet_id"
@@ -248,7 +242,7 @@ exports.getConstructionSitesByUserId = async (req, res) => {
             }],
             attributes: [
                 "construction_site_id", "name", "state", "description",
-                "adresse", "start_date", "end_date", "open_time", "end_time", "date_creation", "image_url"
+                "adresse", "start_date", "end_date", "date_creation", "image_url"
             ]
         });
 
@@ -283,4 +277,3 @@ exports.getUsersOfConstructionSite = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-

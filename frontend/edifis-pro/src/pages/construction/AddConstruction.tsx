@@ -21,12 +21,12 @@ export default function AddConstruction() {
   // Image sélectionnée
   const [image, setImage] = useState<File | null>(null);
 
-  // Au chargement, on récupère tous les managers
+  // Au chargement, on récupère tous les chefs de projet
   useEffect(() => {
     const fetchProjectChiefs = async () => {
       try {
         const projectChiefsData = await userService.getAllProjectChiefs();
-        console.log('Project chiefs fetched:', projectChiefsData);
+        console.log('Chefs de projet récupérés :', projectChiefsData);
         setProjectChiefs(projectChiefsData);
       } catch (error) {
         console.error("Erreur lors de la récupération des chefs de projet :", error);
@@ -113,7 +113,7 @@ export default function AddConstruction() {
       // Appel du service (multipart/form-data)
       await constructionSiteService.create(formDataToSend);
       console.log("Chantier ajouté avec succès");
-      navigate("/");
+      navigate("/construction");
     } catch (error) {
       console.error("Erreur lors de l'ajout du chantier :", error);
     }
@@ -166,9 +166,10 @@ export default function AddConstruction() {
             value={formData.chef_de_projet_id}
             onChange={handleChange}
             className="w-full p-3 border rounded"
-            required
           >
-            <option value="">Sélectionner un chef de projet</option>
+            <option value="">
+              {projectChiefs.length ? "Sélectionner un chef de projet" : "Aucun chef de projet disponible"}
+            </option>
             {projectChiefs.map((chief) => (
               <option key={chief.user_id} value={chief.user_id}>
                 {chief.firstname} {chief.lastname}
@@ -183,9 +184,9 @@ export default function AddConstruction() {
             className="w-full p-3 border rounded"
           >
             <option value="En cours">En cours</option>
+            <option value="Prévu">Prévu</option>
             <option value="Terminé">Terminé</option>
             <option value="Annulé">Annulé</option>
-            <option value="Prevu">Prévu</option>
           </select>
 
           <div className="grid grid-cols-2 gap-4">

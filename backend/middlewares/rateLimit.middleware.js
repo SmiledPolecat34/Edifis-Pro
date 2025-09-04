@@ -7,6 +7,11 @@ const { RateLimiterMemory } = require("rate-limiter-flexible");
  * - duration: fenêtre en secondes
  */
 function rateLimitIP(opts = {}) {
+    // Désactiver le rate limiting si la variable d'environnement est définie
+    if (process.env.DISABLE_RATE_LIMIT === 'true') {
+        return (req, res, next) => next();
+    }
+
     const {
         points = parseInt(process.env.RATE_LIMIT_POINTS || "5", 10), // 5 req
         duration = parseInt(process.env.RATE_LIMIT_DURATION || "60", 10), // par 60s
@@ -30,6 +35,11 @@ function rateLimitIP(opts = {}) {
  * - limite l&#39;abus par IP ET par email
  */
 function rateLimitIPAndEmail(opts = {}) {
+    // Désactiver le rate limiting si la variable d'environnement est définie
+    if (process.env.DISABLE_RATE_LIMIT === 'true') {
+        return (req, res, next) => next();
+    }
+
     const {
         ipPoints = parseInt(process.env.RATE_LIMIT_IP_POINTS || "10", 10), // 10 req par IP
         ipDuration = parseInt(process.env.RATE_LIMIT_IP_DURATION || "300", 10), // 5 min
@@ -45,10 +55,10 @@ function rateLimitIPAndEmail(opts = {}) {
         const ipKey = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress || "global";
         const email = (req.body && req.body[emailField]) ? String(req.body[emailField]).toLowerCase().trim() : null;
         try {
-            // Consommer un point pour l&#39;IP
+            // Consommer un point pour l'IP
             await ipLimiter.consume(ipKey);
 
-            // Consommer un point pour l&#39;email si présent
+            // Consommer un point pour l'email si présent
             if (email) {
                 await emailLimiter.consume(email);
             }

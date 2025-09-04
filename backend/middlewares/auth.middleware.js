@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User, Role, Task } = require("../models");
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
 const protect = (req, res, next) => {
     try {
@@ -7,7 +9,7 @@ const protect = (req, res, next) => {
         if (!token) {
             return res.status(401).json({ message: "Token manquant" });
         }
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev_secret');
         req.user = decoded;
         next();
     } catch (err) {

@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/sequelize');
+const sequelize = require('../config/database');
 
 const Role = sequelize.define('Role', {
   role_id: {
@@ -8,13 +8,12 @@ const Role = sequelize.define('Role', {
     autoIncrement: true,
   },
   name: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.ENUM('Admin', 'Worker', 'Manager', 'Project_Chief', 'HR'),
     allowNull: false,
-    unique: true,
   },
 }, {
   tableName: 'roles',
-  timestamps: true,
+  timestamps: false,
 });
 
 module.exports = Role;

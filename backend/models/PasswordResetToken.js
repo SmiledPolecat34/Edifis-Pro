@@ -40,10 +40,7 @@ const PasswordResetToken = sequelize.define("password_reset_tokens", {
         type: DataTypes.STRING(255),
         allowNull: true,
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
+    
 }, {
     indexes: [
         { fields: ["user_id"] },

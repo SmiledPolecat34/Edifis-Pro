@@ -1,8 +1,19 @@
-// frontend/edifis-pro/services/authService.ts
 import axios, { AxiosError } from "axios";
 import { LoginData } from "../model/Auth";
 
-const api = axios.create({ baseURL: "http://localhost:5000/api" });
+const env = import.meta.env;
+
+// Normalize base URL to ensure it contains "/api"
+const rawBase = env?.VITE_API_URL || "http://localhost:5000/api";
+const normalizedBase = (() => {
+    const trimmed = rawBase.replace(/\/$/, "");
+    return trimmed.endsWith("/api") ? trimmed : `${trimmed}/api`;
+})();
+
+const api = axios.create({
+    baseURL: normalizedBase,
+});
+
 
 export interface LoginResponse {
     token: string;

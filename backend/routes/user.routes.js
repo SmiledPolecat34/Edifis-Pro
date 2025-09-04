@@ -1,25 +1,35 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user.controller");
-const { protect, authorize, canManageUsers, ROLES } = require("../middlewares/auth.middleware");
+const { protect, isAdmin, canManageUsers } = require("../middlewares/auth.middleware");
 
-// Visibility: Admin, HR, Manager
-router.get("/all", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllUsers);
-router.get("/all/manager", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllManagers);
-router.get("/all/project-chief", protect, userController.getAllProjectChiefs);
-router.get("/list", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getDirectory);
-router.get("/getallworkers", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getAllWorkers);
-router.get("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.getUserById);
+// Création (tu veux: Admin, HR, Manager)
+router.post(
+    "/",
+    protect,
+    (req, res, next) => {
+        if (["Admin", "HR", "Manager"].includes(req.user.role)) return next();
+        return res.status(403).json({ message: "Accès interdit" });
+    },
+    userController.createUser
+);
 
-// Creation: Admin, HR, Manager
-router.post("/", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), userController.createUser);
+router.get("/project-chiefs", protect, userController.getAllProjectChiefs);
 
-// Modification: Admin, HR, Manager
-router.put("/:id", protect, authorize([ROLES.Admin, ROLES.HR, ROLES.Manager]), canManageUsers, userController.updateUser);
+// Liste “directory” selon le rôle (Admin/HR/Manager/Project_Chief/Worker)
+router.get("/list", protect, userController.getDirectory);
 
-// Deletion: Admin, HR
-router.delete("/:id", protect, authorize([ROLES.Admin, ROLES.HR]), canManageUsers, userController.deleteUser);
+// Workers “brut”
+router.get("/getallworkers", protect, isAdmin, userController.getAllWorkers);
 
-router.post("/assign-competence", protect, authorize([ROLES.Admin, ROLES.Manager]), userController.assignCompetenceToUser);
+// Tous les users (admin only)
+router.get("/all", protect, isAdmin, userController.getAllUsers);
+
+// Suggestion d’email (auth requis suffit)
+router.get("/suggest-email", protect, userController.suggestEmail);
+
+router.get("/:id", protect, userController.getUserById);
+router.put("/:id", protect, canManageUsers, userController.updateUser);
+router.delete("/:id", protect, canManageUsers, userController.deleteUser);
 
 module.exports = router;

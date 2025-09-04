@@ -174,10 +174,10 @@ export default function CreateTask() {
             onChange={(e) => setStatus(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-lg"
           >
-            <option value="Prévu">Prévu</option>
             <option value="En cours">En cours</option>
-            <option value="Annulé">Annulé</option>
+            <option value="Prévu">Prévu</option>
             <option value="Terminé">Terminé</option>
+            <option value="Annulé">Annulé</option>
           </select>
         </div>
 

@@ -17,8 +17,8 @@ User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
 // User <-> Competence (N-N)
-User.belongsToMany(Competence, { through: 'user_competences', as: 'competences', foreignKey: 'user_id', otherKey: 'competence_id' });
-Competence.belongsToMany(User, { through: 'user_competences', as: 'users', foreignKey: 'competence_id', otherKey: 'user_id' });
+User.belongsToMany(Competence, { through: { model: "user_competences", timestamps: false }, as: 'competences', foreignKey: 'user_id', otherKey: 'competence_id' });
+Competence.belongsToMany(User, { through: { model: "user_competences", timestamps: false }, as: 'users', foreignKey: 'competence_id', otherKey: 'user_id' });
 
 // User <-> PasswordResetToken (1-N)
 User.hasMany(PasswordResetToken, { foreignKey: 'user_id' });

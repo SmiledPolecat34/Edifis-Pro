@@ -21,72 +21,74 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body ?? {};
         if (!email || !password) {
-            return res.status(400).json({ message: 'Email et mot de passe requis' });
+            return res.status(400).json({ message: "Email et mot de passe requis" });
         }
 
-        const user = await User.findOne({ where: { email } });
-        if (!user) return res.status(401).json({ message: 'Identifiants invalides' });
+        const user = await User.findOne({
+            where: { email },
+            include: [{ model: Role, as: "role" }],
+        });
+
+        if (!user) {
+            return res.status(401).json({ message: "Identifiants invalides" });
+        }
 
         const ok = await bcrypt.compare(password, user.password);
-        if (!ok) return res.status(401).json({ message: 'Identifiants invalides' });
-
-        // 👇 récupérer le nom du rôle (Admin/Manager/Worker…)
-        let roleName = null;
-        if (user.role_id) {
-            const role = await Role.findByPk(user.role_id);
-            roleName = role?.name ?? null;
+        if (!ok) {
+            return res.status(401).json({ message: "Identifiants invalides" });
         }
 
         const token = jwt.sign(
-            { sub: user.user_id, email: user.email, role: roleName, role_id: user.role_id ?? null },
-            process.env.JWT_SECRET || 'dev_secret',
-            { expiresIn: process.env.JWT_EXPIRES_IN || '1h' }
+            { sub: user.user_id, email: user.email, role: user.role?.name ?? null },
+            JWT_SECRET,
+            { expiresIn: JWT_EXPIRES_IN }
         );
 
-        // 👇 renvoyer "role" ET "role_id" pour compat front
         return res.json({
             token,
             user: {
                 id: user.user_id,
                 email: user.email,
-                role: roleName,          //  <-- le front lit ceci
-                role_id: user.role_id,   //  <-- utile si besoin
+                role: user.role?.name ?? null,
+                role_id: user.role_id,
             },
         });
     } catch (e) {
-        console.error('login error', e);
-        return res.status(500).json({ message: 'Erreur serveur' });
+        console.error("--- LOGIN ERROR ---", e);
+        return res.status(500).json({ message: "Erreur serveur inattendue" });
     }
-}
+};
+
+
+
 // POST /api/auth/forgot-password
 // Body: { email }
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
-        // Réponse générique (anti-énumération d&#39;utilisateurs)
+        // Réponse générique (anti-énumération d'utilisateurs)
         const genericResponse = {
-            message:
-                "Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.",
+            message: "Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.",
         };
 
-        const user = await User.findOne({ where: { email } });
+        const user = await User.findOne({
+            where: { email },
+            include: [{ model: Role, as: "role" }],
+        });
+
         if (!user) {
             return res.status(200).json(genericResponse);
         }
 
-        // Invalider les anciens tokens non utilisés (optionnel pour n&#39;avoir qu&#39;un token actif)
+        // Invalider les anciens tokens non utilisés
         await PasswordResetToken.destroy({
-            where: {
-                user_id: user.user_id,
-                used_at: null,
-            },
+            where: { user_id: user.user_id, used_at: null },
         });
 
         // Générer un token robuste (64 hex chars)
         const rawToken = crypto.randomBytes(32).toString("hex");
         const tokenHash = sha256Hex(rawToken);
-
         const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MINUTES * 60 * 1000);
 
         await PasswordResetToken.create({
@@ -99,13 +101,10 @@ exports.forgotPassword = async (req, res) => {
         });
 
         // Construire un lien (redirigé vers le frontend)
-        const frontendBase =
-            process.env.FRONTEND_URL?.replace(/\/$/, "") || "http://localhost:5173";
-        const resetLink = `${frontendBase}/reset-password?token=${rawToken}&email=${encodeURIComponent(
-            email
-        )}`;
+        const frontendBase = process.env.FRONTEND_URL?.replace(/\$/, "") || "http://localhost:5174";
+        const resetLink = `${frontendBase}/reset-password?token=${rawToken}&email=${encodeURIComponent(email)}`;
 
-        // Envoyer l&#39;email (transport JSON en dev)
+        // Envoyer l'email
         await sendMail({
             to: email,
             subject: "Réinitialisation de votre mot de passe",
@@ -115,9 +114,11 @@ exports.forgotPassword = async (req, res) => {
 
         return res.status(200).json(genericResponse);
     } catch (err) {
+        console.error("--- FORGOT PASSWORD ERROR ---", err);
         return res.status(500).json({ message: "Erreur serveur" });
     }
 };
+
 
 // POST /api/auth/reset-password
 // Body: { token, newPassword, confirmNewPassword }
@@ -152,7 +153,7 @@ exports.resetPassword = async (req, res) => {
         record.used_at = new Date();
         await record.save();
 
-        // Optionnel: supprimer d&#39;autres tokens actifs de l&#39;utilisateur
+        // Optionnel: supprimer d'autres tokens actifs de l'utilisateur
         await PasswordResetToken.destroy({
             where: {
                 user_id: user.user_id,

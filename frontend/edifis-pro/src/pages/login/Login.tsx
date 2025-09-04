@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import authService from "../../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { LoginData } from "../../../model/Auth";
@@ -17,6 +18,7 @@ export default function Login() {
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
+    const [showPassword, setShowPassword] = useState(false);
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,9 +87,18 @@ export default function Login() {
                                         id="email" placeholder="Email" autoCapitalize="none" autoComplete="email" autoCorrect="off"
                                         type="email" value={formData.email} onChange={handleChange} />
                                     <label className="sr-only" htmlFor="password">Mot de passe</label>
-                                    <input className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                        id="password" placeholder="Mot de passe" autoCapitalize="none" autoComplete="password" autoCorrect="off"
-                                        type="password" value={formData.password} onChange={handleChange} />
+                                    <div className="relative">
+                                        <input className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50 pr-10"
+                                            id="password" placeholder="Mot de passe" autoCapitalize="none" autoComplete="password" autoCorrect="off"
+                                            type={showPassword ? "text" : "password"} value={formData.password} onChange={handleChange} />
+                                        <button
+                                            type="button"
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                        </button>
+                                    </div>
                                     {error && <p className="text-red-500 text-sm">{error}</p>}
                                     <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 cursor-pointer disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
                                         disabled={isDisabled()}>
@@ -104,7 +115,7 @@ export default function Login() {
                                 </div>
                             </form>
                         </div>
-                        <p className="px-8 text-center text-sm text-slate-500 ">En cliquant "Se connecter", vous acceptez <a className="underline underline-offset-4 hover:text-slate-950 <<<<<< transition-colors" href="/terms">nos conditions d'utilisation</a> et <a className="underline underline-offset-4 hover:text-slate-950 transition-colors" href="/privacy">notre politique de confidentialité</a>.
+                        <p className="px-8 text-center text-sm text-slate-500 ">En cliquant "Se connecter", vous acceptez <a className="underline underline-offset-4 hover:text-slate-950 transition-colors" href="/terms">nos conditions d'utilisation</a> et <a className="underline underline-offset-4 hover:text-slate-950 transition-colors" href="/privacy">notre politique de confidentialité</a>.
                         </p>
                     </div>
                 </div>

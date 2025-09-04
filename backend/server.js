@@ -6,15 +6,15 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const logger = require("./config/logger");
 
-const sequelize = require("./config/sequelize");
+// Use the same Sequelize instance as models to ensure sync/queries align
+const sequelize = require("./config/database");
 require("./models"); // Assurez-vous que les modèles sont chargés
 const routes = require("./routes");
 
-const FRONT_ORIGINS = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5173")
+const FRONT_ORIGINS = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5174")
   .split(",")
   .map(o => o.trim())
   .filter(Boolean);
-
 
 // Initialiser l'application Express
 const app = express();
@@ -72,7 +72,7 @@ async function initDB() {
     await sequelize.authenticate();
     console.log('✅ Connexion à la base de données réussie !');
 
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('✅ Schéma OK');
   } catch (err) {
     console.error('❌ Erreur d’initialisation DB :', err);
@@ -122,4 +122,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(` Serveur démarré sur http://localhost:${PORT}`);
 });
-

@@ -1,3 +1,4 @@
+const sequelize = require("../config/database");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -38,11 +39,7 @@ exports.createUser = async (req, res) => {
             return res.status(409).json({ message: "Ce numéro de téléphone est déjà utilisé" });
         }
 
-        // 3) Autorisation Admin
-        const isAdminRole = (req.user && (req.user.role === "Admin" || req.user.role === 1));
-        if (!isAdminRole) {
-            return res.status(403).json({ message: "Accès refusé. Seul un Admin peut créer un utilisateur" });
-        }
+        
 
         // Determine role_id from role name if provided
         if (role && !role_id) {
@@ -73,7 +70,7 @@ exports.createUser = async (req, res) => {
         }
 
         // 5) Création
-        const user = await User.create({
+        const newUser = await User.create({
             firstname,
             lastname,
             email,
@@ -83,18 +80,21 @@ exports.createUser = async (req, res) => {
         });
 
         // Lier les compétences si présentes
-        if (Array.isArray(competences) && competences.length && typeof user.setCompetences === "function") {
-            const ids = competences.map(c => c.competence_id).filter(Boolean);
+        if (Array.isArray(competences) && competences.length > 0) {
+            const ids = competences
+                .map(c => (typeof c === 'number' ? c : c?.competence_id))
+                .filter(Boolean);
             if (ids.length) {
-                await user.setCompetences(ids);
+                await newUser.setCompetences(ids);
             }
         }
 
         return res.status(201).json({
             message: "Utilisateur créé avec succès",
-            user: { user_id: user.user_id, firstname: user.firstname }
+            user: { user_id: newUser.user_id, firstname }
         });
     } catch (error) {
+        console.error("!!! ERROR IN createUser CATCH BLOCK !!!");
         console.error("createUser error:", error);
         if (error.name === 'SequelizeUniqueConstraintError') {
             const field = error.errors[0].path;
@@ -234,19 +234,17 @@ exports.getAllManagers = async (req, res) => {
 };
 
 exports.getAllProjectChiefs = async (req, res) => {
-    console.log('Hit getAllProjectChiefs');
     try {
-        const projectChiefs = await User.findAll({
-            attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
-            where: {
-                role_id: 4 // 4 = Project_Chief
-            }
+        // role_id depuis la table roles: Manager = 8, Project_Chief = 11
+        const chiefs = await User.findAll({
+            attributes: ["user_id", "firstname", "lastname", "email"],
+            where: { role_id: [3, 4] },
         });
-
-        res.json(projectChiefs);
-    } catch (error) {
-        console.error("Erreur lors de la récupération des chefs de projet :", error);
-        res.status(500).json({ error: error.message });
+        console.log("Found project chiefs:", chiefs.map(c => c.toJSON()));
+        res.json(chiefs);
+    } catch (e) {
+        console.error("getAllProjectChiefs:", e);
+        res.status(500).json({ message: "Erreur serveur" });
     }
 };
 
@@ -352,24 +350,28 @@ exports.updateUser = async (req, res) => {
 // >>> LISTE filtrée selon le rôle du demandeur
 exports.getDirectory = async (req, res) => {
     try {
-        const me = req.user?.role;
+        const Role = require("../models/Role");
+        const User = require("../models/User");
+        const Competence = require("../models/Competence");
 
-        let whereRole = {};
-        if (me === "Admin") {
-            // rien : tous
-        } else if (me === "HR" || me === "Manager") {
-            // tout le monde sauf Admin
-            const adminRole = await Role.findOne({ where: { name: "Admin" } });
-            if (adminRole) whereRole = { role_id: { [Op.ne]: adminRole.role_id } };
-        } else if (me === "Project_Chief" || me === "Worker") {
-            // uniquement Workers
+        const meRole = req.user?.role; // "Admin", "HR", "Manager", "Project_Chief", "Worker"
+
+        // Politique d’affichage :
+        // - Admin: tout le monde
+        // - HR: tout le monde
+        // - Manager/Project_Chief: seulement les Workers
+        // - Worker: seulement lui-même
+        let where = {};
+        if (meRole === "Manager" || meRole === "Project_Chief") {
             const workerRole = await Role.findOne({ where: { name: "Worker" } });
-            if (workerRole) whereRole = { role_id: workerRole.role_id };
-        }
+            where = { role_id: workerRole?.role_id || -1 };
+        } else if (meRole === "Worker") {
+            where = { user_id: req.user.userId };
+        } // Admin/HR => pas de filtre
 
         const users = await User.findAll({
+            where,
             attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture", "role_id"],
-            where: whereRole,
             include: [
                 { model: Role, as: "role", attributes: ["name"] },
                 { model: Competence, as: "competences", attributes: ["competence_id", "name"], through: { attributes: [] } }
@@ -377,21 +379,15 @@ exports.getDirectory = async (req, res) => {
             order: [["lastname", "ASC"], ["firstname", "ASC"]],
         });
 
-        const out = users.map(u => ({
-            user_id: u.user_id,
-            firstname: u.firstname,
-            lastname: u.lastname,
-            email: u.email,
-            numberphone: u.numberphone,
-            profile_picture: u.profile_picture,
-            role: u.role?.name || null,
-            competences: u.competences || []
+        const normalized = users.map(u => ({
+            ...u.toJSON(),
+            role: u.role?.name || "User",
         }));
 
-        return res.json(out);
-    } catch (err) {
-        console.error("getDirectory:", err);
-        return res.status(500).json({ message: "Erreur serveur" });
+        res.json(normalized);
+    } catch (e) {
+        console.error("getDirectory:", e);
+        res.status(500).json({ message: "Erreur serveur" });
     }
 };
 
@@ -478,7 +474,7 @@ function slugifyName(s = "") {
 
 exports.suggestEmail = async (req, res) => {
     try {
-        const { firstname = "", lastname = "" } = req.query;
+        const { firstname = "", lastname = "" } = req.body;
 
         const first = slugifyName(firstname);
         const last = slugifyName(lastname);

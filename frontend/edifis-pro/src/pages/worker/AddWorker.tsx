@@ -235,8 +235,8 @@ const [submitOk, setSubmitOk] = useState<string | null>(null); // pour afficher 
                 onChange={handleChange}
                 className="mt-1 block w-full p-2 border rounded-md"
               >
-                <option value="Admin">Admin</option>
-                <option value="Worker">Worker</option>
+                <option value="Worker">Ouvrier</option>
+                <option value="Project_Chief">Chef de projet</option>
                 <option value="Manager">Manager</option>
               </select>
             </div>

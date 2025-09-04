@@ -40,7 +40,7 @@ export default function ResetPassword() {
         }
 
         try {
-            const response = await fetch("http://localhost:5001/api/auth/reset-password", {
+            const response = await fetch("http://localhost:5000/api/auth/reset-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

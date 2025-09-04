@@ -5,7 +5,7 @@ export interface ConstructionSite {
   name: string;
   description?: string;
   adresse?: string;
-  state?: "En cours" | "Terminé" | "Annulé" | "Prevu";
+  state?: "En cours" | "Terminé" | "Annulé" | "Prévu";
   start_date?: string; // stockées en "YYYY-MM-DD"
   end_date?: string;
   image_url?: string;
