@@ -1,21 +1,14 @@
-// backend/routes/role.routes.js
 const express = require("express");
 const router = express.Router();
 
 const roleController = require("../controllers/role.controller");
-const { protect, authorize, ROLES } = require("../middlewares/auth.middleware");
+const { protect } = require("../middlewares/auth.middleware");
 
-// Log simple pour diagnostiquer si une des fonctions est undefined
-console.log("[roles routes] handlers:", {
-    createRole: typeof roleController.createRole,
-    getRoles: typeof roleController.getRoles,
-    updateRole: typeof roleController.updateRole,
-    deleteRole: typeof roleController.deleteRole,
-});
+// Public read access for roles (utilisé sur Register page)
+router.get("/", roleController.getRoles);
 
-// CRUD rôles (réservé Admin)
+// Write operations require authentication
 router.post("/", protect, roleController.createRole);
-router.get("/", protect, roleController.getRoles);
 router.put("/:id", protect, roleController.updateRole);
 router.delete("/:id", protect, roleController.deleteRole);
 

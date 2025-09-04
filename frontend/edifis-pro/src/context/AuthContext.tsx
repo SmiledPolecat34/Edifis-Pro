@@ -32,7 +32,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const expirationTime = decoded.exp * 1000;
       if (expirationTime > Date.now()) {
-        const uid = decoded.userId || decoded.user_id || decoded.sub;
+        const uid = decoded.id || decoded.userId || decoded.user_id || decoded.sub;
         console.log("[AuthContext] UID extrait au mount:", uid);
 
         if (uid) {
@@ -99,7 +99,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     console.log("[AuthContext] Token décodé :", decoded);
       
     // 👇 essaye plusieurs clés possibles (sub, userId, user_id…)
-    const uid = decoded.userId || decoded.user_id || decoded.sub;
+    const uid = decoded.id || decoded.userId || decoded.user_id || decoded.sub;
     console.log("[AuthContext] UID extrait :", uid);
       
     setTokenId(uid);

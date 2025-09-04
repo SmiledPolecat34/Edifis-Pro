@@ -14,7 +14,7 @@ async function run() {
         await sequelize.sync();
 
         // ---- ROLES
-        const roleNames = ['Admin', 'Manager', 'Worker', 'HR', 'Project_Chief', 'User'];
+        const roleNames = ['Admin', 'Manager', 'Worker', 'HR', 'Project_Chief'];
         const roles = {};
         for (const name of roleNames) {
             const [role] = await Role.findOrCreate({ where: { name }, defaults: { name } });

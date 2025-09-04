@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const { User, PasswordResetToken, Role } = require("../models");
 const { sendMail } = require("../services/email.service");
-const { hash: hashPassword } = require("../services/password.service");
+const { hash: hashPassword, validatePolicy } = require("../services/password.service");
 
 const RESET_TOKEN_TTL_MINUTES = parseInt(process.env.RESET_TOKEN_TTL_MINUTES || "20", 10);
 
@@ -16,6 +16,56 @@ function sha256Hex(input) {
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
+
+exports.register = async (req, res) => {
+    try {
+        const { firstname, lastname, email, password, role, numberphone } = req.body;
+
+        if (!email || !password || !firstname || !lastname || !role || !numberphone) {
+            return res.status(400).json({ message: "Tous les champs sont requis" });
+        }
+
+        const passwordPolicy = validatePolicy(password);
+        if (!passwordPolicy.ok) {
+            return res.status(400).json({ message: "Le mot de passe ne respecte pas les critères de sécurité", errors: passwordPolicy.errors });
+        }
+
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ message: "Un utilisateur avec cet email existe déjà" });
+        }
+
+        const roleInstance = await Role.findOne({ where: { name: role } });
+        if (!roleInstance) {
+            return res.status(400).json({ message: "Le rôle spécifié n'existe pas" });
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        const newUser = await User.create({
+            firstname,
+            lastname,
+            email,
+            password: hashedPassword,
+            role_id: roleInstance.role_id,
+            numberphone,
+        });
+
+        res.status(201).json({
+            message: "Utilisateur créé avec succès",
+            user: {
+                id: newUser.user_id,
+                firstname: newUser.firstname,
+                lastname: newUser.lastname,
+                email: newUser.email,
+                roleId: newUser.role_id,
+            },
+        });
+    } catch (e) {
+        console.error("--- REGISTER ERROR ---", e);
+        return res.status(500).json({ message: "Erreur serveur inattendue" });
+    }
+};
 
 exports.login = async (req, res) => {
     try {
@@ -38,8 +88,9 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Identifiants invalides" });
         }
 
+        const roleName = user.role?.name ?? 'Worker';
         const token = jwt.sign(
-            { sub: user.user_id, email: user.email, role: user.role?.name ?? null },
+            { id: user.user_id, email: user.email, role: roleName },
             JWT_SECRET,
             { expiresIn: JWT_EXPIRES_IN }
         );
@@ -49,7 +100,7 @@ exports.login = async (req, res) => {
             user: {
                 id: user.user_id,
                 email: user.email,
-                role: user.role?.name ?? null,
+                role: roleName,
                 role_id: user.role_id,
             },
         });

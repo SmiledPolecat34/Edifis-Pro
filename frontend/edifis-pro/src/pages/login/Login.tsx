@@ -104,7 +104,13 @@ export default function Login() {
                                         disabled={isDisabled()}>
                                         {loading ? "Connexion..." : "Se connecter"}
                                     </button>
-                                    <div className="text-center">
+                                    <div className="text-center flex justify-between">
+                                        <Link 
+                                            to="/register" 
+                                            className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
+                                        >
+                                            Créer un compte
+                                        </Link>
                                         <Link 
                                             to="/forgot-password" 
                                             className="text-sm text-slate-600 hover:text-slate-950 transition-colors"

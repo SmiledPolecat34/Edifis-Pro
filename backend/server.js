@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const logger = require("./config/logger");
+const roleRoutes = require("./routes/role.routes");
 
 // Use the same Sequelize instance as models to ensure sync/queries align
 const sequelize = require("./config/database");
@@ -67,6 +68,7 @@ app.use("/uploads/construction_sites", (req, res, next) => {
   next();
 }, express.static("uploads/construction_sites"));
 
+app.use("/api/roles", roleRoutes);
 async function initDB() {
   try {
     await sequelize.authenticate();

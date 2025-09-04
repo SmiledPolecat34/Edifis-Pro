@@ -19,13 +19,13 @@ exports.createRole = async (req, res) => {
 };
 
 // GET /api/roles
-exports.getRoles = async (_req, res) => {
+exports.getRoles = async (req, res) => {
   try {
     const roles = await Role.findAll();
     res.json(roles);
   } catch (err) {
-    console.error("[getRoles] error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("❌ Erreur récupération rôles:", err);
+    res.status(500).json({ message: "Erreur serveur" });
   }
 };
 

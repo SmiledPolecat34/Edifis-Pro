@@ -123,49 +123,7 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
-// Connexion (Login)
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email et mot de passe requis" });
-        }
-
-        // Find the user and include their role
-        const user = await User.findOne({
-            where: { email },
-            include: [
-                { model: Role, as: 'role', attributes: ['name'] }
-            ]
-        });
-
-        if (!user) {
-            return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
-        }
-
-        const isPasswordValid = await comparePassword(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
-        }
-
-        // Get the role name from the included association
-        const roleName = user.role ? user.role.name : 'Worker';
-
-
-        const token = jwt.sign(
-            { userId: user.user_id, role: roleName },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-
-
-        res.json({ message: "Connexion réussie", token, user: { id: user.user_id, email: user.email, role: roleName } });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ error: error.message });
-    }
-};
 
 // Récupérer tous les utilisateurs (sans afficher le mot de passe)
 exports.getAllUsers = async (req, res) => {
@@ -235,11 +193,27 @@ exports.getAllManagers = async (req, res) => {
 
 exports.getAllProjectChiefs = async (req, res) => {
     try {
-        // role_id depuis la table roles: Manager = 8, Project_Chief = 11
+        // Find the role IDs for Manager and Project_Chief
+        const projectChiefRoles = await Role.findAll({
+            where: {
+                name: {
+                    [Op.in]: ["Manager", "Project_Chief"]
+                }
+            },
+            attributes: ["role_id"]
+        });
+
+        const roleIds = projectChiefRoles.map(role => role.role_id);
+
+        if (roleIds.length === 0) {
+            return res.json([]);
+        }
+
         const chiefs = await User.findAll({
             attributes: ["user_id", "firstname", "lastname", "email"],
-            where: { role_id: [3, 4] },
+            where: { role_id: { [Op.in]: roleIds } },
         });
+        
         console.log("Found project chiefs:", chiefs.map(c => c.toJSON()));
         res.json(chiefs);
     } catch (e) {
@@ -392,10 +366,11 @@ exports.getDirectory = async (req, res) => {
 };
 
 
+
 // Mettre à jour l’image de profil
 exports.updateProfilePicture = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const userId = req.user.id;
         if (!req.file) {
             return res.status(400).json({ message: "Aucune image envoyée" });
         }
@@ -423,25 +398,12 @@ exports.updateProfilePicture = async (req, res) => {
     }
 };
 
-
-exports.deleteUser = async (req, res) => {
-    try {
-        const user = await User.findByPk(req.params.id);
-        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
-
-        await user.destroy();
-        res.json({ message: "Utilisateur supprimé" });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 // POST /api/users/change-password
 exports.changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
 
-        const userId = req.user?.userId;
+        const userId = req.user?.id;
         const user = await User.findByPk(userId);
         if (!user) {
             return res.status(404).json({ message: "Utilisateur non trouvé" });

@@ -5,6 +5,12 @@ const authController = require("../controllers/auth.controller");
 const { validate, schemas } = require("../middlewares/validator.middleware");
 const { rateLimitIPAndEmail, rateLimitIP } = require("../middlewares/rateLimit.middleware");
 
+router.post(
+  "/register",
+  validate(schemas.register),
+  authController.register
+);
+
 /**
  * @swagger
  * /api/auth/login:

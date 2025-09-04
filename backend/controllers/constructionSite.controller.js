@@ -1,6 +1,7 @@
 const { Op, literal } = require("sequelize");
 const ConstructionSite = require("../models/ConstructionSite");
 const User = require("../models/User");
+const Role = require("../models/Role");
 const Task = require("../models/Task");
 const fs = require("fs");
 const path = require("path");
@@ -15,8 +16,24 @@ exports.createConstructionSite = async (req, res) => {
 
         let chefDeProjet = null;
         if (chef_de_projet_id) {
+            // Find the role IDs for Manager and Project_Chief
+            const projectChiefRoles = await Role.findAll({
+                where: {
+                    name: {
+                        [Op.in]: ["Manager", "Project_Chief"]
+                    }
+                },
+                attributes: ["role_id"]
+            });
+
+            const roleIds = projectChiefRoles.map(role => role.role_id);
+
+            if (roleIds.length === 0) {
+                return res.status(500).json({ message: "Les rôles 'Manager' ou 'Project_Chief' sont introuvables." });
+            }
+
             chefDeProjet = await User.findByPk(chef_de_projet_id);
-            if (!chefDeProjet || (chefDeProjet.role_id !== 4 && chefDeProjet.role_id !== 3)) {
+            if (!chefDeProjet || !roleIds.includes(chefDeProjet.role_id)) {
                 return res.status(400).json({ message: "L'utilisateur spécifié n'est pas un chef de projet ou un manager valide" });
             }
         }

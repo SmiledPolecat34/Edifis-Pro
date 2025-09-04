@@ -6,14 +6,27 @@ const API_BASE_URL =
 
 const apiService = {
   get: async <T>(endpoint: string): Promise<T> => {
+    // const token = localStorage.getItem("token");
+    // const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    //   method: "GET",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${token}`,
+    //   },
+    // });
     const token = localStorage.getItem("token");
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
     });
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
