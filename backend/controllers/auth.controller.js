@@ -61,9 +61,8 @@ exports.register = async (req, res) => {
                 roleId: newUser.role_id,
             },
         });
-    } catch (e) {
-        console.error("--- REGISTER ERROR ---", e);
-        return res.status(500).json({ message: "Erreur serveur inattendue" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };
 

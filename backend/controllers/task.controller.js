@@ -51,7 +51,6 @@ exports.getAllTasks = async (req, res) => {
         });
         res.json(tasks);
     } catch (error) {
-        console.error("Error in getAllTasks:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -109,7 +108,7 @@ exports.updateTask = async (req, res) => {
         // userIds = tableau d'IDs d'utilisateurs assignés
 
         const task = await Task.findByPk(id, {
-            include: [{ model: User }]
+            include: [{ model: User, as: 'users' }, { model: User, as: 'creator' }]
         });
         if (!task) return res.status(404).json({ message: "Tâche non trouvée" });
 
@@ -126,14 +125,13 @@ exports.updateTask = async (req, res) => {
         // 3️⃣ Récup complète (avec users + chantier)
         const updatedTask = await Task.findByPk(id, {
             include: [
-                { model: User, attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], through: { attributes: [] } },
+                { model: User, as: 'users', attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], through: { attributes: [] } },
                 { model: ConstructionSite, as: "construction_site", attributes: ["construction_site_id", "name", "state", "start_date", "end_date", "adresse"] }
             ]
         });
 
         res.json(updatedTask);
     } catch (error) {
-        console.error("Erreur updateTask:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -191,7 +189,6 @@ exports.assignUsersToTask = async (req, res) => {
 
         res.json({ message: "Tâche assignée avec succès", task });
     } catch (error) {
-        console.error("Erreur lors de l'assignation des utilisateurs :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -217,6 +214,18 @@ exports.getTasksByUserId = async (req, res) => {
                 {
                     model: ConstructionSite,
                     as: 'construction_site'
+                },
+                {
+                    model: User,
+                    as: 'creator',
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
+                    include: [
+                        {
+                            model: Role,
+                            as: "role",
+                            attributes: ["role_id", "name"]
+                        }
+                    ]
                 }
             ]
         });

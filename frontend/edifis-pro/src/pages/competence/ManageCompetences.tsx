@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import competenceService, { Competence } from "../../../services/competenceService";
 import Modal from "../../components/modal/Modal";
 
-export default function ManageCompetences() {
+export function ManageCompetences() {
   const [list, setList] = useState<Competence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,7 +20,7 @@ export default function ManageCompetences() {
   const handleDelete = async (id: number) => {
     if (!confirm("Supprimer cette compétence ?")) return;
     try {
-      await competenceService.delete(id);
+      await competenceService.deleteCompetence(id);
       setList(list.filter((c) => c.competence_id !== id));
     } catch {
       alert("Erreur lors de la suppression.");
@@ -72,13 +72,14 @@ export default function ManageCompetences() {
         ))}
       </ul>
 
-      {/* modal de description */}
-      {selected && (
-        <Modal onClose={() => setSelected(null)}>
-          <h2 className="text-xl font-bold mb-2">{selected.name}</h2>
-          <p>{selected.description || "Aucune description fournie."}</p>
-        </Modal>
-      )}
+      <Modal show={!!selected} onClose={() => setSelected(null)}>
+        {selected && (
+          <>
+            <h2 className="text-xl font-bold mb-2">{selected.name}</h2>
+            <p>{selected.description || "Aucune description fournie."}</p>
+          </>
+        )}
+      </Modal>
     </main>
   );
 }

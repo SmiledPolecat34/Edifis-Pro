@@ -62,6 +62,11 @@ const taskService = {
     const res = await apiService.get<Task[]>(`/tasks/user/${userId}`);
     return res as Task[];
   },
+
+  getFeed: async (): Promise<Task[]> => {
+    const res = await apiService.get<Task[]>("/tasks/feed");
+    return res as Task[];
+  },
 };
 
 export default taskService;

@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { House, Construction, Hammer, UserRound, LogOut } from "lucide-react";
-
+import { useEffect, useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { House, Construction, Hammer, UserRound, LogOut, UserSearch } from 'lucide-react';
 
 const routes = [
-  { to: "/", label: "Accueil", Icon: House },
-  { to: "/missions", label: "Missions", Icon: Hammer },
-  { to: "/construction", label: "Chantiers", Icon: Construction },
-  { to: "/workers", label: "Employés", Icon: UserRound }
+  { to: '/', label: 'Accueil', Icon: House },
+  { to: '/missions', label: 'Missions', Icon: Hammer },
+  { to: '/construction', label: 'Chantiers', Icon: Construction },
+  { to: '/workers', label: 'Employés', Icon: UserRound },
+  { to: '/competences', label: 'Compétences', Icon: UserSearch },
 ];
 
 export default function SideBar() {

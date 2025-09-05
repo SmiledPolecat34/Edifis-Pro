@@ -31,12 +31,14 @@ export default function EditMission() {
         setMission(missionData);
         setUsers(usersData);
 
-        if (currentUser && missionData.creator) {
-            const userLevel = roleHierarchy[currentUser.role] ?? -1;
+        if (currentUser) {
+          if (currentUser.role.name === 'Admin') {
+            setCanEdit(true);
+          } else if (missionData.creator) {
+            const userLevel = roleHierarchy[currentUser.role.name] ?? -1;
             const creatorLevel = roleHierarchy[missionData.creator.role.name] ?? -1;
             setCanEdit(userLevel >= creatorLevel);
-        } else if (currentUser && currentUser.role === 'Admin') {
-            setCanEdit(true);
+          }
         }
 
       } catch (err) {

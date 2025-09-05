@@ -75,19 +75,20 @@ export default function Workers() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
           {filteredWorkers.map((worker) => (
-            <Link
-              to={`/workers/${worker.user_id}`}
+            <div
               key={worker.user_id}
-              className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center hover:scale-105 transition"
+              className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center"
             >
-              <img
-                src={worker.profile_picture || DEFAULT_IMAGE}
-                alt={worker.firstname}
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h2 className="text-lg font-semibold text-gray-900">
-                {worker.firstname} {worker.lastname}
-              </h2>
+              <Link to={`/workers/${worker.user_id}`}>
+                <img
+                  src={worker.profile_picture || DEFAULT_IMAGE}
+                  alt={worker.firstname}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {worker.firstname} {worker.lastname}
+                </h2>
+              </Link>
               <p className="text-sm text-gray-600">
                 {worker.competences && worker.competences.length > 0
                   ? worker.competences.map((c: any) => c.name).join(", ")
@@ -97,14 +98,24 @@ export default function Workers() {
               <p className="text-sm text-slate-500">{worker.email}</p>
               <span
                 className={`mt-2 px-3 py-1 rounded-md text-sm ${
-                  worker.role === "Worker"
+                  worker.role.name === "Worker"
                     ? "bg-blue-200 text-blue-800"
                     : "bg-green-200 text-green-800"
                 }`}
               >
-                {worker.role}
+                {worker.role.name}
               </span>
-            </Link>
+              {canCreate && (
+                <div className="mt-4">
+                  <Link
+                    to={`/workers/edit/${worker.user_id}`}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600"
+                  >
+                    Modifier
+                  </Link>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}

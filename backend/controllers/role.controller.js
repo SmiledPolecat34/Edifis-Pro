@@ -13,7 +13,6 @@ exports.createRole = async (req, res) => {
     const role = await Role.create({ name });
     res.status(201).json(role);
   } catch (err) {
-    console.error("[createRole] error:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -24,7 +23,6 @@ exports.getRoles = async (req, res) => {
     const roles = await Role.findAll();
     res.json(roles);
   } catch (err) {
-    console.error("❌ Erreur récupération rôles:", err);
     res.status(500).json({ message: "Erreur serveur" });
   }
 };
@@ -42,7 +40,6 @@ exports.updateRole = async (req, res) => {
     await role.update({ name });
     res.json(role);
   } catch (err) {
-    console.error("[updateRole] error:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -57,7 +54,6 @@ exports.deleteRole = async (req, res) => {
     await role.destroy();
     res.json({ message: "Rôle supprimé" });
   } catch (err) {
-    console.error("[deleteRole] error:", err);
     res.status(500).json({ error: err.message });
   }
 };

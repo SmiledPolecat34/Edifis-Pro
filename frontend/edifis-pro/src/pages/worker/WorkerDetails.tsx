@@ -21,6 +21,8 @@ export default function WorkerDetails() {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
 
+  
+
   const [modalData, setModalData] = useState<{
     title: string;
     description: string;
@@ -36,8 +38,8 @@ export default function WorkerDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const canEdit = currentUser && ["Admin", "HR", "Manager"].includes(currentUser.role);
-  const canDelete = currentUser && ["Admin", "HR"].includes(currentUser.role);
+  const canEdit = currentUser && ["Admin", "HR", "Manager"].includes(currentUser.role.name);
+  const canDelete = currentUser && ["Admin", "HR"].includes(currentUser.role.name);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,22 +118,21 @@ export default function WorkerDetails() {
   const handleSave = async () => {
     if (!worker || worker.user_id == null) return;
     try {
-      const competenceIds: number[] = (worker.competences ?? [])
-        .map((c) => c.competence_id)
+      const { createdAt, updatedAt, ...updateData } = worker;
+
+      const competenceIds: number[] = (updateData.competences ?? [])
+        .map((c: any) => c.competence_id)
         .filter((id): id is number => typeof id === "number");
 
       await userService.update(worker.user_id, {
-        firstname: worker.firstname,
-        lastname: worker.lastname,
-        email: worker.email,
-        numberphone: worker.numberphone,
-        role: worker.role,
+        ...updateData,
         competences: competenceIds,
       });
 
       setIsEditing(false);
     } catch (err) {
       console.error("Erreur lors de la sauvegarde :", err);
+      setError("Erreur lors de la sauvegarde.");
     }
   };
 
@@ -305,7 +306,6 @@ export default function WorkerDetails() {
           </div>
         )}
 
-
         {modalData && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6">
@@ -321,29 +321,33 @@ export default function WorkerDetails() {
           </div>
         )}
 
-        <p>
+        <p className="hidden">
           <strong>Date de création :</strong>{" "}
           {worker.createdAt || "Non spécifiée"}
         </p>
 
         <div className="mt-6 flex justify-between">
-          <button
-            onClick={() => {
-              if (isEditing) {
-                handleSave();
-              }
-              setIsEditing(!isEditing);
-            }}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          >
-            {isEditing ? "Enregistrer" : "Modifier"}
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-          >
-            Supprimer
-          </button>
+          {canEdit && (
+            <button
+              onClick={() => {
+                if (isEditing) {
+                  handleSave();
+                }
+                setIsEditing(!isEditing);
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              {isEditing ? "Enregistrer" : "Modifier"}
+            </button>
+          )}
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+            >
+              Supprimer
+            </button>
+          )}
         </div>
       </div>
     </main>

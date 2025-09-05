@@ -11,7 +11,6 @@ const path = require("path");
 // Créer un chantier
 exports.createConstructionSite = async (req, res) => {
     try {
-        console.log("Données reçues :", req.body);
         const { name, state, description, adresse, start_date, end_date, chef_de_projet_id } = req.body;
 
         let chefDeProjet = null;
@@ -77,10 +76,8 @@ exports.getAllConstructionSites = async (req, res) => {
         ];
 
         if (role === "Admin" || role === "Manager") {
-            console.log(`${role} - Voir tous les chantiers`);
             // No additional filtering needed for Admin/Manager
         } else if (role === "Worker") {
-            console.log("Worker - Voir les chantiers où il a des tâches");
             // Filter construction sites where the worker is assigned to at least one task
             whereCondition[Op.and] = [
                 literal(`EXISTS (SELECT 1 FROM tasks AS Task WHERE Task.construction_site_id = ConstructionSite.construction_site_id AND EXISTS (SELECT 1 FROM user_tasks WHERE user_tasks.task_id = Task.task_id AND user_tasks.user_id = ${userId}))`)
@@ -107,7 +104,6 @@ exports.getAllConstructionSites = async (req, res) => {
 
         res.json(sites);
     } catch (error) {
-        console.error("Erreur lors de la récupération des chantiers :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -147,7 +143,6 @@ exports.getConstructionSiteById = async (req, res) => {
         if (!site) return res.status(404).json({ message: "Chantier non trouvé" });
         res.json(site);
     } catch (error) {
-        console.error("Erreur lors de la récupération du chantier :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -269,7 +264,6 @@ exports.getConstructionSitesByUserId = async (req, res) => {
 
         res.json(sites);
     } catch (error) {
-        console.error("Erreur lors de la récupération des chantiers de l'utilisateur :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -290,7 +284,6 @@ exports.getUsersOfConstructionSite = async (req, res) => {
         });
         res.json(users);
     } catch (error) {
-        console.error("Erreur lors de la récupération des utilisateurs du chantier :", error);
         res.status(500).json({ error: error.message });
     }
 };

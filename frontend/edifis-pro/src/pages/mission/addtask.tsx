@@ -153,6 +153,12 @@ export default function CreateTask() {
       <h1 className="text-4xl font-bold text-gray-900 mb-6">
         Créer une Mission
       </h1>
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+      >
+        Retour
+      </button>
       {error && <p className="text-red-500">{error}</p>}
       <form
         onSubmit={handleSubmit}

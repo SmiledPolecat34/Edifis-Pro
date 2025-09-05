@@ -15,100 +15,43 @@ const logger = require("../config/logger");
 // Récupérer tous les utilisateurs sauf ceux avec `role_id = 1` (Responsables)
 // Inscription (Création de compte avec JWT)
 exports.createUser = async (req, res) => {
-    console.log("[HIT] POST /users/register (createUser)");
-    console.log("body:", req.body);
-    console.log("user from token:", req.user);
     try {
-        // 1) Validation champs requis (conforme aux tests existants)
-        const { firstname, lastname, email, role, numberphone, password, competences = [] } = req.body;
-        let { role_id } = req.body;
+        const { firstname, lastname, email, password, numberphone, role_id } = req.body;
 
-        if (!firstname || !lastname || !email || !numberphone) {
-            return res.status(400).json({ message: "Tous les champs sont requis, y compris le numéro de téléphone" });
+        // Validation simple
+        if (!firstname || !lastname || !email || !password) {
+            return res.status(400).json({ message: "Tous les champs obligatoires doivent être fournis" });
         }
 
-        // 2) Email unique
-        const existing = await User.findOne({ where: { email } });
-        if (existing) {
-            return res.status(409).json({ message: "Cet email est déjà utilisé" });
-        }
+        // Hasher le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 2b) Numéro de téléphone unique
-        const existingPhone = await User.findOne({ where: { numberphone } });
-        if (existingPhone) {
-            return res.status(409).json({ message: "Ce numéro de téléphone est déjà utilisé" });
-        }
-
-        
-
-        // Determine role_id from role name if provided
-        if (role && !role_id) {
-            const roleInstance = await Role.findOne({ where: { name: role } });
-            if (roleInstance) {
-                role_id = roleInstance.role_id;
-            } else {
-                return res.status(400).json({ message: `Le rôle '${role}' n'est pas valide` });
-            }
-        }
-
-        if (!role_id) {
-            const defaultRole = await Role.findOne({ where: { name: 'Worker' } });
-            if (defaultRole) {
-                role_id = defaultRole.role_id;
-            } else {
-                return res.status(500).json({ message: "Le rôle par défaut 'Worker' est introuvable." });
-            }
-        }
-
-        // 4) Détermination du mot de passe
-        let hashedPassword;
-        if (password) {
-            hashedPassword = await bcrypt.hash(password, 10);
-        } else {
-            const plainPassword = process.env.DEFAULT_PASSWORD || "edifispr@2025";
-            hashedPassword = await hashPassword(plainPassword);
-        }
-
-        // 5) Création
+        // Créer l'utilisateur
         const newUser = await User.create({
             firstname,
             lastname,
             email,
-            role_id,
-            numberphone,
             password: hashedPassword,
-            created_at: new Date(),
+            numberphone,
+            role_id: role_id || 2, // Par défaut, 'Worker'
         });
 
-        // Lier les compétences si présentes
-        if (Array.isArray(competences) && competences.length > 0) {
-            const ids = competences
-                .map(c => (typeof c === 'number' ? c : c?.competence_id))
-                .filter(Boolean);
-            if (ids.length) {
-                await newUser.setCompetences(ids);
-            }
-        }
+        // Ne pas renvoyer le mot de passe
+        const userResponse = {
+            user_id: newUser.user_id,
+            firstname: newUser.firstname,
+            lastname: newUser.lastname,
+            email: newUser.email,
+            numberphone: newUser.numberphone,
+            role_id: newUser.role_id,
+        };
 
-        return res.status(201).json({
-            message: "Utilisateur créé avec succès",
-            user: { user_id: newUser.user_id, firstname }
-        });
+        res.status(201).json(userResponse);
     } catch (error) {
-        console.error("!!! ERROR IN createUser CATCH BLOCK !!!");
-        console.error("createUser error:", error);
         if (error.name === 'SequelizeUniqueConstraintError') {
-            const field = error.errors[0].path;
-            if (field === 'numberphone') {
-                return res.status(409).json({ message: "Ce numéro de téléphone est déjà utilisé." });
-            }
-            if (field === 'email') {
-                return res.status(409).json({ message: "Cet email est déjà utilisé." });
-            }
-            // Fallback for other unique constraints
-            return res.status(409).json({ message: `La valeur pour le champ '${field}' est déjà utilisée.` });
+            return res.status(409).json({ message: "L'email existe déjà" });
         }
-        return res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 };
 
@@ -169,7 +112,6 @@ exports.getAllWorkers = async (req, res) => {
 
         res.json(formatted);
     } catch (error) {
-        console.error("Erreur getAllWorkers:", error);
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
@@ -187,7 +129,6 @@ exports.getAllManagers = async (req, res) => {
 
         res.json(managers);
     } catch (error) {
-        console.error("Erreur lors de la récupération des chefs de projet :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -215,10 +156,8 @@ exports.getAllProjectChiefs = async (req, res) => {
             where: { role_id: { [Op.in]: roleIds } },
         });
         
-        console.log("Found project chiefs:", chiefs.map(c => c.toJSON()));
         res.json(chiefs);
     } catch (e) {
-        console.error("getAllProjectChiefs:", e);
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
@@ -263,7 +202,7 @@ exports.updateUser = async (req, res) => {
         });
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-        const payload = { ...req.body }; // Copie des données du corps de la requête
+        const { createdAt, updatedAt, ...payload } = { ...req.body }; // Copie des données du corps de la requête
 
         // Si rôle envoyé par NOM -> map vers role_id
         if (payload.role && !payload.role_id) {
@@ -277,9 +216,6 @@ exports.updateUser = async (req, res) => {
         if (payload.password) {
             payload.password = await hashPassword(payload.password);
         }
-
-        // Explicitly set updated_at
-        payload.updated_at = new Date();
 
         // Sauvegarde des champs simples
         await user.update(payload);
@@ -321,7 +257,6 @@ exports.updateUser = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error("updateUser:", error);
         return res.status(500).json({ error: error.message });
     }
 };
@@ -364,7 +299,6 @@ exports.getDirectory = async (req, res) => {
 
         res.json(normalized);
     } catch (e) {
-        console.error("getDirectory:", e);
         res.status(500).json({ message: "Erreur serveur" });
     }
 };
@@ -479,7 +413,6 @@ exports.suggestEmail = async (req, res) => {
 
         return res.json({ email: candidate });
     } catch (err) {
-        console.error("suggestEmail:", err);
         return res.status(500).json({ error: "Erreur lors de la génération de l'email" });
     }
 };
@@ -502,7 +435,6 @@ exports.assignCompetenceToUser = async (req, res) => {
 
         res.json({ message: "Compétence assignée avec succès" });
     } catch (error) {
-        console.error("Erreur lors de l'assignation de la compétence :", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -541,7 +473,6 @@ exports.getAssignableUsers = async (req, res) => {
 
         res.json(users);
     } catch (error) {
-        console.error("Erreur getAssignableUsers:", error);
         res.status(500).json({ message: "Erreur serveur" });
     }
 };

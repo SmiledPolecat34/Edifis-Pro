@@ -75,7 +75,7 @@ const canUpdateTask = async (req, res, next) => {
         }
 
         const requesterRoleLevel = roleHierarchy[req.user.role];
-        
+
         const creator = await User.findByPk(task.creator_id, { include: [{ model: Role, as: 'role' }] });
         if (!creator) {
             // Should not happen

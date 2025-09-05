@@ -1,51 +1,29 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { useEffect, useState } from "react";
-
-import Loading from "../loading/Loading";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 interface ProtectedRouteProps {
-    requiredRoles?: string[]; // Liste des rôles autorisés
+  allowedRoles?: string[];
 }
 
-const ProtectedRoute = ({ requiredRoles }: ProtectedRouteProps) => {
-    const { isAuthenticated, user } = useAuth();
-    const [loading, setLoading] = useState(true);
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
+  const { user, isAuthenticated } = useAuth();
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, []);
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
-    if (loading) {
-        return (
-            <div className="h-screen flex justify-center items-center">
-                <Loading />
-            </div>
-        )
+  if (!user) {
+    return <div>Loading...</div>; // Or a spinner
+  }
+
+  if (allowedRoles && allowedRoles.length > 0) {
+    if (!user.role || !allowedRoles.includes(user.role.name)) {
+      return <Navigate to="/" />;
     }
+  }
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
-
-    if (requiredRoles && user?.role) {
-        const roleName =
-            typeof user.role === "string" ? user.role : user.role.name;
-        
-        const normalizedRole = roleName?.toLowerCase();
-        const normalizedRequired = requiredRoles.map(r => r.toLowerCase());
-        
-        if (!normalizedRequired.includes(normalizedRole)) {
-            return <Navigate to="/" replace />;
-        }
-    }
-
-
-
-    return <Outlet />;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
