@@ -16,11 +16,25 @@ const logger = require("../config/logger");
 // Inscription (Création de compte avec JWT)
 exports.createUser = async (req, res) => {
     try {
-        const { firstname, lastname, email, password, numberphone, role_id } = req.body;
+        const { firstname, lastname, email, password, numberphone, role, role_id } = req.body;
 
         // Validation simple
         if (!firstname || !lastname || !email || !password) {
             return res.status(400).json({ message: "Tous les champs obligatoires doivent être fournis" });
+        }
+
+        let final_role_id = role_id;
+
+        if (role && !final_role_id) {
+            const role_obj = await Role.findOne({ where: { name: role } });
+            if (!role_obj) {
+                return res.status(400).json({ message: `Le rôle '${role}' n'est pas valide.` });
+            }
+            final_role_id = role_obj.role_id;
+        }
+
+        if (!final_role_id) {
+            final_role_id = 2; // Default to 'Worker'
         }
 
         // Hasher le mot de passe
@@ -33,7 +47,7 @@ exports.createUser = async (req, res) => {
             email,
             password: hashedPassword,
             numberphone,
-            role_id: role_id || 2, // Par défaut, 'Worker'
+            role_id: final_role_id,
         });
 
         // Ne pas renvoyer le mot de passe
