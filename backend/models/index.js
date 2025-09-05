@@ -7,8 +7,9 @@ const Role = require("./Role");
 const PasswordResetToken = require("./PasswordResetToken");
 
 const UserTask = require("./UserTask");
+const UserCompetence = require("./UserCompetence");
 
-const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken, UserTask };
+const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken, UserTask, UserCompetence };
 
 // --- Définition des associations ---
 
@@ -17,8 +18,8 @@ User.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 
 // User <-> Competence (N-N)
-User.belongsToMany(Competence, { through: { model: "user_competences", timestamps: false }, as: 'competences', foreignKey: 'user_id', otherKey: 'competence_id' });
-Competence.belongsToMany(User, { through: { model: "user_competences", timestamps: false }, as: 'users', foreignKey: 'competence_id', otherKey: 'user_id' });
+User.belongsToMany(Competence, { through: UserCompetence, as: 'competences', foreignKey: 'user_id', otherKey: 'competence_id' });
+Competence.belongsToMany(User, { through: UserCompetence, as: 'users', foreignKey: 'competence_id', otherKey: 'user_id' });
 
 // User <-> PasswordResetToken (1-N)
 User.hasMany(PasswordResetToken, { foreignKey: 'user_id' });
@@ -33,8 +34,8 @@ ConstructionSite.belongsTo(User, { foreignKey: 'chef_de_projet_id', as: 'chefDeP
 User.hasMany(ConstructionSite, { foreignKey: 'chef_de_projet_id', as: 'managedSites' });
 
 // User <-> Task (N-N)
-User.belongsToMany(Task, { through: UserTask, foreignKey: 'user_id' });
-Task.belongsToMany(User, { through: UserTask, foreignKey: 'task_id' });
+User.belongsToMany(Task, { through: UserTask, foreignKey: 'user_id', as: 'tasks' });
+Task.belongsToMany(User, { through: UserTask, foreignKey: 'task_id', as: 'users' });
 
 // User <-> Task (Creator) (1-N)
 User.hasMany(Task, { foreignKey: 'creator_id', as: 'createdTasks' });

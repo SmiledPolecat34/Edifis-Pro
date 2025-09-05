@@ -24,7 +24,7 @@ exports.getAllTasks = async (req, res) => {
                 },
                 {
                     model: User, // Include the User model
-                    as: "Users",
+                    as: "users",
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], // Select necessary user attributes
                     through: { attributes: [] },
                     include: [
@@ -68,6 +68,7 @@ exports.getTaskById = async (req, res) => {
                 },
                 {
                     model: User,
+                    as: 'users',
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
                     through: { attributes: [] },
                     include: [
@@ -200,54 +201,25 @@ exports.getTasksByUserId = async (req, res) => {
     try {
         const { userId } = req.params;
 
-        const user = await User.findByPk(userId, { include: [{ model: Role, as: "role" }] });
-        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
-
-        if (user.role && user.role.name === "Admin") {
-            const allTasks = await Task.findAll({
-                include: [
-                    { model: User, attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"], through: { attributes: [] } },
-                    { model: ConstructionSite, as: "construction_site", attributes: ["construction_site_id", "name", "state", "start_date", "end_date", "adresse"] }
-                ]
-            });
-            return res.json(allTasks);
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        const tasks = await Task.findAll({
+        const tasks = await user.getTasks({
             include: [
                 {
                     model: User,
-                    where: { user_id: userId },
+                    as: 'users',
                     attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
-                    through: { attributes: [] },
-                    include: [
-                        {
-                            model: Role,
-                            as: "role",
-                            attributes: ["role_id", "name"]
-                        }
-                    ]
+                    through: { attributes: [] }
                 },
                 {
                     model: ConstructionSite,
-                    attributes: [
-                        "construction_site_id",
-                        "name",
-                        "state",
-                        "open_time",
-                        "end_time",
-                        "start_date",
-                        "end_date",
-                        "image_url",
-                        "chef_de_projet_id",
-                        "adresse"
-                    ]
+                    as: 'construction_site'
                 }
             ]
         });
-
-
-
 
         res.json(tasks);
     } catch (error) {

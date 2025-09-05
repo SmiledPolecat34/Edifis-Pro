@@ -20,6 +20,7 @@ export default function CreateTask() {
   >(null);
 
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // For manager and admin
   const [constructions, setConstructions] = useState([]);
   const [minStartDate, setMinStartDate] = useState<string>("");
   const [maxEndDate, setMaxEndDate] = useState<string>("");
@@ -28,16 +29,25 @@ export default function CreateTask() {
   const [userFilter, setUserFilter] = useState("");
 
   useEffect(() => {
-    const fetchConstructions = async () => {
+    const fetchInitialData = async () => {
       try {
-        const data = await constructionService.getAll();
-        setConstructions(data);
+        const constructionsData = await constructionService.getAll();
+        setConstructions(constructionsData);
+
+        if (user && (user.role.name === 'Manager' || user.role.name === 'Admin')) {
+            const allUsersData = await userService.getAllUsers();
+            setAllUsers(allUsersData);
+            setUsers(allUsersData); // Initially, show all users for manager/admin
+        }
       } catch (err) {
-        setError("Erreur lors du chargement des chantiers.");
+        setError("Erreur lors du chargement des données initiales.");
+        console.error("Erreur lors du chargement des données initiales:", err);
       }
     };
 
-    fetchConstructions();
+    if (user) {
+        fetchInitialData();
+    }
   }, [user]);
 
   // Fonction pour s'assurer que les dates respectent le format "YYYY-MM-DDTHH:MM"
@@ -60,14 +70,15 @@ export default function CreateTask() {
       setStartDate(formatDateForInput(selectedConstructionData.start_date));
       setEndDate(formatDateForInput(selectedConstructionData.end_date));
 
-      // Fetch users for the selected construction site
-      try {
-        const usersData = await constructionService.getUsersOfConstructionSite(selectedId);
-        setUsers(usersData);
-      } catch (err) {
-        setError("Erreur lors du chargement des utilisateurs du chantier.");
+      if (user && (user.role.name !== 'Manager' && user.role.name !== 'Admin')) {
+        // For "chef de chantier", fetch users of the selected construction site.
+        try {
+          const usersData = await constructionService.getUsersOfConstructionSite(selectedId);
+          setUsers(usersData);
+        } catch (err) {
+          setError("Erreur lors du chargement des utilisateurs du chantier.");
+        }
       }
-
     }
   };
 
@@ -235,6 +246,13 @@ export default function CreateTask() {
           <label className="block text-gray-700">
             Affecter des employés :
           </label>
+          <input
+            type="text"
+            placeholder="Filtrer par nom ou compétence"
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded-lg mb-2"
+          />
           <select
             multiple
             value={selectedUsers}
@@ -246,32 +264,47 @@ export default function CreateTask() {
             className="w-full p-2 border border-gray-300 rounded-lg"
           >
             {users
-              .filter((user) => {
+              .filter(userToDisplay => {
+                if (!user || !user.role || !userToDisplay.role) {
+                    return false;
+                }
+                const currentUserRole = user.role.name;
+                const userToDisplayRole = userToDisplay.role.name;
+
+                let isVisible = false;
+                if (currentUserRole === 'Admin') {
+                    isVisible = true;
+                } else if (currentUserRole === 'Manager') {
+                    isVisible = ['Worker', 'Project_Chief', 'HR'].includes(userToDisplayRole);
+                } else if (currentUserRole === 'Project_Chief') {
+                    isVisible = userToDisplayRole === 'Worker';
+                }
+
+                if (!isVisible) {
+                    return false;
+                }
+
                 // Filtrage basé sur le nom et les compétences
-                const fullName =
-                  `${user.firstname} ${user.lastname}`.toLowerCase();
+                const fullName = `${userToDisplay.firstname} ${userToDisplay.lastname}`.toLowerCase();
                 const filterText = userFilter.toLowerCase();
-                const competenceText = user.competences
-                  ? user.competences.map((c) => c.name.toLowerCase()).join(" ")
+                const competenceText = userToDisplay.competences
+                  ? userToDisplay.competences.map((c) => c.name.toLowerCase()).join(" ")
                   : "";
                 return (
                   fullName.includes(filterText) ||
                   competenceText.includes(filterText)
                 );
               })
-              .map((user) => {
-                const available = isUserAvailable(user);
+              .map((userToDisplay) => {
+                const available = isUserAvailable(userToDisplay);
                 return (
                   <option
-                    key={user.user_id}
-                    value={user.user_id}
+                    key={userToDisplay.user_id}
+                    value={userToDisplay.user_id}
                     disabled={!available}
                   >
-                    {user.firstname} {user.lastname}{" "}
+                    {userToDisplay.firstname} {userToDisplay.lastname} - {userToDisplay.role.name}{" "}
                     {!available && " (Non disponible)"}
-                    {user.competences && user.competences.length > 0 && (
-                      <> - {user.competences.map((c) => c.name).join(", ")}</>
-                    )}
                   </option>
                 );
               })}
@@ -298,3 +331,4 @@ export default function CreateTask() {
     </main>
   );
 }
+ 

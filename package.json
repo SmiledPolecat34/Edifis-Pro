@@ -2,7 +2,7 @@
     "name": "edifis-pro",
     "private": true,
     "workspaces": [
-        "frontend",
+        "frontend/edifis-pro",
         "backend"
     ],
     "scripts": {

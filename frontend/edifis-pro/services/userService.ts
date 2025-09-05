@@ -69,6 +69,10 @@ const userService = {
     return await apiService.get<User[]>("/users/list");
   },
 
+  getAssignableUsers: async (): Promise<User[]> => {
+    return await apiService.get<User[]>("/users/assignable-to-task");
+  },
+
   getById: async (id: number) => {
     return await apiService.get(`/users/${id}`);
   },

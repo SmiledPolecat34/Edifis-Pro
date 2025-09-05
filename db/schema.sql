@@ -25,7 +25,6 @@ CREATE TABLE users (
   password VARCHAR(255) NOT NULL,
   role ENUM('Admin','Worker','Manager','Project_Chief','HR') NOT NULL DEFAULT 'Worker',
   role_id INT NULL,
-  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_users_role_id FOREIGN KEY (role_id)
     REFERENCES roles(role_id)
     ON UPDATE CASCADE

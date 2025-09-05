@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest --coverage --verbose --detectOpenHandles --forceExit",
+    "test": "jest --runInBand --coverage --verbose --detectOpenHandles --forceExit",
     "e2e": "cypress open",
     "e2e:ci": "cypress run"
   },

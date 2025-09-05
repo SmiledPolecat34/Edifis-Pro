@@ -77,6 +77,7 @@ exports.createUser = async (req, res) => {
             role_id,
             numberphone,
             password: hashedPassword,
+            created_at: new Date(),
         });
 
         // Lier les compétences si présentes
@@ -276,6 +277,9 @@ exports.updateUser = async (req, res) => {
         if (payload.password) {
             payload.password = await hashPassword(payload.password);
         }
+
+        // Explicitly set updated_at
+        payload.updated_at = new Date();
 
         // Sauvegarde des champs simples
         await user.update(payload);
@@ -500,5 +504,44 @@ exports.assignCompetenceToUser = async (req, res) => {
     } catch (error) {
         console.error("Erreur lors de l'assignation de la compétence :", error);
         res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getAssignableUsers = async (req, res) => {
+    try {
+        const requesterRole = req.user.role;
+        let rolesToFetch = [];
+
+        if (requesterRole === 'Project_Chief') {
+            rolesToFetch = ['Worker'];
+        } else if (requesterRole === 'Manager') {
+            rolesToFetch = ['Worker', 'Project_Chief', 'HR'];
+        } else if (requesterRole === 'Admin') {
+            // Admin can see everyone
+        } else {
+            // Other roles see no one for now
+            return res.json([]);
+        }
+
+        let whereClause = {};
+        if (rolesToFetch.length > 0) {
+            const roles = await Role.findAll({
+                where: { name: { [Op.in]: rolesToFetch } },
+                attributes: ['role_id'],
+            });
+            const roleIds = roles.map(r => r.role_id);
+            whereClause.role_id = { [Op.in]: roleIds };
+        }
+
+        const users = await User.findAll({
+            where: whereClause,
+            include: [{ model: Role, as: 'role', attributes: ['name'] }],
+            attributes: ['user_id', 'firstname', 'lastname', 'email'],
+        });
+
+        res.json(users);
+    } catch (error) {
+        console.error("Erreur getAssignableUsers:", error);
+        res.status(500).json({ message: "Erreur serveur" });
     }
 };

@@ -16,6 +16,8 @@ router.post(
 
 router.get("/project-chiefs", protect, userController.getAllProjectChiefs);
 
+router.get("/assignable-to-task", protect, userController.getAssignableUsers);
+
 // Liste “directory” selon le rôle (Admin/HR/Manager/Project_Chief/Worker)
 router.get("/list", protect, userController.getDirectory);
 
