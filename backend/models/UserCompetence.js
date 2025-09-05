@@ -15,7 +15,7 @@ const UserCompetence = sequelize.define(
   },
   {
     tableName: "user_competences",
-    timestamps: false,
+    timestamps: true,
   }
 );
 

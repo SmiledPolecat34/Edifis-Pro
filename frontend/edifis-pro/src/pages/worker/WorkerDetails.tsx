@@ -210,7 +210,7 @@ export default function WorkerDetails() {
               className="border border-gray-300 rounded p-1"
             />
           ) : (
-            worker.email
+            <a href={`mailto:${worker.email}`} className="text-blue-600 hover:underline">{worker.email}</a>
           )}
         </p>
         <p>
@@ -224,7 +224,11 @@ export default function WorkerDetails() {
               className="border border-gray-300 rounded p-1"
             />
           ) : (
-            worker.numberphone || "Non renseigné"
+            worker.numberphone ? (
+              <a href={`tel:${worker.numberphone}`} className="text-blue-600 hover:underline">{worker.numberphone}</a>
+            ) : (
+              "Non renseigné"
+            )
           )}
         </p>
         <p>
