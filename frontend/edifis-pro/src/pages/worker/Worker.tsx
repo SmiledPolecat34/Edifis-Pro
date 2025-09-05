@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import userService, { User } from "../../../services/userService";
-import { useAuth } from "../../context/AuthContext";
-import Loading from "../../components/loading/Loading";
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import userService, { User } from '../../../services/userService';
+import { useAuth } from '../../context/AuthContext';
+import Loading from '../../components/loading/Loading';
 
-const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
+const DEFAULT_IMAGE = 'https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg';
 
 export default function Workers() {
   const { user } = useAuth();
   const [workers, setWorkers] = useState<User[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const canCreate = ["Admin", "HR", "Manager"].includes(user?.role ?? "");
+  const canCreate = ['Admin', 'HR', 'Manager'].includes(user?.role ?? '');
 
   useEffect(() => {
     let cancelled = false;
@@ -20,19 +20,23 @@ export default function Workers() {
       try {
         const data = await userService.getDirectory();
         if (!cancelled) setWorkers(data);
-      } catch (err:any) {
-        if (!cancelled) setError(err?.message || "Erreur lors du chargement des employés");
+      } catch (err: any) {
+        if (!cancelled) setError(err?.message || 'Erreur lors du chargement des employés');
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     fetchWorkers();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const filteredWorkers = workers.filter((worker) => {
+  const filteredWorkers = workers.filter(worker => {
     const fullName = `${worker.firstname} ${worker.lastname}`.toLowerCase();
-    const competences = (worker.competences?.map((c: any) => c.name).join(", ") || "").toLowerCase();
+    const competences = (
+      worker.competences?.map((c: any) => c.name).join(', ') || ''
+    ).toLowerCase();
     const query = searchQuery.toLowerCase();
     return fullName.includes(query) || competences.includes(query);
   });
@@ -64,7 +68,7 @@ export default function Workers() {
           placeholder="Rechercher par nom, prénom, compétences..."
           className="border px-3 py-2 rounded-md w-full"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={e => setSearchQuery(e.target.value)}
         />
       </div>
 
@@ -74,7 +78,7 @@ export default function Workers() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
-          {filteredWorkers.map((worker) => (
+          {filteredWorkers.map(worker => (
             <div
               key={worker.user_id}
               className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center"
@@ -89,18 +93,23 @@ export default function Workers() {
                   {worker.firstname} {worker.lastname}
                 </h2>
               </Link>
+              <p className="text-sm text-slate-500">{worker.role}</p>
               <p className="text-sm text-gray-600">
                 {worker.competences && worker.competences.length > 0
-                  ? worker.competences.map((c: any) => c.name).join(", ")
-                  : "Compétences non renseignées"}
+                  ? worker.competences.map((c: any) => c.name).join(', ')
+                  : 'Compétences non renseignées'}
               </p>
-              <p className="text-sm text-slate-500">{worker.numberphone}</p>
-              <p className="text-sm text-slate-500">{worker.email}</p>
+              <p className="text-sm text-slate-500">
+                <span className="font-semibold">Email :</span> {worker.email}
+              </p>
+              <p className="text-sm text-slate-500">
+                <span className="font-semibold">Téléphone :</span> {worker.numberphone}
+              </p>
               <span
                 className={`mt-2 px-3 py-1 rounded-md text-sm ${
-                  worker.role.name === "Worker"
-                    ? "bg-blue-200 text-blue-800"
-                    : "bg-green-200 text-green-800"
+                  worker.role.name === 'Worker'
+                    ? 'bg-blue-200 text-blue-800'
+                    : 'bg-green-200 text-green-800'
                 }`}
               >
                 {worker.role.name}

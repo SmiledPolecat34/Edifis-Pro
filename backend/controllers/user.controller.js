@@ -214,41 +214,33 @@ exports.updateUser = async (req, res) => {
         const user = await User.findByPk(req.params.id, {
             include: [{ model: Role, as: "role", attributes: ["name", "role_id"] }],
         });
-        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+        if (!user) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
 
-        const { createdAt, updatedAt, ...payload } = { ...req.body }; // Copie des données du corps de la requête
+        const { competences, ...payload } = req.body;
 
-        // Si rôle envoyé par NOM -> map vers role_id
         if (payload.role && !payload.role_id) {
             const role = await Role.findOne({ where: { name: payload.role } });
-            if (!role) return res.status(400).json({ message: `Rôle '${payload.role}' invalide` });
+            if (!role) {
+                return res.status(400).json({ message: `Rôle '${payload.role}' invalide` });
+            }
             payload.role_id = role.role_id;
             delete payload.role;
         }
 
-        // Hash si password présent
         if (payload.password) {
             payload.password = await hashPassword(payload.password);
         }
 
-        // Sauvegarde des champs simples
         await user.update(payload);
 
-        // Gestion des compétences (si un tableau est envoyé)
-        // accepte soit [{competence_id,...}], soit [id1, id2, ...]
-        if (Array.isArray(req.body.competences)) {
-            let ids = [];
-            if (req.body.competences.length > 0 && typeof req.body.competences[0] === "object") {
-                ids = req.body.competences.map(c => c.competence_id).filter(Boolean);
-            } else {
-                ids = req.body.competences.map(Number).filter(Boolean);
-            }
+        if (Array.isArray(competences)) {
             if (typeof user.setCompetences === "function") {
-                await user.setCompetences(ids);
+                await user.setCompetences(competences);
             }
         }
 
-        // Retour avec rôle (nom)
         const updated = await User.findByPk(user.user_id, {
             attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
             include: [
@@ -271,6 +263,7 @@ exports.updateUser = async (req, res) => {
             }
         });
     } catch (error) {
+        logger.error("Update user error:", { message: error.message, stack: error.stack });
         return res.status(500).json({ error: error.message });
     }
 };

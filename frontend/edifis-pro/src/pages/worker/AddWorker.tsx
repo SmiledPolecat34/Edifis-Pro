@@ -82,6 +82,8 @@ export default function AddWorker() {
       newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '').toUpperCase();
     } else if (name === 'firstname') {
       newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '');
+    } else if (name === "numberphone") {
+      newValue = newValue.replace(/[^0-9]/g, "");
     }
 
     setFormData(prev => ({ ...prev, [name]: newValue }));
@@ -241,9 +243,10 @@ export default function AddWorker() {
                 onChange={handleChange}
                 className="mt-1 block w-full p-2 border rounded-md"
               >
-                <option value="Worker">Ouvrier</option>
-                <option value="Project_Chief">Chef de projet</option>
                 <option value="Manager">Manager</option>
+                <option value="HR">RH</option>
+                <option value="Project_Chief">Chef de projet</option>
+                <option value="Worker">Ouvrier</option>
               </select>
             </div>
             <div>

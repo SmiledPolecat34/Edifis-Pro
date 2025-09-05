@@ -77,6 +77,8 @@ export default function WorkerDetails() {
       } else if (name === "lastname") {
         // Filtrage du champ lastname
         newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "").toUpperCase();
+      } else if (name === "numberphone") {
+        newValue = newValue.replace(/[^0-9]/g, "");
       }
       return { ...prevWorker, [name]: newValue };
     });
