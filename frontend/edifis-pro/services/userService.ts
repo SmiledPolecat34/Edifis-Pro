@@ -99,7 +99,7 @@ const userService = {
 
   uploadProfilePicture: async (file: File): Promise<{ profile_picture: string }> => {
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("profilePicture", file);
     return await apiService.postForm<{ profile_picture: string }>(
       "/users/upload-profile",
       formData

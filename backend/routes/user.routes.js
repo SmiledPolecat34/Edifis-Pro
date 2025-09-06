@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user.controller");
 const { protect, isAdmin, canManageUsers } = require("../middlewares/auth.middleware");
+const { upload, setUploadType } = require("../middlewares/upload.middleware");
 
 // Création (tu veux: Admin, HR, Manager)
 router.post(
@@ -33,5 +34,13 @@ router.get("/suggest-email", protect, userController.suggestEmail);
 router.get("/:id", protect, userController.getUserById);
 router.put("/:id", protect, canManageUsers, userController.updateUser);
 router.delete("/:id", protect, canManageUsers, userController.deleteUser);
+
+router.post(
+    "/upload-profile",
+    protect,
+    setUploadType('profile'),
+    upload.single('profilePicture'),
+    userController.updateProfilePicture
+);
 
 module.exports = router;

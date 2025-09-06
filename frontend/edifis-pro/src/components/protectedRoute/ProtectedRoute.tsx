@@ -7,14 +7,22 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Chargement...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
 
+  // A ce stade, l'utilisateur est authentifié et les données sont chargées.
+  // On peut donc s'assurer que `user` n'est pas null.
   if (!user) {
-    return <div>Loading...</div>; // Or a spinner
+    // Ce cas ne devrait pas arriver si isLoading est false et isAuthenticated est true,
+    // mais c'est une sécurité supplémentaire.
+    return <Navigate to="/login" />;
   }
 
   if (allowedRoles && allowedRoles.length > 0) {

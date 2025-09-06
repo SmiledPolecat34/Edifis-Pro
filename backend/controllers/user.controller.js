@@ -340,6 +340,7 @@ exports.getDirectory = async (req, res) => {
 // Mettre à jour l’image de profil
 exports.updateProfilePicture = async (req, res) => {
   try {
+    console.log('req.user:', req.user);
     const userId = req.user.id;
     if (!req.file) {
       return res.status(400).json({ message: 'Aucune image envoyée' });

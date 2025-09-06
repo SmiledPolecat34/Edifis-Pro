@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "dev": ".\\node_modules\\.bin\\cross-env DISABLE_RATE_LIMIT=true nodemon server.js --watch",
+    "dev": "cross-env DISABLE_RATE_LIMIT=true nodemon server.js",
     "test": "jest --coverage --verbose --detectOpenHandles --forceExit",
     "test-vite": "jest --verbose --detectOpenHandles --forceExit",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
