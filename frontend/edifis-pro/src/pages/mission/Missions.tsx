@@ -97,23 +97,29 @@ export default function Missions() {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <main className="min-h-screen p-8 bg-gray-100">
-      <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-        <h1 className="text-4xl font-bold text-gray-900">Missions</h1>
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold text-gray-900">Missions</h1>
+        <Link
+            to="/AddTask"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm w-full md:w-auto"
+        >
+            Ajouter une mission
+        </Link>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
           type="text"
           placeholder="Rechercher une mission..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="flex-1 p-2 border border-gray-300 rounded-lg shadow-sm"
+          className="h-10 w-full md:w-1/3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         />
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="p-2 border border-gray-300 rounded-lg shadow-sm"
+          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         >
           <option value="">Tous statuts</option>
           <option value="En cours">En cours</option>
@@ -122,15 +128,9 @@ export default function Missions() {
           <option value="Annulé">Annulé</option>
         </select>
       </div>
-      <Link
-        to="/AddTask"
-        className="ml-2 inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-      >
-        Ajouter une mission
-      </Link>
 
       {filteredTasks.length === 0 ? (
-        <p className="text-center text-gray-500">Aucune mission trouvée.</p>
+        <p className="text-center text-gray-500 py-10">Aucune mission trouvée.</p>
       ) : (
         <div className="grid md:grid-cols-2 sm:grid-cols-1 gap-6">
           {filteredTasks.map(task => {
@@ -140,28 +140,28 @@ export default function Missions() {
             return (
               <div
                 key={task.task_id}
-                className="bg-white border border-gray-200 rounded-lg shadow-lg p-5 relative"
+                className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm flex flex-col"
               >
                 {isEditing ? (
-                  <>
+                  <div className="flex flex-col h-full">
                     <input
                       type="text"
                       name="name"
                       value={editedTask?.name || ''}
                       onChange={handleChange}
-                      className="w-full border p-2 mb-2 rounded"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-2"
                     />
                     <textarea
                       name="description"
                       value={editedTask?.description || ''}
                       onChange={handleChange}
-                      className="w-full border p-2 mb-2 rounded"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-2 flex-grow"
                     />
                     <select
                       name="status"
                       value={editedTask?.status || ''}
                       onChange={handleChange}
-                      className="w-full border p-2 mb-2 rounded"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-4"
                     >
                       <option value="En cours">En cours</option>
                       <option value="Prévu">Prévu</option>
@@ -169,92 +169,75 @@ export default function Missions() {
                       <option value="Annulé">Annulé</option>
                     </select>
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-auto">
                       <button
                         onClick={handleSave}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
                       >
                         Sauvegarder
                       </button>
                       <button
-                        onClick={() => {
-                          setEditingTaskId(null);
-                          setEditedTask(null);
-                        }}
-                        className="bg-gray-300 px-4 py-2 rounded"
+                        onClick={() => { setEditingTaskId(null); setEditedTask(null); }}
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
                       >
                         Annuler
                       </button>
                     </div>
-                  </>
+                  </div>
                 ) : (
-                  <>
-                    <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-2xl font-semibold text-gray-900">{task.name}</h2>
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-2">
+                      <h2 className="text-xl font-semibold text-gray-900">{task.name}</h2>
                       {task.status && <Badge status={task.status} />}
                     </div>
-                    <p className="text-gray-700">{task.description}</p>
+                    <p className="text-gray-700 mb-4 flex-grow">{task.description}</p>
 
-                    <p className="text-sm text-gray-600 mt-2">
-                      <strong>📅 Début :</strong>{' '}
-                      {task.start_date ? new Date(task.start_date).toLocaleString() : 'Non défini'}
-                    </p>
-                    <p className="text-sm text-gray-600 mb-4">
-                      <strong>⏳ Fin :</strong>{' '}
-                      {task.end_date ? new Date(task.end_date).toLocaleString() : 'Non défini'}
-                    </p>
+                    <div className="text-sm text-gray-600 space-y-2 mb-4">
+                        <p><strong>Début :</strong> {task.start_date ? new Date(task.start_date).toLocaleString() : 'N/A'}</p>
+                        <p><strong>Fin :</strong> {task.end_date ? new Date(task.end_date).toLocaleString() : 'N/A'}</p>
+                    </div>
 
-                    <div className="mt-2">
-                      <strong className="text-gray-800">👥 Assignée à :</strong>
+                    <div className="mb-4">
+                      <strong className="text-sm text-gray-800">Assignée à :</strong>
                       {!task.users || task.users.length === 0 ? (
-                        <p className="text-gray-600 italic">Aucune assignation pour le moment...</p>
+                        <p className="text-sm text-gray-600 italic">Personne</p>
                       ) : (
-                        <ul className="text-gray-800">
-                          {task.users.map(u => (
-                            <li key={u.user_id}>
-                              – {u.firstname} {u.lastname}
-                            </li>
-                          ))}
+                        <ul className="text-sm list-disc list-inside text-gray-600">
+                          {task.users.map(u => <li key={u.user_id}>{u.firstname} {u.lastname}</li>)}
                         </ul>
                       )}
                     </div>
 
                     {cs && (
-                      <div className="mt-4">
-                        <h3 className="text-gray-700">
-                          <strong>Nom :</strong> {cs.name}
-                        </h3>
-                        <p className="text-xl font-semibold text-gray-900">
-                          <Link
+                      <div className="border-t border-gray-200 pt-4">
+                        <p className="text-sm text-gray-500">Chantier:</p>
+                        <Link
                             to={`/ConstructionDetails/${cs.construction_site_id}`}
-                            className="italic hover:underline text-sm text-gray-500"
-                          >
-                            Détails du chantier
-                          </Link>
-                        </p>
+                            className="font-semibold text-orange-600 hover:underline"
+                        >
+                            {cs.name}
+                        </Link>
                       </div>
                     )}
 
-                    {(user?.role?.name === 'Admin' ||
-                      (user?.role?.name === 'Manager' && task.createdBy === user.user_id) ||
-                      (user?.role?.name === 'Project_Chief' &&
-                        task.assignedBy === user.user_id)) && (
-                      <div className="mt-4 flex gap-2">
-                        <Link
-                          to={`/editmission/${task.task_id}`}
-                          className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600"
+                    <div className="flex-grow"></div>
+                    {(user?.role?.name === 'Admin' || user?.role?.name === 'Manager') && (
+                      <div className="mt-4 flex gap-2 border-t border-gray-200 pt-4">
+                        <button
+                          onClick={() => { setEditingTaskId(task.task_id); setEditedTask(task); }}
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
                         >
                           Modifier
-                        </Link>
+                        </button>
                         <button
                           onClick={() => handleDelete(task.task_id)}
-                          className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600"
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-500 text-white hover:bg-red-600 shadow-sm"
                         >
                           Supprimer
                         </button>
                       </div>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             );

@@ -98,7 +98,7 @@ export default function Register() {
                 <div className="grid gap-2">
                   <label className="sr-only" htmlFor="firstname">Prénom</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="firstname"
                     placeholder="Prénom"
                     type="text"
@@ -107,7 +107,7 @@ export default function Register() {
                   />
                   <label className="sr-only" htmlFor="lastname">Nom</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="lastname"
                     placeholder="Nom"
                     type="text"
@@ -116,7 +116,7 @@ export default function Register() {
                   />
                    <label className="sr-only" htmlFor="numberphone">Téléphone</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="numberphone"
                     placeholder="Téléphone"
                     type="text"
@@ -125,7 +125,7 @@ export default function Register() {
                   />
                   <label className="sr-only" htmlFor="email">Email</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="email"
                     placeholder="Email"
                     type="email"
@@ -134,7 +134,7 @@ export default function Register() {
                   />
                   <label className="sr-only" htmlFor="password">Mot de passe</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="password"
                     placeholder="Mot de passe"
                     type="password"
@@ -143,7 +143,7 @@ export default function Register() {
                   />
                   <label className="sr-only" htmlFor="confirmPassword">Confirmer le mot de passe</label>
                   <input
-                    className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="confirmPassword"
                     placeholder="Confirmer le mot de passe"
                     type="password"
@@ -153,7 +153,7 @@ export default function Register() {
                   <label className="sr-only" htmlFor="role">Rôle</label>
                   <select
                     id="role"
-                    className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500"
+                    className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     value={formData.role}
                     onChange={handleChange}
                   >
@@ -166,7 +166,7 @@ export default function Register() {
                   </select>
                   {error && <p className="text-red-500 text-sm">{error}</p>}
                   <button
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 cursor-pointer disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm"
                     disabled={isDisabled()}
                   >
                     {loading ? 'Création...' : 'Créer un compte'}

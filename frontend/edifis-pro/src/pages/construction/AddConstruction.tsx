@@ -120,109 +120,75 @@ export default function AddConstruction() {
   };
 
   return (
-    <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100 flex justify-center">
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-      >
-        Retour
-      </button>
-      <div className="w-full max-w-3xl bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Ajouter un chantier
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nom du chantier"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-            required
-          />
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+        <div className="max-w-4xl mx-auto">
+            <div className="flex items-center mb-6">
+                <button onClick={() => navigate(-1)} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4">
+                    Retour
+                </button>
+                <h1 className="text-3xl font-bold text-gray-900">Ajouter un chantier</h1>
+            </div>
 
-          <textarea
-            name="description"
-            placeholder="Description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-            required
-          />
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Nom du chantier</label>
+                        <input type="text" name="name" value={formData.name} onChange={handleChange} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Adresse</label>
+                        <input type="text" name="adresse" value={formData.adresse} onChange={handleChange} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+                </div>
 
-          <input
-            type="text"
-            name="adresse"
-            placeholder="Adresse"
-            value={formData.adresse}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-            required
-          />
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" value={formData.description} onChange={handleChange} required rows={4} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"></textarea>
+                </div>
 
-          <select
-            name="chef_de_projet_id"
-            value={formData.chef_de_projet_id}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-          >
-            <option value="">
-              {projectChiefs.length ? "Sélectionner un chef de projet" : "Aucun chef de projet disponible"}
-            </option>
-            {projectChiefs.map((chief) => (
-              <option key={chief.user_id} value={chief.user_id}>
-                {chief.firstname} {chief.lastname}
-              </option>
-            ))}
-          </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Chef de projet</label>
+                        <select name="chef_de_projet_id" value={formData.chef_de_projet_id} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500">
+                            <option value="">{projectChiefs.length ? "Sélectionner un chef de projet" : "Aucun chef de projet disponible"}</option>
+                            {projectChiefs.map((chief) => <option key={chief.user_id} value={chief.user_id}>{chief.firstname} {chief.lastname}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Statut</label>
+                        <select name="state" value={formData.state} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500">
+                            <option value="En cours">En cours</option>
+                            <option value="Prévu">Prévu</option>
+                            <option value="Terminé">Terminé</option>
+                            <option value="Annulé">Annulé</option>
+                        </select>
+                    </div>
+                </div>
 
-          <select
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            className="w-full p-3 border rounded"
-          >
-            <option value="En cours">En cours</option>
-            <option value="Prévu">Prévu</option>
-            <option value="Terminé">Terminé</option>
-            <option value="Annulé">Annulé</option>
-          </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Date de début</label>
+                        <input type="date" name="start_date" value={formData.start_date} onChange={handleChange} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Date de fin</label>
+                        <input type="date" name="end_date" value={formData.end_date} onChange={handleChange} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="date"
-              name="start_date"
-              value={formData.start_date}
-              onChange={handleChange}
-              className="w-full p-3 border rounded"
-              required
-            />
-            <input
-              type="date"
-              name="end_date"
-              value={formData.end_date}
-              onChange={handleChange}
-              className="w-full p-3 border rounded"
-              required
-            />
-          </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Image du chantier</label>
+                    <input type="file" name="image" onChange={handleImageChange} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100" />
+                </div>
 
-          <input
-            type="file"
-            name="image"
-            onChange={handleImageChange}
-            className="w-full p-3 border rounded"
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition"
-          >
-            Ajouter
-          </button>
-        </form>
-      </div>
+                <div className="border-t border-gray-200 pt-6 flex justify-end">
+                    <button type="submit" className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 shadow-sm">
+                        Ajouter le chantier
+                    </button>
+                </div>
+            </form>
+        </div>
     </main>
   );
 }

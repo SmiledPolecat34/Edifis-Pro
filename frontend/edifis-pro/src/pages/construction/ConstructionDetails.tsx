@@ -206,212 +206,102 @@ export default function ConstructionDetails() {
       : (rawState as "En cours" | "Terminé" | "Annulé" | "Prévu");
 
   return (
-    <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
-      <div className="flex flex-col gap-4 bg-white p-8 rounded-lg border border-slate-200">
-        <div className="flex justify-between items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-          >
-            Retour
-          </button>
-          <div className="flex space-x-2">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleCancel}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-gray-200 text-gray-950 hover:bg-gray-300 h-9 px-4 py-2"
-                >
-                  Annuler
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+      <div className="max-w-4xl mx-auto">
+        
+        {/* --- Header --- */}
+        <div className="flex flex-col md:flex-row justify-between md:items-start mb-6 gap-4">
+            <div className="flex items-start gap-4">
+                <button onClick={() => navigate(-1)} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mt-1">
+                    Retour
                 </button>
-                <button
-                  onClick={handleSave}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-green-600 text-white hover:bg-green-700 h-9 px-4 py-2"
-                >
-                  Valider les modifications
-                </button>
-              </>
-            ) : (
-              <>
-                {canEdit && (
-                  <button
-                    onClick={handleCancelProject}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-yellow-400 text-yellow-950 hover:bg-yellow-500 h-9 px-4 py-2"
-                  >
-                    Annuler le projet
-                  </button>
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {isEditing ? (
+                            <input type="text" name="name" value={construction.name} onChange={(e: ChangeEvent<HTMLInputElement>) => setConstruction({ ...construction, name: e.target.value })} className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-3xl font-bold" />
+                        ) : ( construction.name )}
+                    </h1>
+                    <Badge status={mappedState} />
+                </div>
+            </div>
+            <div className="flex gap-2 w-full md:w-auto flex-shrink-0">
+                {isEditing ? (
+                <>
+                    <button onClick={handleCancel} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full md:w-auto shadow-sm">Annuler</button>
+                    <button onClick={handleSave} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full md:w-auto shadow-sm">Sauvegarder</button>
+                </>
+                ) : (
+                <>
+                    {canDelete && <button onClick={handleCancelProject} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-yellow-500 text-yellow-900 hover:bg-yellow-600 w-full md:w-auto shadow-sm">Annuler le projet</button>}
+                    {canEdit && <button onClick={() => setIsEditing(true)} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full md:w-auto shadow-sm">Modifier</button>}
+                </>
                 )}
-                {canEdit && (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
-                  >
-                    Modifier
-                  </button>
-                )}
-              </>
-            )}
-          </div>
+            </div>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={construction.name}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setConstruction({ ...construction, name: e.target.value })
-                  }
-                  placeholder="Nom du chantier"
-                  className="w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              ) : (
-                construction.name
-              )}
-            </h1>
-            <Badge status={mappedState} />
-          </div>
-
-          <p className="text-gray-700">
-            {isEditing ? (
-              <textarea
-                name="description"
-                value={construction.description ?? ""}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                  setConstruction({
-                    ...construction,
-                    description: e.target.value,
-                  })
-                }
-                placeholder="Description"
-                className="h-36 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            ) : (
-              construction.description
-            )}
-          </p>
-
-          <p className="text-sm text-slate-500">
-            {isEditing ? (
-              <input
-                type="text"
-                name="adresse"
-                value={construction.adresse ?? ""}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConstruction({ ...construction, adresse: e.target.value })
-                }
-                placeholder="Adresse"
-                className="h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            ) : (
-              construction.adresse
-            )}
-          </p>
-
-          <p>
-            <strong>Début :</strong>{" "}
-            {isEditing ? (
-              <input
-                type="date"
-                name="start_date"
-                value={construction.start_date ?? ""}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConstruction({
-                    ...construction,
-                    start_date: e.target.value,
-                  })
-                }
-                placeholder="Date de début"
-                className="rounded-md border border-slate-200 bg-transparent px-3 py-1 text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            ) : (
-              construction.start_date
-            )}
-          </p>
-
-          <p>
-            <strong>Fin :</strong>{" "}
-            {isEditing ? (
-              <input
-                type="date"
-                name="end_date"
-                value={construction.end_date ?? ""}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setConstruction({
-                    ...construction,
-                    end_date: e.target.value,
-                  })
-                }
-                placeholder="Date de fin"
-                className="rounded-md border border-slate-200 bg-transparent px-3 py-1 text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            ) : (
-              construction.end_date
-            )}
-          </p>
-          <div className="mt-2">
-            <label className="text-sm font-medium">
-              Détails du chef de projet: <br />
-            </label>
-            {isEditing ? (
-              <div>
-                <input
-                  type="text"
-                  value={managerInput}
-                  onChange={onManagerInputChange}
-                  onBlur={onManagerBlur}
-                  placeholder="Rechercher un chef de projet..."
-                  className="h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-zinc-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                {filteredUsers.length > 0 && (
-                  <ul className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-                    {filteredUsers.map((u) => (
-                      <li
-                        key={u.user_id}
-                        className="cursor-pointer p-2 hover:bg-gray-100"
-                        onClick={() => {
-                          if(construction) {
-                            setConstruction({ ...construction, chef_de_projet_id: u.user_id });
-                            setManager(u);
-                            setManagerInput(`${u.user_id} - ${u.firstname} ${u.lastname} (${u.email})`);
-                            setFilteredUsers([]);
-                          }
-                        }}
-                      >
-                        {u.firstname} {u.lastname} ({u.email})
-                      </li>
-                    ))}
-                  </ul>
+        {/* --- Main Content --- */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
+            
+            {/* --- Description --- */}
+            <div>
+                <label className="text-sm font-medium text-gray-700">Description</label>
+                {isEditing ? (
+                    <textarea name="description" value={construction.description ?? ""} onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setConstruction({ ...construction, description: e.target.value })} rows={4} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                ) : (
+                    <p className="text-base text-gray-800 mt-1">{construction.description || "Aucune description."}</p>
                 )}
-              </div>
-            ) : manager ? (
-              <Link
-                to={`/user/${manager.user_id}`}
-                className="text-blue-600 hover:underline"
-              >
-                {manager.firstname} {manager.lastname} — {manager.email}
-              </Link>
-            ) : (
-              <p className="text-sm text-slate-500">
-                {construction.chef_de_projet_id
-                  ? "Chargement en cours..."
-                  : "Aucun chef de projet assigné"}
-              </p>
-            )}
-          </div>
+            </div>
 
-          <p className="mt-4">
-            <strong>Date de création :</strong>{" "}
-            {construction.start_date ?? "Non spécifiée"}
-          </p>
+            <div className="border-t border-gray-200"></div>
 
-          <p>
-            <strong>Date de mise à jour :</strong>{" "}
-            {construction.updated_at ?? "Non spécifiée"}
-          </p>
+            {/* --- Details Grid --- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Adresse</label>
+                    {isEditing ? (
+                        <input type="text" name="adresse" value={construction.adresse ?? ""} onChange={(e: ChangeEvent<HTMLInputElement>) => setConstruction({ ...construction, adresse: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    ) : (
+                        <p className="text-base text-gray-800 mt-1">{construction.adresse || "Non spécifiée"}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Chef de projet</label>
+                    {isEditing ? (
+                        <div className="relative mt-1">
+                            <input type="text" value={managerInput} onChange={onManagerInputChange} onBlur={onManagerBlur} placeholder="Rechercher un chef de projet..." className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                            {filteredUsers.length > 0 && (
+                            <ul className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
+                                {filteredUsers.map((u) => (
+                                <li key={u.user_id} className="cursor-pointer p-2 hover:bg-gray-100" onClick={() => { if(construction) { setConstruction({ ...construction, chef_de_projet_id: u.user_id }); setManager(u); setManagerInput(`${u.user_id} - ${u.firstname} ${u.lastname} (${u.email})`); setFilteredUsers([]); } }}>
+                                    {u.firstname} {u.lastname} ({u.email})
+                                </li>
+                                ))}
+                            </ul>
+                            )}
+                        </div>
+                    ) : manager ? (
+                        <p className="text-base text-gray-800 mt-1">{manager.firstname} {manager.lastname}</p>
+                    ) : (
+                        <p className="text-base text-gray-500 italic mt-1">{construction.chef_de_projet_id ? "Chargement..." : "Aucun"}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Date de début</label>
+                    {isEditing ? (
+                        <input type="date" name="start_date" value={construction.start_date ?? ""} onChange={(e: ChangeEvent<HTMLInputElement>) => setConstruction({ ...construction, start_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    ) : (
+                        <p className="text-base text-gray-800 mt-1">{construction.start_date ? new Date(construction.start_date).toLocaleDateString() : "Non spécifiée"}</p>
+                    )}
+                </div>
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Date de fin</label>
+                    {isEditing ? (
+                        <input type="date" name="end_date" value={construction.end_date ?? ""} onChange={(e: ChangeEvent<HTMLInputElement>) => setConstruction({ ...construction, end_date: e.target.value })} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    ) : (
+                        <p className="text-base text-gray-800 mt-1">{construction.end_date ? new Date(construction.end_date).toLocaleDateString() : "Non spécifiée"}</p>
+                    )}
+                </div>
+            </div>
         </div>
       </div>
     </main>

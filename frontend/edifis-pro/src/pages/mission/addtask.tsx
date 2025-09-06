@@ -15,90 +15,48 @@ export default function CreateTask() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
-  const [selectedConstruction, setSelectedConstruction] = useState<
-    number | null
-  >(null);
+  const [selectedConstruction, setSelectedConstruction] = useState<number | null>(null);
 
-  const [users, setUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]); // For manager and admin
-  const [constructions, setConstructions] = useState([]);
-  const [minStartDate, setMinStartDate] = useState<string>("");
-  const [maxEndDate, setMaxEndDate] = useState<string>("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [constructions, setConstructions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userFilter, setUserFilter] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState(""); // State for user search
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const constructionsData = await constructionService.getAll();
+        const [constructionsData, usersData] = await Promise.all([
+            constructionService.getAll(),
+            userService.getAssignableUsers()
+        ]);
         setConstructions(constructionsData);
-
-        if (user && (user.role.name === 'Manager' || user.role.name === 'Admin')) {
-            const allUsersData = await userService.getAllUsers();
-            setAllUsers(allUsersData);
-            setUsers(allUsersData); // Initially, show all users for manager/admin
-        }
+        setUsers(usersData);
       } catch (err) {
-        setError("Erreur lors du chargement des données initiales.");
-        console.error("Erreur lors du chargement des données initiales:", err);
+        setError("Erreur lors du chargement des données.");
+        console.error(err);
       }
     };
+    fetchInitialData();
+  }, []);
 
-    if (user) {
-        fetchInitialData();
-    }
-  }, [user]);
-
-  // Fonction pour s'assurer que les dates respectent le format "YYYY-MM-DDTHH:MM"
-  const formatDateForInput = (dateString) => {
-    if (!dateString) return "";
-    return `${dateString}T00:00`;
-  };
-
-  const handleConstructionChange = async (e) => {
-    const selectedId = Number(e.target.value);
-    setSelectedConstruction(selectedId);
-    const selectedConstructionData = constructions.find(
-      (c) => c.construction_site_id === selectedId
+  const handleUserToggle = (userId: number) => {
+    setSelectedUsers(prev => 
+        prev.includes(userId) 
+            ? prev.filter(id => id !== userId) 
+            : [...prev, userId]
     );
-    if (selectedConstructionData) {
-      // Transformation pour que les dates respectent le format requis
-      setMinStartDate(formatDateForInput(selectedConstructionData.start_date));
-      setMaxEndDate(formatDateForInput(selectedConstructionData.end_date));
-      // Réinitialisation des dates de la mission
-      setStartDate(formatDateForInput(selectedConstructionData.start_date));
-      setEndDate(formatDateForInput(selectedConstructionData.end_date));
-
-      if (user && (user.role.name !== 'Manager' && user.role.name !== 'Admin')) {
-        // For "chef de chantier", fetch users of the selected construction site.
-        try {
-          const usersData = await constructionService.getUsersOfConstructionSite(selectedId);
-          setUsers(usersData);
-        } catch (err) {
-          setError("Erreur lors du chargement des utilisateurs du chantier.");
-        }
-      }
-    }
   };
 
-  // Fonction pour vérifier la disponibilité d'un utilisateur
-  const isUserAvailable = (user) => {
-    if (!startDate || !endDate) return true; // Pas de vérification si les dates ne sont pas renseignées
-    const newStart = new Date(startDate);
-    const newEnd = new Date(endDate);
-    // Si l'utilisateur n'a pas de missions, il est disponible
-    if (!user.Tasks || user.Tasks.length === 0) return true;
-    // Vérifier qu'aucune mission ne chevauche la nouvelle plage de dates
-    return user.Tasks.every((task) => {
-      const taskStart = new Date(task.start_date);
-      const taskEnd = new Date(task.end_date);
-      // Condition sans chevauchement : la nouvelle fin est avant le début de la mission ou le nouveau début est après la fin de la mission
-      return newEnd <= taskStart || newStart >= taskEnd;
-    });
-  };
+  const filteredUsers = users.filter(u => {
+      const query = userSearchQuery.toLowerCase();
+      const fullName = `${u.firstname} ${u.lastname}`.toLowerCase();
+      const role = (u.role?.name || '').toLowerCase();
+      const competences = (u.competences?.map(c => c.name).join(' ') || '').toLowerCase();
+      return fullName.includes(query) || role.includes(query) || competences.includes(query);
+  });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -108,22 +66,10 @@ export default function CreateTask() {
       setLoading(false);
       return;
     }
-
-    // Vérification des dates
-    if (startDate < minStartDate) {
-      setError(`La date de début ne peut pas être avant ${minStartDate}`);
-      setLoading(false);
-      return;
-    }
-    if (endDate > maxEndDate) {
-      setError(`La date de fin ne peut pas être après ${maxEndDate}`);
-      setLoading(false);
-      return;
-    }
-    if (startDate > endDate) {
-      setError("La date de début doit être avant la date de fin.");
-      setLoading(false);
-      return;
+    if (new Date(startDate) > new Date(endDate)) {
+        setError("La date de début doit être avant la date de fin.");
+        setLoading(false);
+        return;
     }
 
     try {
@@ -149,191 +95,91 @@ export default function CreateTask() {
   };
 
   return (
-    <main className="min-h-screen p-8 bg-gray-100">
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">
-        Créer une Mission
-      </h1>
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-      >
-        Retour
-      </button>
-      {error && <p className="text-red-500">{error}</p>}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 shadow-lg rounded-lg"
-      >
-        {/* Informations de base */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Nom de la mission :</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Description :</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          ></textarea>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Statut :</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            <option value="En cours">En cours</option>
-            <option value="Prévu">Prévu</option>
-            <option value="Terminé">Terminé</option>
-            <option value="Annulé">Annulé</option>
-          </select>
-        </div>
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+        <div className="max-w-4xl mx-auto">
+            <div className="flex items-center mb-6">
+                <button onClick={() => navigate(-1)} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4">
+                    Retour
+                </button>
+                <h1 className="text-3xl font-bold text-gray-900">Créer une Mission</h1>
+            </div>
 
-        {/* Sélection du chantier */}
-        <div className="mb-4">
-          <label className="block text-gray-700">Chantier :</label>
-          <select
-            value={selectedConstruction || ""}
-            onChange={handleConstructionChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-            required
-          >
-            <option value="">Sélectionnez un chantier</option>
-            {constructions.map((construction) => (
-              <option
-                key={construction.construction_site_id}
-                value={construction.construction_site_id}
-              >
-                {construction.name} - {construction.adresse}
-              </option>
-            ))}
-          </select>
+            <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
+                {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>}
+
+                {/* --- Section 1: Infos & Statut --- */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Nom de la mission</label>
+                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700">Statut</label>
+                        <select value={status} onChange={(e) => setStatus(e.target.value)} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500">
+                            <option value="Prévu">Prévu</option>
+                            <option value="En cours">En cours</option>
+                            <option value="Terminé">Terminé</option>
+                            <option value="Annulé">Annulé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label className="text-sm font-medium text-gray-700">Description</label>
+                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows={4} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"></textarea>
+                </div>
+
+                {/* --- Section 2: Chantier & Dates --- */}
+                <div className="border-t border-gray-200 pt-6 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Chantier</label>
+                            <select value={selectedConstruction || ""} onChange={(e) => setSelectedConstruction(Number(e.target.value))} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500">
+                                <option value="" disabled>Sélectionnez un chantier</option>
+                                {constructions.map((c) => <option key={c.construction_site_id} value={c.construction_site_id}>{c.name}</option>)}
+                            </select>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Date de début</label>
+                            <input type="datetime-local" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Date de fin</label>
+                            <input type="datetime-local" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* --- Section 3: Assignation --- */}
+                <div className="border-t border-gray-200 pt-6">
+                    <label className="text-lg font-semibold text-gray-800 mb-2 block">Affecter des employés</label>
+                    <input 
+                        type="search"
+                        value={userSearchQuery}
+                        onChange={e => setUserSearchQuery(e.target.value)}
+                        placeholder="Rechercher par nom, poste, compétence..."
+                        className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 mb-4"
+                    />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-60 overflow-y-auto border border-gray-300 p-4 rounded-lg">
+                        {filteredUsers.map((u) => (
+                            <label key={u.user_id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                <input type="checkbox" checked={selectedUsers.includes(u.user_id)} onChange={() => handleUserToggle(u.user_id)} className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
+                                <span>{u.firstname} {u.lastname}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* --- Actions --- */}
+                <div className="border-t border-gray-200 pt-6 flex justify-end">
+                    <button type="submit" disabled={loading} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm">
+                        {loading ? "Création..." : "Créer la mission"}
+                    </button>
+                </div>
+            </form>
         </div>
-
-        {/* Dates de la mission */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Date et heure de début :
-          </label>
-          <input
-            type="datetime-local"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            required
-            min={minStartDate}
-            max={maxEndDate}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Date et heure de fin :</label>
-          <input
-            type="datetime-local"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            required
-            min={startDate}
-            max={maxEndDate}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-
-        {/* Sélection des utilisateurs */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Affecter des employés :
-          </label>
-          <input
-            type="text"
-            placeholder="Filtrer par nom ou compétence"
-            value={userFilter}
-            onChange={(e) => setUserFilter(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg mb-2"
-          />
-          <select
-            multiple
-            value={selectedUsers}
-            onChange={(e) =>
-              setSelectedUsers(
-                Array.from(e.target.selectedOptions, (opt) => Number(opt.value))
-              )
-            }
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          >
-            {users
-              .filter(userToDisplay => {
-                if (!user || !user.role || !userToDisplay.role) {
-                    return false;
-                }
-                const currentUserRole = user.role.name;
-                const userToDisplayRole = userToDisplay.role.name;
-
-                let isVisible = false;
-                if (currentUserRole === 'Admin') {
-                    isVisible = true;
-                } else if (currentUserRole === 'Manager') {
-                    isVisible = ['Worker', 'Project_Chief', 'HR'].includes(userToDisplayRole);
-                } else if (currentUserRole === 'Project_Chief') {
-                    isVisible = userToDisplayRole === 'Worker';
-                }
-
-                if (!isVisible) {
-                    return false;
-                }
-
-                // Filtrage basé sur le nom et les compétences
-                const fullName = `${userToDisplay.firstname} ${userToDisplay.lastname}`.toLowerCase();
-                const filterText = userFilter.toLowerCase();
-                const competenceText = userToDisplay.competences
-                  ? userToDisplay.competences.map((c) => c.name.toLowerCase()).join(" ")
-                  : "";
-                return (
-                  fullName.includes(filterText) ||
-                  competenceText.includes(filterText)
-                );
-              })
-              .map((userToDisplay) => {
-                const available = isUserAvailable(userToDisplay);
-                return (
-                  <option
-                    key={userToDisplay.user_id}
-                    value={userToDisplay.user_id}
-                    disabled={!available}
-                  >
-                    {userToDisplay.firstname} {userToDisplay.lastname} - {userToDisplay.role.name}{" "}
-                    {!available && " (Non disponible)"}
-                  </option>
-                );
-              })}
-          </select>
-        </div>
-
-        <div className="flex items-center">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            {loading ? "Création..." : "Créer la mission"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 ml-2"
-          >
-            Retour
-          </button>
-        </div>
-      </form>
     </main>
   );
 }

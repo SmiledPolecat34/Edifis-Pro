@@ -1,32 +1,32 @@
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import SideBar from '../components/sideBar/SideBar';
 import Header from './header/Header';
 import Footer from './footer/Footer';
 
-const PageLayout = () => (
-    <>
-        {/* <div className='flex h-screen overflow-hidden'>            
-            <SideBar />
-            <div className='flex flex-col w-full'>
-                <Header />
-                <Outlet />
+const PageLayout = () => {
+    const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+
+    return (
+        <div className="flex h-screen bg-gray-100">
+            <SideBar isMobileNavOpen={isMobileNavOpen} setIsMobileNavOpen={setIsMobileNavOpen} />
+            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden md:ms-[250px]">
+                <Header setIsMobileNavOpen={setIsMobileNavOpen} />
+                <main className="flex-1">
+                    <Outlet />
+                </main>
                 <Footer />
-            </div>
-        </div> */}
-
-
-        <Header />
-        {/* <main className="grid grid-cols-[250px_1fr] md:grid-cols-[250px_1fr] grid-cols-1min-h-[calc(100dvh-65px)] w-full max-w-screen-2xl"> */}
-
-        <div className='flex h-screen'>
-            <SideBar />
-            <div className='w-full md:ms-[250px]'>
-                <Outlet />
-                <Footer />
+                {/* Overlay for mobile nav */}
+                {isMobileNavOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+                        onClick={() => setIsMobileNavOpen(false)}
+                    ></div>
+                )}
             </div>
         </div>
-    </>
-);
+    );
+};
 
 export default PageLayout;

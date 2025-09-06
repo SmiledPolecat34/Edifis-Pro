@@ -101,158 +101,180 @@ export default function Profile() {
   };
 
   return (
-    <main className="min-h-[calc(100dvh-65px)] md:p-8 p-4 bg-gray-100">
-      <div className="flex h-48 w-48 overflow-hidden rounded-xl mb-4">
-        <img
-          className="object-cover h-full w-full"
-          src={previewImage}
-          alt="Photo de profil"
-        />
-      </div>
-
-      <div className="w-full">
-        <div className="flex justify-between flex-wrap mb-5">
-          <div>
-            <h1 className="text-3xl font-semibold space-y-2">
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="firstname"
-                  value={updatedUser.firstname}
-                  onChange={handleChange}
-                  className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1"
-                />
-              ) : (
-                user.firstname
-              )}{" "}
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="lastname"
-                  value={updatedUser.lastname}
-                  onChange={handleChange}
-                  className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-1"
-                />
-              ) : (
-                user.lastname
-              )}
-            </h1>
-            <p className="text-slate-500 text-base">
-              {roleLabels[user.role?.name || ""] || "Non défini"}
-            </p>
+    <main className="min-h-screen bg-gray-100">
+      <div className="max-w-4xl mx-auto p-4 md:p-8">
+        
+        {/* --- Header Section --- */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+          <div className="flex items-center gap-4 mb-4 sm:mb-0">
+            <div className="relative h-24 w-24 sm:h-32 sm:w-32 rounded-full overflow-hidden shadow-lg">
+              <img
+                className="object-cover h-full w-full"
+                src={previewImage}
+                alt="Photo de profil"
+              />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {user.firstname} {user.lastname}
+              </h1>
+              <p className="text-lg text-gray-600">
+                {roleLabels[user.role?.name || ""] || "Non défini"}
+              </p>
+            </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             {isEditing && (
               <button
-                className="bg-red-200 text-red-950 hover:bg-red-300 h-9 px-4 py-2 rounded-md"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full sm:w-auto shadow-sm"
                 onClick={handleCancel}
               >
                 Annuler
               </button>
             )}
             <button
-              className="bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 rounded-md"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-auto shadow-sm"
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
             >
-              {isEditing ? "Sauvegarder" : "Modifier"}
+              {isEditing ? "Sauvegarder" : "Modifier le profil"}
             </button>
           </div>
         </div>
 
-        <div>
-          <h2>Informations</h2>
-          <form className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            <input
-              type="email"
-              name="email"
-              value={updatedUser.email}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm"
-            />
-            <input
-              type="tel"
-              name="numberphone"
-              value={updatedUser.numberphone}
-              onChange={handleChange}
-              readOnly={!isEditing}
-              className="h-9 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm"
-            />
-          </form>
-        </div>
-      </div>
-
-      {isEditing && (
-        <>
-          <div className="mt-4">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="block file:h-9 file:px-4 file:py-2 w-full text-sm text-slate-500"
-            />
+        {/* --- Main Content Section --- */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          
+          {/* --- Personal Info Form --- */}
+          <div className={isEditing ? "" : "pointer-events-none opacity-70"}>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Informations personnelles</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Prénom</label>
+                <input
+                  type="text"
+                  name="firstname"
+                  value={updatedUser.firstname}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Nom</label>
+                <input
+                  type="text"
+                  name="lastname"
+                  value={updatedUser.lastname}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={updatedUser.email}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Téléphone</label>
+                <input
+                  type="tel"
+                  name="numberphone"
+                  value={updatedUser.numberphone}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Photo de profil</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={!isEditing}
+                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+            </div>
           </div>
 
-          <section className="border-t border-slate-200 pt-6 mt-6">
-            <h2 className="font-semibold mb-3">Changer mon mot de passe</h2>
-            <form
-              onSubmit={handleChangePassword}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-3"
-            >
-              <div>
-                <label className="block text-sm font-medium">Mot de passe actuel</label>
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Nouveau mot de passe</label>
-                <input
-                  type="password"
-                  autoComplete="new-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                  minLength={8}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Confirmer le nouveau mot de passe</label>
-                <input
-                  type="password"
-                  autoComplete="new-password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                  minLength={8}
-                />
-              </div>
+          {/* --- Password Change Section --- */}
+          {isEditing && (
+            <section className="border-t border-gray-200 pt-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Changer mon mot de passe</h2>
+              <form
+                onSubmit={handleChangePassword}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Mot de passe actuel</label>
+                        <input
+                        type="password"
+                        autoComplete="current-password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500"
+                        required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+                        <input
+                        type="password"
+                        autoComplete="new-password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500"
+                        required
+                        minLength={8}
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Confirmer le nouveau</label>
+                        <input
+                        type="password"
+                        autoComplete="new-password"
+                        value={confirm}
+                        onChange={(e) => setConfirm(e.target.value)}
+                        className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:border-orange-500 focus:ring-orange-500"
+                        required
+                        minLength={8}
+                        />
+                    </div>
+                </div>
 
-              <div className="lg:col-span-2 space-y-2">
-                {pwError && <p className="text-sm text-red-600">{pwError}</p>}
-                {pwOk && <p className="text-sm text-green-600">{pwOk}</p>}
-                <button
-                  type="submit"
-                  disabled={pwLoading}
-                  className="w-full lg:w-auto text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 rounded-md text-sm px-5 py-2.5"
-                >
-                  {pwLoading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
-                </button>
-              </div>
-            </form>
-          </section>
-        </>
-      )}
+                <div className="md:col-span-2 space-y-2">
+                  {pwError && <p className="text-sm text-red-600">{pwError}</p>}
+                  {pwOk && <p className="text-sm text-green-600">{pwOk}</p>}
+                  <button
+                    type="submit"
+                    disabled={pwLoading}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm"
+                  >
+                    {pwLoading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
+                  </button>
+                </div>
+              </form>
+            </section>
+          )}
+        </div>
 
-      <div className="h-96 w-full py-8">
-        <LineChart />
+        {/* --- Stats/Chart Section --- */}
+        <div className="mt-8 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Statistiques</h2>
+            <div className="h-96 w-full">
+                <LineChart />
+            </div>
+        </div>
+
       </div>
     </main>
   );

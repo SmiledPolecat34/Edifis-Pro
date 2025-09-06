@@ -83,12 +83,12 @@ export default function Login() {
                             <form onSubmit={handleSubmit}>
                                 <div className="grid gap-2">
                                     <label className="sr-only" htmlFor="email">Email</label>
-                                    <input className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+                                    <input className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                         id="email" placeholder="Email" autoCapitalize="none" autoComplete="email" autoCorrect="off"
                                         type="email" value={formData.email} onChange={handleChange} />
                                     <label className="sr-only" htmlFor="password">Mot de passe</label>
                                     <div className="relative">
-                                        <input className="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-1 text-sm text-slate-950 transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50 pr-10"
+                                        <input className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                             id="password" placeholder="Mot de passe" autoCapitalize="none" autoComplete="password" autoCorrect="off"
                                             type={showPassword ? "text" : "password"} value={formData.password} onChange={handleChange} />
                                         <button
@@ -100,20 +100,20 @@ export default function Login() {
                                         </button>
                                     </div>
                                     {error && <p className="text-red-500 text-sm">{error}</p>}
-                                    <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 cursor-pointer disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
+                                    <button className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm"
                                         disabled={isDisabled()}>
                                         {loading ? "Connexion..." : "Se connecter"}
                                     </button>
                                     <div className="text-center flex justify-between">
                                         <Link 
                                             to="/register" 
-                                            className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
+                                            className="text-sm text-gray-600 hover:text-orange-600 hover:underline underline-offset-4 transition-colors"
                                         >
                                             Créer un compte
                                         </Link>
                                         <Link 
                                             to="/forgot-password" 
-                                            className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
+                                            className="text-sm text-gray-600 hover:text-orange-600 hover:underline underline-offset-4 transition-colors"
                                         >
                                             Mot de passe oublié ?
                                         </Link>

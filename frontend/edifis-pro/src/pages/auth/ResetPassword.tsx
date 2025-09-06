@@ -73,134 +73,82 @@ export default function ResetPassword() {
         }
     };
 
-    if (!token) {
-        return (
-            <main className="h-dvh md:p-8 w-full">
-                <div className="relative grid h-full flex-col items-center justify-center lg:max-w-none lg:px-0">
-                    <div className="p-4 lg:p-8">
-                        <div className="mx-auto flex max-w-[450px] w-full flex-col justify-center gap-6">
-                            <div className="flex flex-col items-center gap-2">
-                                <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
-                                <h1 className="text-2xl font-semibold text-slate-950">Lien invalide</h1>
-                            </div>
-                            <div className="text-center space-y-4">
-                                <p className="text-sm text-slate-600">
-                                    Le lien de réinitialisation est invalide ou a expiré.
-                                </p>
-                                <Link 
-                                    to="/forgot-password" 
-                                    className="inline-block text-sm text-slate-950 underline underline-offset-4 hover:text-slate-700 transition-colors"
-                                >
-                                    Demander un nouveau lien
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        );
-    }
-
-    if (success) {
-        return (
-            <main className="h-dvh md:p-8 w-full">
-                <div className="relative grid h-full flex-col items-center justify-center lg:max-w-none lg:px-0">
-                    <div className="p-4 lg:p-8">
-                        <div className="mx-auto flex max-w-[450px] w-full flex-col justify-center gap-6">
-                            <div className="flex flex-col items-center gap-2">
-                                <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
-                                <h1 className="text-2xl font-semibold text-slate-950">Mot de passe réinitialisé !</h1>
-                            </div>
-                            <div className="text-center space-y-4">
-                                <p className="text-sm text-slate-600">
-                                    Votre mot de passe a été réinitialisé avec succès.
-                                </p>
-                                <p className="text-sm text-slate-600">
-                                    Vous allez être redirigé vers la page de connexion...
-                                </p>
-                                <Link 
-                                    to="/login" 
-                                    className="inline-block text-sm text-slate-950 underline underline-offset-4 hover:text-slate-700 transition-colors"
-                                >
-                                    Se connecter maintenant
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        );
-    }
+    const renderMessage = (title: string, message: string, linkText: string, linkTo: string) => (
+        <div className="text-center space-y-4">
+            <div className="flex justify-center">
+                <img src={logo} alt="Edifis Pro" className="h-10 w-10" />
+            </div>
+            <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+            <p className="text-sm text-gray-600">{message}</p>
+            <Link 
+                to={linkTo} 
+                className="inline-block text-sm text-orange-600 hover:text-orange-700 hover:underline underline-offset-4 transition-colors font-medium"
+            >
+                {linkText}
+            </Link>
+        </div>
+    );
 
     return (
-        <main className="h-dvh md:p-8 w-full">
-            <div className="relative grid h-full flex-col items-center justify-center lg:max-w-none lg:px-0">
-                <div className="p-4 lg:p-8">
-                    <div className="mx-auto flex max-w-[350px] w-full flex-col justify-center gap-6">
-                        <div className="flex flex-col items-center gap-2">
+        <main className="h-screen w-full flex items-center justify-center bg-gray-50 p-6">
+            <div className="mx-auto flex w-full flex-col justify-center gap-6 sm:w-[400px] bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                {!token ? (
+                    renderMessage("Lien invalide", "Le lien de réinitialisation est invalide ou a expiré.", "Demander un nouveau lien", "/forgot-password")
+                ) : success ? (
+                    renderMessage("Mot de passe réinitialisé !", "Vous allez être redirigé vers la page de connexion...", "Se connecter maintenant", "/login")
+                ) : (
+                    <>
+                        <div className="flex flex-col items-center gap-2 text-center">
                             <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
-                            <Link to='/' className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase">
-                                Edifis <span className="font-light">Pro</span>
-                            </Link>
-                            <h1 className="text-xl font-semibold text-slate-950">Réinitialiser le mot de passe</h1>
-                            <p className="text-sm text-slate-500 text-center">
-                                Entrez votre nouveau mot de passe
-                            </p>
+                            <h1 className="text-2xl font-semibold text-gray-900">Réinitialiser le mot de passe</h1>
+                            <p className="text-sm text-gray-600">Entrez votre nouveau mot de passe.</p>
                         </div>
-                        <div className="grid gap-6">
-                            <form onSubmit={handleSubmit}>
-                                <div className="grid gap-4">
-                                    <div className="grid gap-2">
-                                        <label className="text-sm font-medium" htmlFor="newPassword">
-                                            Nouveau mot de passe
-                                        </label>
-                                        <input 
-                                            className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                            id="newPassword" 
-                                            placeholder="••••••••" 
-                                            type="password" 
-                                            value={formData.newPassword} 
-                                            onChange={handleChange}
-                                            required
-                                            minLength={8}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <label className="text-sm font-medium" htmlFor="confirmNewPassword">
-                                            Confirmer le mot de passe
-                                        </label>
-                                        <input 
-                                            className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
-                                            id="confirmNewPassword" 
-                                            placeholder="••••••••" 
-                                            type="password" 
-                                            value={formData.confirmNewPassword} 
-                                            onChange={handleChange}
-                                            required
-                                            minLength={8}
-                                        />
-                                    </div>
-                                    {error && <p className="text-red-500 text-sm">{error}</p>}
-                                    <button 
-                                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm transition-all focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 cursor-pointer disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
-                                        disabled={loading || !formData.newPassword || !formData.confirmNewPassword}
-                                        type="submit"
-                                    >
-                                        {loading ? "Réinitialisation..." : "Réinitialiser"}
-                                    </button>
-                                </div>
-                            </form>
-                            <div className="text-center">
-                                <Link 
-                                    to="/login" 
-                                    className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
-                                >
-                                    Retour à la connexion
-                                </Link>
+                        <form onSubmit={handleSubmit} className="grid gap-4">
+                            <div className="grid gap-2">
+                                <label className="text-sm font-medium text-gray-700" htmlFor="newPassword">Nouveau mot de passe</label>
+                                <input 
+                                    id="newPassword" 
+                                    placeholder="••••••••" 
+                                    type="password" 
+                                    value={formData.newPassword} 
+                                    onChange={handleChange}
+                                    required
+                                    minLength={8}
+                                    className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                />
                             </div>
+                            <div className="grid gap-2">
+                                <label className="text-sm font-medium text-gray-700" htmlFor="confirmNewPassword">Confirmer le mot de passe</label>
+                                <input 
+                                    id="confirmNewPassword" 
+                                    placeholder="••••••••" 
+                                    type="password" 
+                                    value={formData.confirmNewPassword} 
+                                    onChange={handleChange}
+                                    required
+                                    minLength={8}
+                                    className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                />
+                            </div>
+                            {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+                            <button 
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm"
+                                disabled={loading || !formData.newPassword || !formData.confirmNewPassword}
+                                type="submit"
+                            >
+                                {loading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
+                            </button>
+                        </form>
+                        <div className="text-center">
+                            <Link 
+                                to="/login" 
+                                className="text-sm text-gray-600 hover:text-orange-600 hover:underline underline-offset-4 transition-colors"
+                            >
+                                Retour à la connexion
+                            </Link>
                         </div>
-                    </div>
-                </div>
+                    </>
+                )}
             </div>
         </main>
     );

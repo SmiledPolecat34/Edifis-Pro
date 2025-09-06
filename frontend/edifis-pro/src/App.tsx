@@ -26,6 +26,14 @@ import { ManageCompetences } from "./pages/competence/ManageCompetences";
 import AddCompetence    from "./pages/competence/AddCompetence";
 import EditCompetence   from "./pages/competence/EditCompetence";
 
+// Static Pages
+import Careers from "./pages/static/Careers";
+import Legal from "./pages/static/Legal";
+import Terms from "./pages/static/Terms";
+import Privacy from "./pages/static/Privacy";
+import ContactUs from "./pages/static/ContactUs";
+import HelpCenter from "./pages/static/HelpCenter";
+
 
 function App() {
     return (
@@ -35,6 +43,16 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+
+            {/* Static public pages */}
+            <Route element={<PageLayout />}>
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/legal" element={<Legal />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/contact" element={<ContactUs />} />
+                <Route path="/help" element={<HelpCenter />} />
+            </Route>
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>

@@ -25,9 +25,12 @@ interface ConstructionSite {
 export default function Home() {
     const { user } = useAuth();
     const [projects, setProjects] = useState<ConstructionSite[]>([]);
-    const [searchQuery, setSearchQuery] = useState(""); // 🔍 State pour la recherche
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("Tous"); // State for status filter
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const statuses = ["Tous", "En cours", "Terminé", "Annulé", "Prévu"]; // Status options
 
     useEffect(() => {
         const fetchConstructionSites = async () => {
@@ -62,12 +65,16 @@ export default function Home() {
         fetchConstructionSites();
     }, []);
 
-    const filteredProjects = projects.filter((project) =>
-        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.manager.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        project.address.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredProjects = projects.filter(project => {
+        const matchesStatus = statusFilter === "Tous" || project.status === statusFilter;
+        const matchesSearch = (
+            project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.manager.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            project.address.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        return matchesStatus && matchesSearch;
+    });
 
     if (loading)
         return (
@@ -78,85 +85,87 @@ export default function Home() {
     if (error) return <p className="text-center text-red-500">Erreur : {error}</p>;
 
     return (
-        <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
-            <div className="flex justify-between items-center mb-6">
+        <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+            <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
                 <h1 className="text-3xl font-bold text-gray-900">Chantiers</h1>
-                {user && ["Admin", "HR", "Manager"].includes(user.role) && (
+                {user && ["Admin", "HR", "Manager"].includes(user.role?.name) && (
                     <Link
                         to="/AddConstruction"
-                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2"
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
                     >
-                        Ajouter
+                        Ajouter un chantier
                     </Link>
                 )}
             </div>
 
-            {/* 🔍 Input de recherche */}
-            <input
-                type="search"
-                name="search"
-                id="search"
-                placeholder="Rechercher un chantier..."
-                className="h-9 lg:max-w-1/3 w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm transition-colors placeholder:text-black/60 focus-visible:outline-none focus-visible:ring focus-visible:ring-slate-500 disabled:cursor-not-allowed disabled:opacity-50 mb-4"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)} // 🔄 Mise à jour du state
-            />
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <input
+                    type="search"
+                    placeholder="Rechercher un chantier..."
+                    className="h-10 w-full md:w-1/3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                >
+                    {statuses.map(status => (
+                        <option key={status} value={status}>{status}</option>
+                    ))}
+                </select>
+            </div>
 
-            <Link
-                to="/AddConstruction"
-                className="ml-2 inline-flex items-center justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            >
-                Ajouter un chantier
-            </Link>
-
-            <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredProjects.length > 0 ? (
                     filteredProjects.map((project) => (
-                        <div key={project.id} className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col">
+                        <div key={project.id} className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
                             <img
-                                className="h-48 w-full object-cover rounded-md mb-3"
+                                className="h-48 w-full object-cover rounded-md mb-4"
                                 src={project.image}
                                 alt={project.name}
                             />
-                            <div className="flex justify-between items-center flex-wrap">
-                                <h3 className="font-bold text-xl text-slate-900 mr-2">{project.name}</h3>
+                            <div className="flex justify-between items-start mb-2">
+                                <h3 className="font-bold text-lg text-gray-900 mr-2">{project.name}</h3>
                                 {project.status && <Badge status={project.status} />}
                             </div>
-                            <p className="text-sm text-slate-700 mb-2">{project.description}</p>
-                            <div className="my-2 border-b border-slate-200" />
-
-                            <div className="flex flex-col space-y-2 flex-grow">
-                                <div>
-                                    <p className="text-sm font-medium text-slate-950">Adresse</p>
-                                    <p className="text-sm text-slate-700">{project.address}</p>
+                            <p className="text-sm text-gray-600 mb-4 flex-grow">{project.description}</p>
+                            
+                            <div className="border-t border-gray-200 pt-4">
+                                <div className="flex flex-col space-y-3">
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Adresse</p>
+                                        <p className="text-sm text-gray-800">{project.address}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Chef de chantier</p>
+                                        <p className="text-sm text-gray-800">{project.manager}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Début</p>
+                                        <p className="text-sm text-gray-800">
+                                            {new Date(project.startDate).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-medium text-gray-500">Fin</p>
+                                        <p className="text-sm text-gray-800">
+                                            {new Date(project.endDate).toLocaleDateString()}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-medium text-slate-950">Chef de chantier</p>
-                                    <p className="text-sm text-slate-700">{project.manager}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-slate-950">Début</p>
-                                    <p className="text-sm text-slate-700">
-                                        Le {new Date(project.startDate).toLocaleDateString()} à {new Date(project.startDate).toLocaleTimeString()}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-slate-950">Fin</p>
-                                    <p className="text-sm text-slate-700">
-                                        Le {new Date(project.endDate).toLocaleDateString()} à {new Date(project.endDate).toLocaleTimeString()}
-                                    </p>
-                                </div>
-                                <Link
-                                    to={`/ConstructionDetails/${project.id}`}
-                                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 mt-auto"
-                                >
-                                    Voir plus
-                                </Link>
                             </div>
+                            <Link
+                                to={`/ConstructionDetails/${project.id}`}
+                                className="mt-4 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
+                            >
+                                Voir plus
+                            </Link>
                         </div>
                     ))
                 ) : (
-                    <p className="text-center text-gray-600 col-span-full">Aucun chantier ne correspond à la recherche.</p>
+                    <p className="text-center text-gray-600 col-span-full py-10">Aucun chantier ne correspond à votre recherche.</p>
                 )}
             </div>
         </main>

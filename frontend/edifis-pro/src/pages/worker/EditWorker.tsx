@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import competenceService, { Competence } from "../../../services/competenceService";
 import userService from "../../../services/userService";
+import { HelpCircle } from 'lucide-react';
 
 type RoleType = "Admin" | "Worker" | "Manager" | "Project_Chief" | "HR";
 
@@ -29,13 +30,14 @@ export default function EditWorker() {
   });
 
   const [competences, setCompetences] = useState<Competence[]>([]);
+  const [competenceSearch, setCompetenceSearch] = useState(""); // State for competence search
   const [newCompetence, setNewCompetence] = useState({ name: "", description: "" });
   const [addingCompetence, setAddingCompetence] = useState(false);
 
   useEffect(() => {
     const fetchWorkerData = async () => {
       try {
-        const workerData = await userService.getUserById(Number(id));
+        const workerData = await userService.getById(Number(id));
         setFormData({
           firstname: workerData.firstname,
           lastname: workerData.lastname,
@@ -100,6 +102,11 @@ export default function EditWorker() {
     }));
   };
 
+  const filteredCompetences = competences.filter(comp => {
+      const query = competenceSearch.toLowerCase();
+      return comp.name.toLowerCase().includes(query) || (comp.description || '').toLowerCase().includes(query);
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -131,151 +138,101 @@ export default function EditWorker() {
   };
 
   return (
-    <main className="min-h-[calc(100dvh-65px)] p-4 bg-gray-100">
-      <button
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
-      >
-        Retour
-      </button>
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="bg-white p-8 rounded-lg shadow-lg md:w-2/3">
-          <h1 className="text-3xl font-bold text-slate-950 text-center">Modifier l'employé</h1>
-          <p className="text-sm text-slate-500 mb-4 text-center">Mettez à jour les informations ci-dessous</p>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
-                <label className="block text-sm font-medium">Prénom</label>
-                <input
-                  type="text"
-                  name="firstname"
-                  value={formData.firstname}
-                  onChange={handleChange}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div className="flex-1">
-                <label className="block text-sm font-medium">Nom</label>
-                <input
-                  type="text"
-                  name="lastname"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                  className="mt-1 block w-full p-2 border rounded-md"
-                  required
-                />
-              </div>
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+        <div className="max-w-6xl mx-auto">
+            <div className="flex items-center mb-6">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4"
+                >
+                    Retour
+                </button>
+                <h1 className="text-3xl font-bold text-gray-900">Modifier l'employé</h1>
             </div>
-            <div>
-              <label className="block text-sm font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Numéro de téléphone</label>
-              <input
-                type="text"
-                name="numberphone"
-                value={formData.numberphone}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Rôle</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
-              >
-                <option value="Worker">Ouvrier</option>
-                <option value="Project_Chief">Chef de projet</option>
-                <option value="Manager">Manager</option>
-                <option value="HR">RH</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Compétences</label>
-              <div className="mt-1 flex flex-col gap-2 max-h-48 overflow-y-auto">
-                {competences.map((comp) => {
-                  const isSelected = formData.competences.includes(comp.competence_id);
-                  return (
-                    <div
-                      key={comp.competence_id}
-                      onClick={() => handleCompetenceToggle(comp.competence_id)}
-                      className={`flex items-center p-2 border rounded-md cursor-pointer transition-colors ${
-                        isSelected ? "bg-blue-100 border-blue-400" : "bg-white"
-                      }`}
-                    >
-                      <input type="checkbox" checked={isSelected} readOnly className="mr-2" />
-                      <span>{comp.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {submitError && <p className="text-red-600 text-sm mb-2">{submitError}</p>}
-            {submitOk && <p className="text-green-600 text-sm mb-2">{submitOk}</p>}
-                          
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
-            >
-              {submitting ? "Mise à jour en cours…" : "Mettre à jour"}
-            </button>
-          </form>
-        </div>
 
-        <div className="bg-gray-50 p-4 rounded-lg shadow-md md:w-1/3">
-          <h2 className="text-xl font-semibold text-slate-800 mb-2">Ajouter une compétence</h2>
-          <form onSubmit={handleAddCompetence} className="space-y-2">
-            <input
-              type="text"
-              name="name"
-              placeholder="Nom de la compétence"
-              value={newCompetence.name}
-              onChange={handleCompetenceFormChange}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-            <textarea
-              name="description"
-              placeholder="Description (optionnel)"
-              value={newCompetence.description}
-              onChange={handleCompetenceFormChange}
-              className="w-full p-2 border rounded-md"
-            />
-            <button
-              type="submit"
-              className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
-              disabled={addingCompetence}
-            >
-              {addingCompetence ? "Ajout en cours..." : "Ajouter la compétence"}
-            </button>
-          </form>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* --- Main Edit Form --- */}
+                <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Prénom</label>
+                                <input type="text" name="firstname" value={formData.firstname} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Nom</label>
+                                <input type="text" name="lastname" value={formData.lastname} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Email</label>
+                                <input type="email" name="email" value={formData.email} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Téléphone</label>
+                                <input type="text" name="numberphone" value={formData.numberphone} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" required />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Rôle</label>
+                            <select name="role" value={formData.role} onChange={handleChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500">
+                                <option value="Worker">Ouvrier</option>
+                                <option value="Project_Chief">Chef de projet</option>
+                                <option value="Manager">Manager</option>
+                                <option value="HR">RH</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700 block mb-2">Compétences</label>
+                            <input 
+                                type="search" 
+                                placeholder="Rechercher une compétence..." 
+                                value={competenceSearch}
+                                onChange={e => setCompetenceSearch(e.target.value)}
+                                className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 mb-2"
+                            />
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-60 overflow-y-auto border border-gray-300 p-4 rounded-lg">
+                                {filteredCompetences.map((comp) => (
+                                <label key={comp.competence_id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" checked={formData.competences.includes(comp.competence_id)} onChange={() => handleCompetenceToggle(comp.competence_id)} className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
+                                    <span>{comp.name}</span>
+                                    <span title={comp.description}><HelpCircle className="h-4 w-4 text-gray-400" /></span>
+                                </label>
+                                ))}
+                            </div>
+                        </div>
+                        {submitError && <p className="text-red-600 text-sm">{submitError}</p>}
+                        {submitOk && <p className="text-green-600 text-sm">{submitOk}</p>}
+                        <div className="border-t border-gray-200 pt-6">
+                            <button type="submit" disabled={submitting} className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm">
+                                {submitting ? "Mise à jour..." : "Mettre à jour l'employé"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-          {formData.competences.length > 0 && (
-            <div className="mt-4 p-2 border rounded bg-blue-50">
-              <strong>Compétences sélectionnées :</strong>{" "}
-              {competences
-                .filter((comp) => formData.competences.includes(comp.competence_id))
-                .map((comp) => comp.name)
-                .join(", ")}
+                {/* --- Add Competence Form --- */}
+                <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-4">Ajouter une compétence</h2>
+                    <form onSubmit={handleAddCompetence} className="space-y-4">
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Nom</label>
+                            <input type="text" name="name" placeholder="Nom de la compétence" value={newCompetence.name} onChange={handleCompetenceFormChange} className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" required />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium text-gray-700">Description</label>
+                            <textarea name="description" placeholder="Description (optionnel)" value={newCompetence.description} onChange={handleCompetenceFormChange} rows={3} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500" />
+                        </div>
+                        <div className="border-t border-gray-200 pt-4">
+                            <button type="submit" className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-60 shadow-sm" disabled={addingCompetence}>
+                                {addingCompetence ? "Ajout..." : "Ajouter la compétence"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-          )}
         </div>
-      </div>
     </main>
   );
 }

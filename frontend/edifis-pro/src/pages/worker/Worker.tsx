@@ -10,9 +10,19 @@ export default function Workers() {
   const { user } = useAuth();
   const [workers, setWorkers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [roleFilter, setRoleFilter] = useState('Tous'); // State for role filter
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const canCreate = ['Admin', 'HR', 'Manager'].includes(user?.role ?? '');
+  const canCreate = ['Admin', 'HR', 'Manager'].includes(user?.role?.name ?? '');
+
+  const roles = ["Tous", "Admin", "Worker", "Manager", "Project_Chief", "HR"];
+  const roleTranslations: { [key: string]: string } = {
+      Admin: "Administrateur",
+      Worker: "Ouvrier",
+      Manager: "Manager",
+      Project_Chief: "Chef de projet",
+      HR: "Ressources Humaines"
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -33,12 +43,16 @@ export default function Workers() {
   }, []);
 
   const filteredWorkers = workers.filter(worker => {
+    const matchesRole = roleFilter === 'Tous' || worker.role === roleFilter;
+
     const fullName = `${worker.firstname} ${worker.lastname}`.toLowerCase();
     const competences = (
       worker.competences?.map((c: any) => c.name).join(', ') || ''
     ).toLowerCase();
     const query = searchQuery.toLowerCase();
-    return fullName.includes(query) || competences.includes(query);
+    const matchesSearch = fullName.includes(query) || competences.includes(query);
+
+    return matchesRole && matchesSearch;
   });
 
   if (loading) {
@@ -51,74 +65,71 @@ export default function Workers() {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <main className="min-h-[calc(100dvh-65px)] p-8 bg-gray-100">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold text-gray-900">Employés</h1>
-        <Link
-          to="/workers/add"
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          + Employé
-        </Link>
+    <main className="min-h-screen p-4 md:p-8 bg-gray-100">
+      <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+        <h1 className="text-3xl font-bold text-gray-900">Employés</h1>
+        {canCreate && (
+            <Link
+            to="/workers/add"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
+            >
+            Ajouter un employé
+            </Link>
+        )}
       </div>
 
-      <div className="mb-4">
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
         <input
           type="text"
-          placeholder="Rechercher par nom, prénom, compétences..."
-          className="border px-3 py-2 rounded-md w-full"
+          placeholder="Rechercher par nom, compétences..."
+          className="h-10 w-full md:w-1/3 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
+        <select
+            value={roleFilter}
+            onChange={e => setRoleFilter(e.target.value)}
+            className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        >
+            {roles.map(role => (
+                <option key={role} value={role}>{roleTranslations[role] || role}</option>
+            ))}
+        </select>
       </div>
 
       {filteredWorkers.length === 0 ? (
         <div className="text-center text-gray-500 py-10">
-          <p>Aucun employé trouvé.</p>
+          <p>Aucun employé ne correspond à votre recherche.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredWorkers.map(worker => (
             <div
               key={worker.user_id}
-              className="bg-white shadow-md rounded-lg p-4 flex flex-col items-center text-center"
+              className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow duration-300"
             >
-              <Link to={`/workers/${worker.user_id}`}>
+              <Link to={`/workers/${worker.user_id}`} className="w-full">
                 <img
-                  src={worker.profile_picture || DEFAULT_IMAGE}
-                  alt={worker.firstname}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  src={worker.profile_picture?.replace('/api', '') || DEFAULT_IMAGE}
+                  alt={`Photo de ${worker.firstname}`}
+                  className="w-full h-48 object-cover rounded-md mb-4"
                 />
                 <h2 className="text-lg font-semibold text-gray-900">
                   {worker.firstname} {worker.lastname}
                 </h2>
               </Link>
-              <p className="text-sm text-slate-500">{worker.role}</p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm font-medium text-orange-600 mb-2">{roleTranslations[worker.role] || worker.role}</p>
+              <p className="text-xs text-gray-500 mb-3 px-2 py-1 bg-gray-100 rounded-full">
                 {worker.competences && worker.competences.length > 0
                   ? worker.competences.map((c: any) => c.name).join(', ')
-                  : 'Compétences non renseignées'}
+                  : 'Aucune compétence'}
               </p>
-              <p className="text-sm text-slate-500">
-                <span className="font-semibold">Email :</span> {worker.email}
-              </p>
-              <p className="text-sm text-slate-500">
-                <span className="font-semibold">Téléphone :</span> {worker.numberphone}
-              </p>
-              <span
-                className={`mt-2 px-3 py-1 rounded-md text-sm ${
-                  worker.role.name === 'Worker'
-                    ? 'bg-blue-200 text-blue-800'
-                    : 'bg-green-200 text-green-800'
-                }`}
-              >
-                {worker.role.name}
-              </span>
+              <div className="flex-grow"></div>
               {canCreate && (
-                <div className="mt-4">
+                <div className="mt-4 w-full">
                   <Link
                     to={`/workers/edit/${worker.user_id}`}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
                   >
                     Modifier
                   </Link>
