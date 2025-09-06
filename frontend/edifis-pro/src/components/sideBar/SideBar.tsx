@@ -69,10 +69,11 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
             logout();
             handleLinkClick(); // Also close nav on logout
           }}
-          className="inline-flex items-center justify-between whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-transparent text-slate-950 hover:bg-slate-200 h-9 w-full px-4 py-2 cursor-pointer"
+          aria-label="Se déconnecter de votre compte"
+          className="inline-flex items-center justify-between whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full shadow-sm"
         >
-          Se déconnecter
-          <LogOut size={18} className="ml-2" />
+          <span>Se déconnecter</span>
+          <LogOut size={18} />
         </button>
       </div>
     </aside>

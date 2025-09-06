@@ -129,6 +129,7 @@ export default function Workers() {
                 <div className="mt-4 w-full">
                   <Link
                     to={`/workers/edit/${worker.user_id}`}
+                    aria-label={`Modifier le profil de ${worker.firstname} ${worker.lastname}`}
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
                   >
                     Modifier

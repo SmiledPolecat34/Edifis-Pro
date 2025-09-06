@@ -81,6 +81,7 @@ export function ManageCompetences() {
                     <button
                     onClick={() => setSelected(c)}
                     title="Détails"
+                    aria-label={`Détails de la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300"
                     >
                     📄
@@ -88,6 +89,7 @@ export function ManageCompetences() {
                     <button
                     onClick={() => navigate(`/competences/edit/${c.competence_id}`)}
                     title="Modifier"
+                    aria-label={`Modifier la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300"
                     >
                     ✏️
@@ -95,6 +97,7 @@ export function ManageCompetences() {
                     <button
                     onClick={() => handleDelete(c.competence_id)}
                     title="Supprimer"
+                    aria-label={`Supprimer la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-red-500 text-white hover:bg-red-600"
                     >
                     🗑️

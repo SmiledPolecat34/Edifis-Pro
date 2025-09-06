@@ -24,7 +24,7 @@ export default function Header({ setIsMobileNavOpen }: HeaderProps) {
     <header className="sticky top-0 flex justify-between items-center w-full h-16 border-b border-slate-200 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:pr-8 pr-4 z-20">
       {/* Burger Menu for Mobile */}
       <div className="md:hidden flex items-center pl-4">
-        <button onClick={() => setIsMobileNavOpen(prev => !prev)} className="p-2">
+        <button onClick={() => setIsMobileNavOpen(prev => !prev)} className="p-2" aria-label="Ouvrir le menu de navigation">
           <Menu size={24} />
         </button>
       </div>
@@ -34,6 +34,7 @@ export default function Header({ setIsMobileNavOpen }: HeaderProps) {
           <Link
             to="/profile"
             className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-[20px] transition-all duration-300 ease-in-out hover:rounded-xl cursor-pointer"
+            aria-label="Voir le profil"
           >
             <img
               className="aspect-square h-full w-full"

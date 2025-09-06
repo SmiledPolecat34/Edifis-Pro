@@ -172,12 +172,14 @@ export default function Missions() {
                     <div className="flex gap-2 mt-auto">
                       <button
                         onClick={handleSave}
+                        aria-label="Sauvegarder les modifications de la mission"
                         className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
                       >
                         Sauvegarder
                       </button>
                       <button
                         onClick={() => { setEditingTaskId(null); setEditedTask(null); }}
+                        aria-label="Annuler la modification"
                         className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
                       >
                         Annuler
@@ -225,12 +227,14 @@ export default function Missions() {
                       <div className="mt-4 flex gap-2 border-t border-gray-200 pt-4">
                         <button
                           onClick={() => { setEditingTaskId(task.task_id); setEditedTask(task); }}
+                          aria-label={`Modifier la mission ${task.name}`}
                           className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
                         >
                           Modifier
                         </button>
                         <button
                           onClick={() => handleDelete(task.task_id)}
+                          aria-label={`Supprimer la mission ${task.name}`}
                           className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-500 text-white hover:bg-red-600 shadow-sm"
                         >
                           Supprimer

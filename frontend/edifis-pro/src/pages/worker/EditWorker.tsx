@@ -197,7 +197,7 @@ export default function EditWorker() {
                                 <label key={comp.competence_id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                                     <input type="checkbox" checked={formData.competences.includes(comp.competence_id)} onChange={() => handleCompetenceToggle(comp.competence_id)} className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500" />
                                     <span>{comp.name}</span>
-                                    <span title={comp.description}><HelpCircle className="h-4 w-4 text-gray-400" /></span>
+                                    <span title={comp.description} aria-label={`Description de la compétence: ${comp.description}`}><HelpCircle className="h-4 w-4 text-gray-400" /></span>
                                 </label>
                                 ))}
                             </div>
