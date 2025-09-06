@@ -5,11 +5,12 @@ const ConstructionSite = require("./ConstructionSite");
 const Competence = require("./Competence");
 const Role = require("./Role");
 const PasswordResetToken = require("./PasswordResetToken");
+const Setting = require("./Setting"); // Import Setting model
 
 const UserTask = require("./UserTask");
 const UserCompetence = require("./UserCompetence");
 
-const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken, UserTask, UserCompetence };
+const models = { User, Task, ConstructionSite, Competence, Role, PasswordResetToken, UserTask, UserCompetence, Setting }; // Add Setting to models
 
 // --- Définition des associations ---
 

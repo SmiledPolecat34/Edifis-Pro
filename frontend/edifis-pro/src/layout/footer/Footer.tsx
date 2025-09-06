@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.svg';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Footer() {
+  const { isAuthenticated } = useAuth();
+
   return (
     <footer className="w-full border-t border-gray-200 bg-white">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 md:px-8 py-10">
@@ -19,8 +22,8 @@ export default function Footer() {
           <h3 className="text-gray-900 font-semibold text-base">À propos</h3>
           <ul className="mt-4 space-y-2">
             <li><Link to="/careers" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Carrières</Link></li>
-            <li><Link to="/roadmap" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Feuille de route</Link></li>
-            <li><Link to="/" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Annonces</Link></li>
+            {isAuthenticated && <li><Link to="/roadmap" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Feuille de route</Link></li>}
+            <li><Link to="/announcements" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Annonces</Link></li>
             <li>
               <Link
                 to="/legal"
@@ -47,43 +50,45 @@ export default function Footer() {
             </li>
           </ul>
         </div>
-        <div>
-          <h3 className="text-gray-900 font-semibold text-base">Entreprise</h3>
-          <ul className="mt-4 space-y-2">
-            <li>
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Demande pour les marchands P2P
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Postuler au listing
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Services institutionnels et VIP
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Labs
-              </Link>
-            </li>
-          </ul>
-        </div>
+        {isAuthenticated && (
+            <div>
+            <h3 className="text-gray-900 font-semibold text-base">Entreprise</h3>
+            <ul className="mt-4 space-y-2">
+                <li>
+                <Link
+                    to="/p2p-merchants"
+                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                >
+                    Demande pour les marchands P2P
+                </Link>
+                </li>
+                <li>
+                <Link
+                    to="/listing-application"
+                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                >
+                    Postuler au listing
+                </Link>
+                </li>
+                <li>
+                <Link
+                    to="/institutional-services"
+                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                >
+                    Services institutionnels et VIP
+                </Link>
+                </li>
+                <li>
+                <Link
+                    to="/labs"
+                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                >
+                    Labs
+                </Link>
+                </li>
+            </ul>
+            </div>
+        )}
         <div>
           <h3 className="text-gray-900 font-semibold text-base">Services</h3>
           <ul className="mt-4 space-y-2">
@@ -97,7 +102,7 @@ export default function Footer() {
             </li>
             <li>
               <Link
-                to="/"
+                to="/system-status"
                 className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
               >
                 Statut du système

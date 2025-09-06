@@ -4,7 +4,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { User, PasswordResetToken, Role } = require("../models");
+const { User, PasswordResetToken, Role, Setting } = require("../models");
 const { sendMail } = require("../services/email.service");
 const { hash: hashPassword, validatePolicy } = require("../services/password.service");
 
@@ -68,6 +68,10 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
+        // Maintenance mode check
+        const maintenanceSetting = await Setting.findOne({ where: { key: 'maintenance_mode' } });
+        const isMaintenance = maintenanceSetting && maintenanceSetting.value === 'true';
+
         const { email, password } = req.body ?? {};
         if (!email || !password) {
             return res.status(400).json({ message: "Email et mot de passe requis" });
@@ -80,6 +84,11 @@ exports.login = async (req, res) => {
 
         if (!user) {
             return res.status(401).json({ message: "Identifiants invalides" });
+        }
+
+        // If in maintenance, only allow Admins to log in
+        if (isMaintenance && user.role?.name !== 'Admin') {
+            return res.status(403).json({ message: "Le site est actuellement en maintenance. Veuillez réessayer plus tard." });
         }
 
         const ok = await bcrypt.compare(password, user.password);

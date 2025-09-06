@@ -2,100 +2,106 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import TimelineChart from '../../components/timelineChart/TimelineChart';
 import Badge from '../../components/badge/Badge';
+import StatCard from "../../components/statCard/StatCard";
 import taskService, { Task } from '../../../services/taskService';
+import constructionSiteService, { ConstructionSite } from "../../../services/constructionSiteService";
+import userService, { User } from "../../../services/userService";
+import { Building, Users, ListChecks } from 'lucide-react';
 
 export default function Home() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [sites, setSites] = useState<ConstructionSite[]>([]);
+  const [workers, setWorkers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Si pas d’utilisateur -> stoppe le chargement
+    useEffect(() => {
     if (!user) {
-      console.log('[Home] Pas d’utilisateur dans AuthContext');
       setLoading(false);
       return;
     }
 
-    const fetchTasks = async () => {
+    const fetchDashboardData = async () => {
       try {
-        let data: Task[] = [];
-        if (user.role?.name === 'Admin') {
-          console.log('[Home] Récupération de toutes les tâches');
-          data = await taskService.getAll();
-        } else {
-          console.log('[Home] Récupération des tâches de l’utilisateur', user.user_id);
-          data = await taskService.getByUserId(user.user_id!);
-        }
-        console.log('[Home] Tâches reçues :', data);
-        setTasks(data);
+        // Fetch all data in parallel
+        const [sitesData, workersData, tasksData] = await Promise.all([
+            constructionSiteService.getAll(),
+            userService.getDirectory(),
+            user.role?.name === 'Admin' ? taskService.getAll() : taskService.getByUserId(user.user_id!)
+        ]);
+        
+        setSites(sitesData);
+        setWorkers(workersData);
+        setTasks(tasksData);
+
       } catch (err) {
-        console.error('[Home] Erreur API:', err);
-        setError('Erreur lors du chargement des missions.');
+        console.error("[Home] Erreur API:", err);
+        setError("Erreur lors du chargement du tableau de bord.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTasks();
+    fetchDashboardData();
   }, [user]);
 
-  if (loading) return <p className="text-center text-gray-500">Chargement...</p>;
-  if (error) return <p className="text-center text-red-500">{error}</p>;
+  // Calculate stats
+  const activeSites = sites.filter(s => s.state === 'En cours').length;
+  const totalWorkers = workers.length;
+  const tasksToDo = tasks.filter(t => t.status === 'Prévu' || t.status === 'En cours').length;
+
+  if (loading) return <p className="text-center text-gray-500 py-10">Chargement...</p>;
+  if (error) return <p className="text-center text-red-500 py-10">{error}</p>;
 
   if (!user) {
-    return <p className="text-center text-gray-500">Chargement utilisateur...</p>;
+    return <p className="text-center text-gray-500 py-10">Chargement utilisateur...</p>;
   }
 
   return (
-    <main className="grid xl:grid-cols-[7fr_3fr] grid-cols-1 gap-8 xl:max-h-[calc(100dvh-65px)] h-full bg-gray-100 md:p-8 p-4 overflow-hidden">
-      <div className="flex flex-col min-h-0">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-slate-950">
-            Bienvenue, {user.firstname} {user.lastname}
-          </h1>
-          <p className="text-sm text-slate-500">
-            {user.role?.name === 'Admin'
-              ? 'Administrateur'
-              : user.role?.name === 'Manager'
-                ? 'Chef de projet'
-                : user.role?.name === 'Worker'
-                  ? 'Ouvrier'
-                  : 'Rôle inconnu'}
-          </p>
+    <main className="p-4 md:p-8 bg-gray-100">
+        {/* --- Header --- */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Bienvenue, {user.firstname} !</h1>
+          <p className="text-base text-gray-600">Voici un aperçu de votre activité sur Edifis Pro.</p>
         </div>
-        <TimelineChart tasks={tasks} />
-      </div>
-      <div className="flex flex-col min-h-0 h-full overflow-y-auto space-y-4 scrollbar-thin">
-        <h2 className="text-xl font-semibold text-slate-950">Vos missions</h2>
-        {tasks.length === 0 && <p className="text-slate-500">Aucune mission pour le moment.</p>}
-        {tasks.map(task => (
-          <div key={task.task_id} className="bg-white border border-slate-200 rounded-xl p-4">
-            <div className="flex justify-between items-center flex-wrap mb-2">
-              <h3 className="font-semibold text-slate-900 mr-2">{task.name}</h3>
-              {task.status && <Badge status={task.status} />}
+
+        {/* --- Stat Cards (The new part) --- */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            <StatCard icon={<Building size={24} className="text-white" />} title="Chantiers en cours" value={activeSites} color="bg-blue-500" />
+            <StatCard icon={<Users size={24} className="text-white" />} title="Employés actifs" value={totalWorkers} color="bg-green-500" />
+            <StatCard icon={<ListChecks size={24} className="text-white" />} title="Tâches à faire" value={tasksToDo} color="bg-orange-500" />
+        </div>
+
+        {/* --- Original Layout Structure --- */}
+        <div className="grid xl:grid-cols-[7fr_3fr] grid-cols-1 gap-8 h-full">
+            <div className="flex flex-col min-h-0">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Chronologie des missions</h2>
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-grow">
+                    <TimelineChart tasks={tasks} />
+                </div>
             </div>
-
-            <p className="text-sm text-slate-700 mb-2">{task.description}</p>
-
-            <div className="my-2 border-b border-slate-200" />
-
-            {task.start_date && task.end_date && (
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-500">
-                  Début → {new Date(task.start_date).toLocaleDateString()} -{' '}
-                  {new Date(task.start_date).toLocaleTimeString()}
-                </span>
-                <span className="text-xs text-slate-500">
-                  Fin → {new Date(task.end_date).toLocaleDateString()} à{' '}
-                  {new Date(task.end_date).toLocaleTimeString()}
-                </span>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+            <div className="flex flex-col min-h-0">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Vos missions récentes</h2>
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-y-auto flex-grow">
+                    <div className="space-y-4">
+                        {tasks.length === 0 ? (
+                            <p className="text-gray-500 text-sm text-center pt-10">Aucune mission pour le moment.</p>
+                        ) : (
+                            tasks.slice(0, 10).map((task) => (
+                            <div key={task.task_id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                                <div className="flex justify-between items-center flex-wrap mb-2 gap-2">
+                                    <h3 className="font-semibold text-gray-900">{task.name}</h3>
+                                    {task.status && <Badge status={task.status} />}
+                                </div>
+                                <p className="text-sm text-gray-600 line-clamp-2">{task.description}</p>
+                            </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
   );
 }

@@ -5,6 +5,7 @@ import "./App.css";
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import PageLayout from "./layout/PageLayout";
 import PublicPageLayout from "./layout/PublicPageLayout"; // Import new layout
+import ConditionalLayout from "./ConditionalLayout"; // Import ConditionalLayout
 import Login from "./pages/login/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
@@ -35,6 +36,12 @@ import Privacy from "./pages/static/Privacy";
 import ContactUs from "./pages/static/ContactUs";
 import HelpCenter from "./pages/static/HelpCenter";
 import Roadmap from "./pages/static/Roadmap"; // Import Roadmap
+import Announcements from "./pages/static/Announcements";
+import P2PMerchants from "./pages/static/P2PMerchants";
+import ListingApplication from "./pages/static/ListingApplication";
+import InstitutionalServices from "./pages/static/InstitutionalServices";
+import Labs from "./pages/static/Labs";
+import SystemStatus from "./pages/static/SystemStatus";
 
 
 function App() {
@@ -47,14 +54,19 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Static public pages */}
-            <Route element={<PublicPageLayout />}>
+            <Route element={<ConditionalLayout />}>
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/help" element={<HelpCenter />} />
-                <Route path="/roadmap" element={<Roadmap />} /> {/* Add Roadmap Route */}
+                <Route path="/announcements" element={<Announcements />} />
+                <Route path="/p2p-merchants" element={<P2PMerchants />} />
+                <Route path="/listing-application" element={<ListingApplication />} />
+                <Route path="/institutional-services" element={<InstitutionalServices />} />
+                <Route path="/labs" element={<Labs />} />
+                <Route path="/system-status" element={<SystemStatus />} />
             </Route>
 
             {/* Protected routes */}
@@ -62,6 +74,7 @@ function App() {
                 <Route element={<PageLayout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/profile" element={<Profile />} />
+                    <Route path="/roadmap" element={<Roadmap />} />
                     <Route path="/missions" element={<Missions />} />
                     <Route path="/addamission" element={<CreateTask />} />
                     <Route path="/construction" element={<Construction />} />

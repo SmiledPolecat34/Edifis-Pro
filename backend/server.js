@@ -11,6 +11,7 @@ const roleRoutes = require("./routes/role.routes");
 const sequelize = require("./config/database");
 require("./models"); // Assurez-vous que les modèles sont chargés
 const routes = require("./routes");
+const statusRoutes = require("./routes/status.routes"); // Import status routes
 
 const FRONT_ORIGINS = (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5174")
   .split(",")
@@ -111,6 +112,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 // Définir les routes API
+app.use("/api/status", statusRoutes); // Add status routes
 app.use("/api", routes);
 
 
