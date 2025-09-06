@@ -4,6 +4,7 @@ import "./App.css";
 
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import PageLayout from "./layout/PageLayout";
+import PublicPageLayout from "./layout/PublicPageLayout"; // Import new layout
 import Login from "./pages/login/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
@@ -33,6 +34,7 @@ import Terms from "./pages/static/Terms";
 import Privacy from "./pages/static/Privacy";
 import ContactUs from "./pages/static/ContactUs";
 import HelpCenter from "./pages/static/HelpCenter";
+import Roadmap from "./pages/static/Roadmap"; // Import Roadmap
 
 
 function App() {
@@ -45,13 +47,14 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Static public pages */}
-            <Route element={<PageLayout />}>
+            <Route element={<PublicPageLayout />}>
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/help" element={<HelpCenter />} />
+                <Route path="/roadmap" element={<Roadmap />} /> {/* Add Roadmap Route */}
             </Route>
 
             {/* Protected routes */}

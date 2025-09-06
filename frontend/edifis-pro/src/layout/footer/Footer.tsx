@@ -18,22 +18,9 @@ export default function Footer() {
         <div>
           <h3 className="text-gray-900 font-semibold text-base">À propos</h3>
           <ul className="mt-4 space-y-2">
-            <li>
-              <Link
-                to="/careers"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Carrières
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/"
-                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
-              >
-                Annonces
-              </Link>
-            </li>
+            <li><Link to="/careers" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Carrières</Link></li>
+            <li><Link to="/roadmap" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Feuille de route</Link></li>
+            <li><Link to="/" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Annonces</Link></li>
             <li>
               <Link
                 to="/legal"
@@ -47,7 +34,7 @@ export default function Footer() {
                 to="/terms"
                 className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
               >
-                Condition d'utilisation
+                Conditions d'utilisation
               </Link>
             </li>
             <li>

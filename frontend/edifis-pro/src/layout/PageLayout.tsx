@@ -1,17 +1,22 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import SideBar from '../components/sideBar/SideBar';
 import Header from './header/Header';
 import Footer from './footer/Footer';
+import ScrollButton from '../components/scrollButton/ScrollButton'; // Import ScrollButton
 
 const PageLayout = () => {
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const scrollableContainerRef = useRef<HTMLDivElement>(null); // Create a ref for the scrollable container
 
     return (
         <div className="flex h-screen bg-gray-100">
             <SideBar isMobileNavOpen={isMobileNavOpen} setIsMobileNavOpen={setIsMobileNavOpen} />
-            <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden md:ms-[250px]">
+            <div 
+                ref={scrollableContainerRef} // Attach the ref
+                className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden md:ms-[250px]"
+            >
                 <Header setIsMobileNavOpen={setIsMobileNavOpen} />
                 <main className="flex-1">
                     <Outlet />
@@ -24,6 +29,7 @@ const PageLayout = () => {
                         onClick={() => setIsMobileNavOpen(false)}
                     ></div>
                 )}
+                <ScrollButton scrollableRef={scrollableContainerRef} /> {/* Pass the ref as a prop */}
             </div>
         </div>
     );
