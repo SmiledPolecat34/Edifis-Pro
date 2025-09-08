@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import userService, { User } from "../../../services/userService";
-import Loading from "../../components/loading/Loading";
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import userService, { User } from '../../../services/userService';
+import Loading from '../../components/loading/Loading';
 
 export default function UserDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,7 +14,7 @@ export default function UserDetail() {
     const fetchUser = async () => {
       try {
         const data = await userService.getById(Number(id));
-        setUser(data);
+        setUser(data as User);
       } catch (err) {
         setError("Erreur lors du chargement de l'utilisateur.");
         console.error(err);
@@ -48,14 +48,17 @@ export default function UserDetail() {
           <strong>Téléphone :</strong> {user.numberphone}
         </p>
         <p className="mb-2">
-          <strong>Rôle :</strong> {user.role?.name || "Non défini"}
+          <strong>Rôle :</strong>{' '}
+          {typeof user.role === 'object' && user.role !== null
+            ? user.role.name
+            : user.role || 'Non défini'}
         </p>
 
         {user.competences && user.competences.length > 0 && (
           <div className="mt-4">
             <strong>Compétences :</strong>
             <ul className="list-disc list-inside">
-              {user.competences.map((c) => (
+              {user.competences.map(c => (
                 <li key={c.competence_id}>{c.name}</li>
               ))}
             </ul>

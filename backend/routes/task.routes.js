@@ -11,8 +11,10 @@ router.get("/", protect, taskController.getAllTasks);
 router.get("/:id", protect, taskController.getTaskById);
 
 // Manager peut assigner
-router.post("/assign", protect, authorize(['Manager', 'Admin']), taskController.assignUsersToTask);
+router.post("/assign", protect, authorize(['Manager', 'Admin', 'Project_Chief']), taskController.assignUsersToTask);
 
 router.get("/user/:userId", protect, taskController.getTasksByUserId);
+
+router.get("/site/:siteId", protect, taskController.getTasksByConstructionSite);
 
 module.exports = router;

@@ -181,4 +181,60 @@ describe("Competence Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
+
+  describe("getCategories", () => {
+    it("devrait renvoyer les catégories uniques", async () => {
+      const mockCategories = [
+        { category: "Category A" },
+        { category: "Category B" },
+        { category: "Category A" },
+        { category: null },
+        { category: "" },
+      ];
+      Competence.findAll = jest.fn().mockResolvedValue(mockCategories);
+
+      await competenceController.getCategories(req as Request, res as Response);
+
+      expect(Competence.findAll).toHaveBeenCalledWith({
+        attributes: ['category'],
+        where: { isDeleted: false },
+        group: ['category'],
+        order: [['category', 'ASC']]
+      });
+      expect(res.json).toHaveBeenCalledWith(["Category A", "Category B"]);
+    });
+
+    it("devrait renvoyer une erreur 500 en cas d'erreur lors de la récupération des catégories", async () => {
+      const error = new Error("Category retrieval error");
+      Competence.findAll = jest.fn().mockRejectedValue(error);
+
+      await competenceController.getCategories(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: error.message });
+    });
+  });
+
+  describe("getLevels", () => {
+    it("devrait renvoyer les niveaux de compétence prédéfinis", async () => {
+      await competenceController.getLevels(req as Request, res as Response);
+
+      expect(res.json).toHaveBeenCalledWith(['Beginner', 'Intermediate', 'Advanced', 'Expert']);
+    });
+
+    it("devrait renvoyer une erreur 500 en cas d'erreur (improbable)", async () => {
+      // Simuler une erreur en forçant une exception dans le contrôleur
+      // Note: C'est un cas limite car la fonction est très simple et ne devrait pas échouer
+      const originalJson = res.json;
+      res.json = jest.fn(() => { throw new Error("Forced error"); });
+
+      await competenceController.getLevels(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Forced error" });
+      res.json = originalJson; // Restore original json function
+    });
+  });
+});
+  });
 });

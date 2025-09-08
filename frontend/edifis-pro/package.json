@@ -10,9 +10,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest --runInBand --coverage --verbose --detectOpenHandles --forceExit",
-    "e2e": "cypress open",
-    "e2e:ci": "cypress run"
+    "test": "jest --runInBand --coverage --verbose --detectOpenHandles --forceExit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.9",

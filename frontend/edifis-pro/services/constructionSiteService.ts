@@ -1,11 +1,12 @@
-import apiService from "./apiService";
+import apiService from './apiService';
+import { User } from './userService';
 
 export interface ConstructionSite {
   construction_site_id?: number;
   name: string;
   description?: string;
   adresse?: string;
-  state?: "En cours" | "Terminé" | "Annulé" | "Prévu";
+  state?: 'En cours' | 'Terminé' | 'Annulé' | 'Prévu';
   start_date?: string; // stockées en "YYYY-MM-DD"
   end_date?: string;
   image_url?: string;
@@ -17,17 +18,11 @@ const constructionSiteService = {
   // Ajouter un chantier (avec image) via multipart/form-data
   create: async (formData: FormData): Promise<ConstructionSite> => {
     // ICI on utilise la méthode postForm (multipart), pas un JSON classique
-    return await apiService.postForm<ConstructionSite>(
-      "/construction-sites",
-      formData
-    );
+    return await apiService.postForm<ConstructionSite>('/construction-sites', formData);
   },
 
   // Mettre à jour un chantier (JSON, si tu as besoin)
-  update: async (
-    id: number,
-    data: Partial<ConstructionSite>
-  ): Promise<ConstructionSite> => {
+  update: async (id: number, data: Partial<ConstructionSite>): Promise<ConstructionSite> => {
     return await apiService.put<ConstructionSite>(`/construction-sites/${id}`, data);
   },
 
@@ -38,7 +33,7 @@ const constructionSiteService = {
 
   // Récupérer tous les chantiers
   getAll: async (): Promise<ConstructionSite[]> => {
-    return await apiService.get<ConstructionSite[]>("/construction-sites");
+    return await apiService.get<ConstructionSite[]>('/construction-sites');
   },
 
   // Récupérer un chantier par ID

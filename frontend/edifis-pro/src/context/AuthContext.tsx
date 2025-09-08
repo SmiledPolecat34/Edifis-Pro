@@ -104,7 +104,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         console.error('User ID not found for update');
         return;
       }
-      const response = await userService.update(userIdToUpdate, updatedUser);
+      const response = await userService.updateUser(userIdToUpdate, updatedUser);
       if (response) {
         const refreshedUser = await userService.getById(userIdToUpdate);
         setUser(refreshedUser);

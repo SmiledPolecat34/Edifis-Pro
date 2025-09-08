@@ -64,7 +64,7 @@ exports.createConstructionSite = async (req, res) => {
 
 exports.getAllConstructionSites = async (req, res) => {
     try {
-        const { role, userId } = req.user || {}; // support appels sans auth (tests)
+        const { role, id: userId } = req.user || {}; // support appels sans auth (tests)
 
         let whereCondition = {};
         let includeOptions = [
@@ -77,6 +77,8 @@ exports.getAllConstructionSites = async (req, res) => {
 
         if (role === "Admin" || role === "Manager") {
             // No additional filtering needed for Admin/Manager
+        } else if (role === "Project_Chief") {
+            whereCondition.chef_de_projet_id = userId;
         } else if (role === "Worker") {
             // Filter construction sites where the worker is assigned to at least one task
             whereCondition[Op.and] = [

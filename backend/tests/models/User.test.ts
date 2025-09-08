@@ -56,5 +56,25 @@ jest.mock("../../config/database", () => {
       expect(userJSON.password).toBe("password");
       expect(userJSON.created_at).toBeDefined();
     });
+
+    it("ne devrait pas créer un utilisateur avec un email en double", async () => {
+      await User.create({
+        firstname: "Unique",
+        lastname: "User",
+        email: "unique@example.com",
+        numberphone: "0987654321",
+        password: "password",
+      });
+
+      await expect(
+        User.create({
+          firstname: "Duplicate",
+          lastname: "User",
+          email: "unique@example.com",
+          numberphone: "0123456789",
+          password: "password",
+        })
+      ).rejects.toThrow();
+    });
   });
   

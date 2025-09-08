@@ -181,4 +181,74 @@ describe("ConstructionSite Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
+
+  describe("uploadConstructionSitePicture", () => {
+    let req: Partial<Request>;
+    let res: Partial<Response>;
+
+    beforeEach(() => {
+      req = {
+        params: { id: "1" },
+        file: {
+          filename: "new_picture.jpg",
+        },
+      } as any;
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      jest.spyOn(fs, "existsSync").mockReturnValue(true);
+      jest.spyOn(fs, "unlinkSync").mockReturnValue(undefined);
+      jest.spyOn(path, "join").mockReturnValue("/mock/path/to/picture.jpg");
+    });
+
+    it("devrait mettre à jour l'image du chantier et renvoyer le chemin de l'image", async () => {
+      const mockConstructionSite = {
+        save: jest.fn().mockResolvedValue(true),
+        picture: "old_picture.jpg",
+      };
+      (ConstructionSite.findByPk as jest.Mock).mockResolvedValue(mockConstructionSite);
+
+      await constructionSiteController.uploadConstructionSitePicture(req as Request, res as Response);
+
+      expect(ConstructionSite.findByPk).toHaveBeenCalledWith("1");
+      expect(mockConstructionSite.picture).toBe("new_picture.jpg");
+      expect(mockConstructionSite.save).toHaveBeenCalled();
+      expect(fs.unlinkSync).toHaveBeenCalledWith("/mock/path/to/picture.jpg");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Image du chantier mise à jour avec succès",
+        picture: "new_picture.jpg",
+      });
+    });
+
+    it("devrait renvoyer 400 si aucune image n'est envoyée", async () => {
+      req.file = undefined; // No file sent
+
+      await constructionSiteController.uploadConstructionSitePicture(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Aucune image envoyée" });
+    });
+
+    it("devrait renvoyer 404 si le chantier n'est pas trouvé", async () => {
+      (ConstructionSite.findByPk as jest.Mock).mockResolvedValue(null);
+
+      await constructionSiteController.uploadConstructionSitePicture(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Chantier non trouvé" });
+    });
+
+    it("devrait renvoyer 500 en cas d'erreur lors de la mise à jour de l'image", async () => {
+      (ConstructionSite.findByPk as jest.Mock).mockRejectedValue(new Error("Upload error"));
+
+      await constructionSiteController.uploadConstructionSitePicture(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Upload error" });
+    });
+  });
+});
+  });
 });

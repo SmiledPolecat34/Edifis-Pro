@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, STRING } = require('sequelize');
 const sequelize = require('../config/database');
 
 const ConstructionSite = sequelize.define(
@@ -22,16 +22,15 @@ const ConstructionSite = sequelize.define(
     end_time: { type: DataTypes.TIME },
     date_creation: { type: DataTypes.DATEONLY, defaultValue: DataTypes.NOW },
     image_url: { type: DataTypes.STRING },
-    chef_de_projet_id: { type: DataTypes.INTEGER, allowNull: true },
   },
   {
     tableName: 'construction_site',
     timestamps: false,
     underscored: true,
-  }
+  },
 );
 
-ConstructionSite.associate = (models) => {
+ConstructionSite.associate = models => {
   // manager (user) optionnel
   ConstructionSite.belongsTo(models.User, {
     as: 'chefDeProjet',

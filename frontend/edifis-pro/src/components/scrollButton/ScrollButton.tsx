@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { ArrowDown, ArrowUp } from 'lucide-react';
+import { RefObject } from 'react';
 
 interface ScrollButtonProps {
-  scrollableRef: RefObject<HTMLDivElement>;
+  scrollableRef: RefObject<HTMLDivElement | null>;
 }
 
 export default function ScrollButton({ scrollableRef }: ScrollButtonProps) {

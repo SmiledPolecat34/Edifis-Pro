@@ -1,5 +1,5 @@
-import apiService from "./apiService";
-import { ConstructionSite } from "./constructionSiteService";
+import apiService from './apiService';
+import { ConstructionSite } from './constructionSiteService';
 
 export interface TaskUser {
   user_id: number;
@@ -9,23 +9,23 @@ export interface TaskUser {
   profile_picture?: string;
 }
 
-export type TaskStatus = "Prévu" | "En cours" | "Terminé" | "Annulé";
+export type TaskStatus = 'Prévu' | 'En cours' | 'Annulé' | 'Terminé' | 'En attente de validation';
 
 export interface Task {
   task_id: number;
   name: string;
   description: string;
-  status: TaskStatus;                 // <-- typage fort
+  status: TaskStatus;
   start_date?: string;
   end_date?: string;
   users: TaskUser[];
-  construction_site?: ConstructionSite; // <-- relation chantier
+  construction_site?: ConstructionSite;
 }
 
 const taskService = {
   // Récupérer toutes les tâches
   getAll: async (): Promise<Task[]> => {
-    const res = await apiService.get<Task[]>("/tasks");
+    const res = await apiService.get<Task[]>('/tasks');
     return res as Task[]; // <- cast explicite pour éviter le "unknown"
   },
 
@@ -43,7 +43,7 @@ const taskService = {
 
   // Créer une tâche
   create: async (data: Partial<Task>): Promise<Task> => {
-    const res = await apiService.post<Task>("/tasks", data);
+    const res = await apiService.post<Task>('/tasks', data);
     return res as Task;
   },
 
@@ -63,8 +63,13 @@ const taskService = {
     return res as Task[];
   },
 
+  getByConstructionSiteId: async (siteId: number): Promise<Task[]> => {
+    const res = await apiService.get<Task[]>(`/tasks/site/${siteId}`);
+    return res as Task[];
+  },
+
   getFeed: async (): Promise<Task[]> => {
-    const res = await apiService.get<Task[]>("/tasks/feed");
+    const res = await apiService.get<Task[]>('/tasks/feed');
     return res as Task[];
   },
 };

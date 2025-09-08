@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import userService, { User } from '../../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/loading/Loading';
+import { Competence } from '../../../services/competenceService';
 
 const DEFAULT_IMAGE = 'https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg';
 
@@ -15,13 +16,13 @@ export default function Workers() {
   const [error, setError] = useState<string | null>(null);
   const canCreate = ['Admin', 'HR', 'Manager'].includes(user?.role?.name ?? '');
 
-  const roles = ["Tous", "Admin", "Worker", "Manager", "Project_Chief", "HR"];
+  const roles = ['Tous', 'Admin', 'Worker', 'Manager', 'Project_Chief', 'HR'];
   const roleTranslations: { [key: string]: string } = {
-      Admin: "Administrateur",
-      Worker: "Ouvrier",
-      Manager: "Manager",
-      Project_Chief: "Chef de projet",
-      HR: "Ressources Humaines"
+    Admin: 'Administrateur',
+    Worker: 'Ouvrier',
+    Manager: 'Manager',
+    Project_Chief: 'Chef de projet',
+    HR: 'Ressources Humaines',
   };
 
   useEffect(() => {
@@ -30,8 +31,8 @@ export default function Workers() {
       try {
         const data = await userService.getDirectory();
         if (!cancelled) setWorkers(data);
-      } catch (err: any) {
-        if (!cancelled) setError(err?.message || 'Erreur lors du chargement des employés');
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -47,7 +48,7 @@ export default function Workers() {
 
     const fullName = `${worker.firstname} ${worker.lastname}`.toLowerCase();
     const competences = (
-      worker.competences?.map((c: any) => c.name).join(', ') || ''
+      worker.competences?.map((c: Competence) => c.name).join(', ') || ''
     ).toLowerCase();
     const query = searchQuery.toLowerCase();
     const matchesSearch = fullName.includes(query) || competences.includes(query);
@@ -69,12 +70,12 @@ export default function Workers() {
       <div className="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-900">Employés</h1>
         {canCreate && (
-            <Link
+          <Link
             to="/workers/add"
             className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
-            >
+          >
             Ajouter un employé
-            </Link>
+          </Link>
         )}
       </div>
 
@@ -87,13 +88,15 @@ export default function Workers() {
           onChange={e => setSearchQuery(e.target.value)}
         />
         <select
-            value={roleFilter}
-            onChange={e => setRoleFilter(e.target.value)}
-            className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          value={roleFilter}
+          onChange={e => setRoleFilter(e.target.value)}
+          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         >
-            {roles.map(role => (
-                <option key={role} value={role}>{roleTranslations[role] || role}</option>
-            ))}
+          {roles.map(role => (
+            <option key={role} value={role}>
+              {roleTranslations[role] || role}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -118,10 +121,15 @@ export default function Workers() {
                   {worker.firstname} {worker.lastname}
                 </h2>
               </Link>
-              <p className="text-sm font-medium text-orange-600 mb-2">{roleTranslations[worker.role] || worker.role}</p>
+              <p className="text-sm font-medium text-orange-600 mb-2">
+                {typeof worker.role === 'object'
+                  ? roleTranslations[worker.role?.name] || worker.role?.name
+                  : roleTranslations[worker.role] || worker.role}
+              </p>
+
               <p className="text-xs text-gray-500 mb-3 px-2 py-1 bg-gray-100 rounded-full">
                 {worker.competences && worker.competences.length > 0
-                  ? worker.competences.map((c: any) => c.name).join(', ')
+                  ? worker.competences.map((c: Competence) => c.name).join(', ')
                   : 'Aucune compétence'}
               </p>
               <div className="flex-grow"></div>

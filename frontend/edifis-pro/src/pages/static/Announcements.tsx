@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Announcements() {
   return (
     <main className="min-h-screen p-4 md:p-8 bg-gray-100">
@@ -8,7 +6,6 @@ export default function Announcements() {
         <p className="text-gray-700">
           Retrouvez ici les dernières annonces et nouvelles concernant la plateforme Edifis Pro.
         </p>
-        {/* Placeholder for announcements list */}
       </div>
     </main>
   );

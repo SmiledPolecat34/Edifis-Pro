@@ -6,5 +6,6 @@ module.exports = {
     "^.+\\.(ts|tsx)$": ["ts-jest", { useESM: true }],
     "^.+\\.js$": ["ts-jest", { useESM: true }]
   },
-  testMatch: ["**/tests/**/*.test.(ts|js)"]
+  testMatch: ["**/tests/**/*.test.(ts|js)"],
+  setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"]
 };

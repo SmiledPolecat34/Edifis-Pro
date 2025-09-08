@@ -6,6 +6,8 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+USE edifis_pro;
+
 -- 1) Rôles
 DROP TABLE IF EXISTS roles;
 CREATE TABLE roles (
@@ -66,7 +68,7 @@ CREATE TABLE construction_site (
   end_date DATE,
   open_time TIME,
   end_time TIME,
-  date_creation DATE DEFAULT (CURRENT_DATE),
+  date_creation DATE DEFAULT CURRENT_TIMESTAMP,
   image_url VARCHAR(255),
   chef_de_projet_id INT NULL,
   CONSTRAINT fk_site_manager FOREIGN KEY (chef_de_projet_id)

@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import competenceService from "../../../services/competenceService";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import competenceService from '../../../services/competenceService';
 
 export default function AddCompetence() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     try {
-      await competenceService.create({ name, description });
-      navigate("/competences");
+      await competenceService.addCompetence({ name, description });
+      navigate('/competences');
     } catch {
-      setError("Erreur à l’enregistrement.");
+      setError('Erreur à l’enregistrement.');
     }
   };
 
@@ -35,7 +35,7 @@ export default function AddCompetence() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={e => setName(e.target.value)}
             required
             className="w-full border p-2 rounded"
           />
@@ -44,7 +44,7 @@ export default function AddCompetence() {
           <label className="block mb-1">Description</label>
           <textarea
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             className="w-full border p-2 rounded"
           />
         </div>

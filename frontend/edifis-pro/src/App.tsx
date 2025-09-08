@@ -1,11 +1,9 @@
     import { Routes, Route } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
 import "./App.css";
 
 import ProtectedRoute from "./components/protectedRoute/ProtectedRoute";
 import PageLayout from "./layout/PageLayout";
-import PublicPageLayout from "./layout/PublicPageLayout"; // Import new layout
-import ConditionalLayout from "./ConditionalLayout"; // Import ConditionalLayout
+import ConditionalLayout from "./ConditionalLayout";
 import Login from "./pages/login/Login";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
@@ -25,8 +23,8 @@ import CreateTask from "./pages/mission/addtask";
 import EditTask from "./pages/mission/EditTask";
 import UserDetail from "./pages/user/UserDetail";
 import { ManageCompetences } from "./pages/competence/ManageCompetences";
-import AddCompetence    from "./pages/competence/AddCompetence";
-import EditCompetence   from "./pages/competence/EditCompetence";
+import AddCompetence from "./pages/competence/AddCompetence";
+import EditCompetence from "./pages/competence/EditCompetence";
 
 // Static Pages
 import Careers from "./pages/static/Careers";
@@ -35,14 +33,13 @@ import Terms from "./pages/static/Terms";
 import Privacy from "./pages/static/Privacy";
 import ContactUs from "./pages/static/ContactUs";
 import HelpCenter from "./pages/static/HelpCenter";
-import Roadmap from "./pages/static/Roadmap"; // Import Roadmap
+import Roadmap from "./pages/static/Roadmap";
 import Announcements from "./pages/static/Announcements";
 import P2PMerchants from "./pages/static/P2PMerchants";
 import ListingApplication from "./pages/static/ListingApplication";
 import InstitutionalServices from "./pages/static/InstitutionalServices";
 import Labs from "./pages/static/Labs";
 import SystemStatus from "./pages/static/SystemStatus";
-
 
 function App() {
     return (
@@ -75,28 +72,35 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/roadmap" element={<Roadmap />} />
-                    <Route path="/missions" element={<Missions />} />
-                    <Route path="/addamission" element={<CreateTask />} />
-                    <Route path="/construction" element={<Construction />} />
-                    <Route path="/ConstructionDetails/:id" element={<ConstructionDetails />} />
                     <Route path="/user/:id" element={<UserDetail />} />
-                    <Route path="/competences" element={<ManageCompetences />} />
-                    <Route path="/competences/add" element={<AddCompetence />} />
-                    <Route path="/competences/edit/:id" element={<EditCompetence />} />
-                    <Route path="/AddTask" element={<CreateTask />} />
 
-                    {/* Admin and Manager only */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
-                        <Route path="/editmission/:id" element={<EditTask />} />
-                    </Route>
-
-                    {/* Admin and HR only */}
-                    <Route element={<ProtectedRoute allowedRoles={["Admin", "HR"]} />}>
-                        <Route path="/AddConstruction" element={<AddConstruction />} />
+                    {/* Routes for Admin, Manager, HR */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "HR"]} />}>
                         <Route path="/workers" element={<Worker />} />
                         <Route path="/workers/add" element={<AddWorker />} />
                         <Route path="/workers/edit/:id" element={<EditWorker />} />
                         <Route path="/workers/:id" element={<WorkerDetails />} />
+                        <Route path="/competences" element={<ManageCompetences />} />
+                        <Route path="/competences/add" element={<AddCompetence />} />
+                        <Route path="/competences/edit/:id" element={<EditCompetence />} />
+                    </Route>
+
+                    {/* Routes for Admin, Manager */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
+                        <Route path="/AddConstruction" element={<AddConstruction />} />
+                    </Route>
+
+                    {/* Routes for Admin, Manager, Project_Chief */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Project_Chief"]} />}>
+                        <Route path="/construction" element={<Construction />} />
+                        <Route path="/addamission" element={<CreateTask />} />
+                        <Route path="/editmission/:id" element={<EditTask />} />
+                    </Route>
+
+                    {/* Routes for Admin, Manager, Project_Chief, Worker */}
+                    <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager", "Project_Chief", "Worker"]} />}>
+                        <Route path="/missions" element={<Missions />} />
+                        <Route path="/ConstructionDetails/:id" element={<ConstructionDetails />} />
                     </Route>
                 </Route>
             </Route>

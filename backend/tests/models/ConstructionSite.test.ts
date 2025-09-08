@@ -88,5 +88,17 @@ jest.mock("../../config/database", () => {
       // Vérification que date_creation est définie
       expect(siteJSON.date_creation).toBeDefined();
     });
+
+    it("ne devrait pas créer un chantier avec un état invalide", async () => {
+      await expect(
+        ConstructionSite.create({
+          name: "Site Invalide",
+          state: "InvalidState", // État invalide
+          adresse: "123 Rue Test",
+          start_date: "2023-01-01",
+          end_date: "2023-01-10",
+        })
+      ).rejects.toThrow();
+    });
   });
   

@@ -28,7 +28,7 @@ describe("Role Controller", () => {
       expect(res.json).toHaveBeenCalledWith(newRole);
     });
 
-    it("devrait renvoyer une erreur 500 en cas d'échec lors de la création", async () => {
+        it("devrait renvoyer une erreur 500 en cas d'échec lors de la création", async () => {
       const error = new Error("Creation error");
       Role.create = jest.fn().mockRejectedValue(error);
       req.body = {};
@@ -39,6 +39,19 @@ describe("Role Controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
+
+    it("devrait renvoyer 400 si le rôle existe déjà", async () => {
+      const existingRole = { name: "Existing Role" };
+      req.body = existingRole;
+      Role.findOne = jest.fn().mockResolvedValue(existingRole);
+
+      await roleController.createRole(req as Request, res as Response);
+
+      expect(Role.findOne).toHaveBeenCalledWith({ where: { name: existingRole.name } });
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Ce rôle existe déjà" });
+    });
+  });
   });
 
   describe("getAllRoles", () => {

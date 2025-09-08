@@ -50,15 +50,17 @@ const canManageUsers = async (req, res, next) => {
 
 const ROLES = {
     Admin: 'Admin',
-    HR: 'HR',
     Manager: 'Manager',
+    HR: 'HR',
+    Project_Chief: 'Project_Chief',
     Worker: 'Worker'
 };
 
 const roleHierarchy = {
-    [ROLES.Admin]: 3,
+    [ROLES.Admin]: 4,
+    [ROLES.Manager]: 3,
     [ROLES.HR]: 2,
-    [ROLES.Manager]: 1,
+    [ROLES.Project_Chief]: 1,
     [ROLES.Worker]: 0
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import apiService from '../../../services/apiService';
 
 export default function SystemStatus() {
@@ -13,6 +13,7 @@ export default function SystemStatus() {
         setIsMaintenance(response.maintenance_mode);
       } catch (err) {
         setError('Impossible de récupérer le statut du système. Veuillez réessayer plus tard.');
+        console.error(err);
       } finally {
         setLoading(false);
       }

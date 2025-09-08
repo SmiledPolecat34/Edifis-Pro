@@ -1,7 +1,7 @@
-import apiService from "./apiService";
-import { Competence } from "./competenceService";
+import apiService from './apiService';
+import { Competence } from './competenceService';
 
-type RoleType = "Admin" | "Worker" | "Manager" | "HR" | "Project_Chief";
+type RoleType = 'Admin' | 'Worker' | 'Manager' | 'HR' | 'Project_Chief';
 
 export interface User {
   user_id?: number;
@@ -10,7 +10,7 @@ export interface User {
   email: string;
   password?: string;
   numberphone: string;
-  role: RoleType | string;
+  role: RoleType | string | { name: string };
   profile_picture?: string;
   competences?: Competence[];
   createdAt?: Date;
@@ -50,59 +50,69 @@ export interface UpdateUserPayload {
 
 const userService = {
   getAllWorkers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/getallworkers");
+    return await apiService.get<User[]>('/users/getallworkers');
   },
 
   getAllUsers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/all");
+    return await apiService.get<User[]>('/users/all');
   },
 
   getAllManagers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/all/manager");
+    return await apiService.get<User[]>('/users/all/manager');
   },
 
   getAllProjectChiefs: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/project-chiefs");
+    return await apiService.get<User[]>('/users/project-chiefs');
   },
 
   getDirectory: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/list");
+    return await apiService.get<User[]>('/users/list');
   },
 
   getAssignableUsers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>("/users/assignable-to-task");
+    return await apiService.get<User[]>('/users/assignable-to-task');
   },
 
   getById: async (id: number) => {
     return await apiService.get(`/users/${id}`);
   },
 
-  update: async (id: number, data: UpdateUserPayload) => {
-    return await apiService.put(`/users/${id}`, data);
+  update: async (id: number, data: Partial<User>) => {
+    return await apiService.put<User>(`/users/${id}`, data);
+  },
+
+  updateUser: async (id: number, data: Partial<User>) => {
+    return await apiService.put<User>(`/users/${id}`, data);
   },
 
   createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
-    return await apiService.post<CreateUserResponse>("/users", payload);
+    return await apiService.post<CreateUserResponse>('/users', payload);
   },
 
   delete: async (id: number): Promise<void> => {
     return await apiService.delete(`/users/${id}`);
   },
 
-  changePassword: async (payload: { currentPassword: string; newPassword: string; }): Promise<{ message: string }> => {
-    return await apiService.post<{ message: string }>("/users/change-password", payload);
+  changePassword: async (payload: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ message: string }> => {
+    return await apiService.post<{ message: string }>('/users/change-password', payload);
   },
 
-  updatePassword: async (payload: { currentPassword: string; newPassword: string; }): Promise<{ message: string }> => {
-    return await apiService.post<{ message: string }>("/users/update-password", payload);
+  updatePassword: async (payload: {
+    currentPassword: string;
+    newPassword: string;
+  }): Promise<{ message: string }> => {
+    return await apiService.post<{ message: string }>('/users/update-password', payload);
   },
 
   uploadProfilePicture: async (file: File): Promise<{ profile_picture: string }> => {
     const formData = new FormData();
-    formData.append("profilePicture", file);
+    formData.append('profilePicture', file);
     return await apiService.postForm<{ profile_picture: string }>(
-      "/users/upload-profile",
-      formData
+      '/users/upload-profile',
+      formData,
     );
   },
 

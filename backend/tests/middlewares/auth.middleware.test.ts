@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { protect, isAdmin, isWorker, isManager } from "../../middlewares/auth.middleware";
+import { protect, isAdmin, isManager } from "../../middlewares/auth.middleware";
 import jwt from "jsonwebtoken";
 
 describe("Auth Middleware", () => {
@@ -20,7 +20,7 @@ describe("Auth Middleware", () => {
     // Ici, req.headers est garanti d'exister
     protect(req as Request, res as Response, next);
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalledWith({ message: "Accès refusé. Token manquant" });
+    expect(res.json).toHaveBeenCalledWith({ message: "Token manquant" });
   });
 
   it("devrait appeler next() si le token est valide", () => {

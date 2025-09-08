@@ -180,4 +180,90 @@ describe("Task Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
+
+  describe("assignUsersToTask", () => {
+    let req: Partial<Request>;
+    let res: Partial<Response>;
+
+    beforeEach(() => {
+      req = {
+        body: {
+          taskId: 1,
+          userIds: [2, 3],
+        },
+        user: { id: 1, role: "Admin" }, // Assigner is Admin
+      } as any;
+      res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+      jest.clearAllMocks();
+    });
+
+    it("devrait assigner des utilisateurs à une tâche avec succès", async () => {
+      const mockTask = { addUsers: jest.fn().mockResolvedValue(true) };
+      const mockUsers = [
+        { user_id: 2, role: { name: "Worker" } },
+        { user_id: 3, role: { name: "Worker" } },
+      ];
+
+      Task.findByPk = jest.fn().mockResolvedValue(mockTask);
+      User.findAll = jest.fn().mockResolvedValue(mockUsers);
+
+      await taskController.assignUsersToTask(req as Request, res as Response);
+
+      expect(Task.findByPk).toHaveBeenCalledWith(1);
+      expect(User.findAll).toHaveBeenCalledWith({ where: { user_id: [2, 3] }, include: [{ model: expect.anything(), as: 'role' }] });
+      expect(mockTask.addUsers).toHaveBeenCalledWith(mockUsers);
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ message: "Tâche assignée avec succès", task: mockTask });
+    });
+
+    it("devrait renvoyer 400 si l'ID de la tâche ou les IDs d'utilisateur sont manquants", async () => {
+      req.body.taskId = undefined;
+      await taskController.assignUsersToTask(req as Request, res as Response);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "L'ID de la tâche et au moins un utilisateur sont requis" });
+    });
+
+    it("devrait renvoyer 404 si la tâche n'est pas trouvée", async () => {
+      Task.findByPk = jest.fn().mockResolvedValue(null);
+      await taskController.assignUsersToTask(req as Request, res as Response);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Tâche non trouvée" });
+    });
+
+    it("devrait renvoyer 400 si un ou plusieurs utilisateurs sont invalides", async () => {
+      const mockTask = { addUsers: jest.fn() };
+      Task.findByPk = jest.fn().mockResolvedValue(mockTask);
+      User.findAll = jest.fn().mockResolvedValue([{ user_id: 2, role: { name: "Worker" } }]); // Only one user found
+      await taskController.assignUsersToTask(req as Request, res as Response);
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: "Un ou plusieurs utilisateurs sont invalides" });
+    });
+
+    it("devrait renvoyer 403 si l'assignateur n'a pas le rang suffisant", async () => {
+      req.user.role = "Worker"; // Assigner is Worker
+      const mockTask = { addUsers: jest.fn() };
+      const mockUsers = [
+        { user_id: 2, role: { name: "Worker" } },
+      ];
+      Task.findByPk = jest.fn().mockResolvedValue(mockTask);
+      User.findAll = jest.fn().mockResolvedValue(mockUsers);
+
+      await taskController.assignUsersToTask(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ message: "Vous ne pouvez pas assigner une tâche à un utilisateur de rang égal ou supérieur (utilisateur: undefined undefined, rôle: Worker)." });
+    });
+
+    it("devrait renvoyer 500 en cas d'erreur serveur", async () => {
+      Task.findByPk = jest.fn().mockRejectedValue(new Error("Server error"));
+      await taskController.assignUsersToTask(req as Request, res as Response);
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Server error" });
+    });
+  });
+});
+  });
 });

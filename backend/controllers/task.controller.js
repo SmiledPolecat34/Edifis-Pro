@@ -236,4 +236,24 @@ exports.getTasksByUserId = async (req, res) => {
     }
 };
 
+exports.getTasksByConstructionSite = async (req, res) => {
+    try {
+        const { siteId } = req.params;
+        const tasks = await Task.findAll({
+            where: { construction_site_id: siteId },
+            include: [
+                {
+                    model: User,
+                    as: 'users',
+                    attributes: ["user_id", "firstname", "lastname", "email", "profile_picture"],
+                    through: { attributes: [] }
+                }
+            ]
+        });
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 

@@ -11,7 +11,10 @@ router.post("/", protect, setUploadType('construction'), upload.single('image'),
 }, ctrl.createConstructionSite);
 
 // Lecture
-router.get("/", protect, ctrl.getAllConstructionSites);
+router.get("/", protect, (req, res, next) => {
+    if (req.user && ["Admin", "Manager", "HR"].includes(req.user.role)) return next();
+    return res.status(403).json({ message: "Accès non autorisé" });
+}, ctrl.getAllConstructionSites);
 router.get("/:id/users", protect, ctrl.getUsersOfConstructionSite);
 router.get("/:id", protect, ctrl.getConstructionSiteById);
 

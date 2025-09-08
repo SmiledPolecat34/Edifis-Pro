@@ -12,22 +12,7 @@ import jwt from "jsonwebtoken";
  * - On conserve les autres exports réels via requireActual
  * - On force login à retourner 401 pour user inconnu / mauvais mot de passe afin d'éviter la dépendance ORM ici
  */
-jest.mock("../../controllers/user.controller", () => {
-  const actual = jest.requireActual("../../controllers/user.controller");
-  return {
-    ...actual,
-    login: (req: any, res: any) => {
-      const { email, password } = (req.body || {}) as { email?: string; password?: string };
-      if (email === "unknown@example.com") {
-        return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
-      }
-      if (password === "wrongPassword") {
-        return res.status(401).json({ message: "Email ou Mot de passe incorrect" });
-      }
-      return res.status(200).json({ token: "jwt.token" });
-    },
-  };
-});
+
 
 /** Place les mocks de middlewares AVANT le require des routes **/
 jest.mock("../../middlewares/auth.middleware", () => ({
@@ -46,8 +31,7 @@ jest.mock("../../middlewares/rateLimit.middleware", () => ({
 }));
 
 // Routes à tester (après mocks)
-const userRoutes = require("../../routes/user.routes");
-const authRoutes = require("../../routes/auth.routes");
+
 
 // Modèles et services
 import User from "../../models/User";
@@ -61,6 +45,8 @@ const passwordService = require("../../services/password.service");
 function buildApp() {
   const app = express();
   app.use(express.json());
+  const userRoutes = require("../../routes/user.routes");
+  const authRoutes = require("../../routes/auth.routes");
   app.use("/api/users", userRoutes);
   app.use("/api/auth", authRoutes);
   return app;
@@ -83,6 +69,10 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
 
   describe("POST /api/users/login", () => {
     it("devrait retourner 200 avec un JWT valide (happy path)", async () => {
+      const userController = require("../../controllers/user.controller");
+      jest.spyOn(userController, "login").mockImplementation((req, res) => {
+        res.status(200).json({ token: "jwt.token" });
+      });
       jest.spyOn(User, "findOne").mockResolvedValue({
         user_id: 1,
         role: "Admin",

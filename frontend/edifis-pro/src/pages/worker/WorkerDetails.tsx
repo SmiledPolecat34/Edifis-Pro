@@ -1,27 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import userService, { User } from "../../../services/userService";
-import competenceService, { Competence } from "../../../services/competenceService";
-import Loading from "../../components/loading/Loading";
-import { Link } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import userService, { User } from '../../../services/userService';
+import competenceService, { Competence } from '../../../services/competenceService';
+import Loading from '../../components/loading/Loading';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
-const DEFAULT_IMAGE = "https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg";
+const DEFAULT_IMAGE = 'https://www.capcampus.com/img/u/1/job-etudiant-batiment.jpg';
 
 // Table de correspondance pour afficher les rôles
 const roleLabels: Record<string, string> = {
-  Worker: "Ouvrier",
-  Manager: "Chef de projet",
-  Admin: "Responsable",
-  HR: "RH",
+  Worker: 'Ouvrier',
+  Manager: 'Chef de projet',
+  Admin: 'Responsable',
+  HR: 'RH',
 };
 
 export default function WorkerDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-
-  
 
   const [modalData, setModalData] = useState<{
     title: string;
@@ -38,24 +36,29 @@ export default function WorkerDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const canEdit = currentUser && ["Admin", "HR", "Manager"].includes(currentUser.role.name);
-  const canDelete = currentUser && ["Admin", "HR"].includes(currentUser.role.name);
+  const canEdit = currentUser && ['Admin', 'HR', 'Manager'].includes(currentUser.role.name);
+  const canDelete = currentUser && ['Admin', 'HR'].includes(currentUser.role.name);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const raw = await userService.getById(Number(id));
-        const normalized: User = {
-          ...raw,
-          role: (raw as any).role?.name ?? (raw as any).role ?? "Worker",
-          competences: raw.competences ?? [],
-        };
+        const normalized = {
+          ...(typeof raw === 'object' && raw !== null ? raw : {}),
+          role:
+            (raw as { role?: { name?: string } }).role?.name ??
+            (raw as { role?: string }).role ??
+            'Worker',
+          competences: (raw as { competences?: Competence[] }).competences ?? [],
+        } as User;
+
         const skills = await competenceService.getAllCompetences();
 
         setWorker(normalized);
         setAllSkills(skills);
       } catch (err) {
-        setError("Impossible de charger les données.");
+        setError('Impossible de charger les données.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -63,22 +66,19 @@ export default function WorkerDetails() {
     fetchData();
   }, [id]);
 
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setWorker((prevWorker) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setWorker(prevWorker => {
       if (!prevWorker) return null;
       const { name, value } = e.target;
       let newValue = value;
       // Filtrage du champ firstname
-      if (name === "firstname") {
-        newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "");
-      } else if (name === "lastname") {
+      if (name === 'firstname') {
+        newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '');
+      } else if (name === 'lastname') {
         // Filtrage du champ lastname
-        newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, "").toUpperCase();
-      } else if (name === "numberphone") {
-        newValue = newValue.replace(/[^0-9]/g, "");
+        newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '').toUpperCase();
+      } else if (name === 'numberphone') {
+        newValue = newValue.replace(/[^0-9]/g, '');
       }
       return { ...prevWorker, [name]: newValue };
     });
@@ -88,31 +88,28 @@ export default function WorkerDetails() {
     if (!worker) return;
 
     const currentSkills = worker.competences || [];
-    const exists = currentSkills.some((c) => c.competence_id === skillId);
+    const exists = currentSkills.some(c => c.competence_id === skillId);
     let updatedSkills;
 
     if (exists) {
-      updatedSkills = currentSkills.filter((c) => c.competence_id !== skillId);
+      updatedSkills = currentSkills.filter(c => c.competence_id !== skillId);
     } else {
-      const skillName =
-        allSkills.find((s) => s.competence_id === skillId)?.name || "";
+      const skillName = allSkills.find(s => s.competence_id === skillId)?.name || '';
       updatedSkills = [...currentSkills, { competence_id: skillId, name: skillName }];
     }
 
-    setWorker((prev) =>
-      prev ? { ...prev, competences: updatedSkills } : null
-    );
+    setWorker(prev => (prev ? { ...prev, competences: updatedSkills } : null));
   };
 
   const handleDelete = async () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet employé ?')) {
       try {
         if (worker && worker.user_id !== undefined) {
           await userService.delete(worker.user_id);
-          navigate("/workers");
+          navigate('/workers');
         }
       } catch (err) {
-        console.error("Erreur lors de la suppression :", err);
+        console.error('Erreur lors de la suppression :', err);
       }
     }
   };
@@ -120,24 +117,27 @@ export default function WorkerDetails() {
   const handleSave = async () => {
     if (!worker || worker.user_id == null) return;
     try {
-      const { createdAt, updatedAt, ...updateData } = worker;
+      const { ...updateData } = worker;
 
-      const competenceIds: number[] = (updateData.competences ?? [])
-        .map((c: any) => c.competence_id)
-        .filter((id): id is number => typeof id === "number");
+      const competences: Competence[] = (updateData.competences ?? [])
+        .filter((c: Competence) => typeof c.competence_id === 'number')
+        .map((c: Competence) => ({
+          competence_id: c.competence_id,
+          name: c.name,
+          description: c.description,
+        }));
 
       await userService.update(worker.user_id, {
         ...updateData,
-        competences: competenceIds,
+        competences,
       });
 
       setIsEditing(false);
     } catch (err) {
-      console.error("Erreur lors de la sauvegarde :", err);
-      setError("Erreur lors de la sauvegarde.");
+      console.error('Erreur lors de la sauvegarde :', err);
+      setError('Erreur lors de la sauvegarde.');
     }
   };
-
 
   if (loading) {
     return (
@@ -164,9 +164,7 @@ export default function WorkerDetails() {
         Retour
       </button>
       <div className="bg-white shadow-md rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Détails de l'employé
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Détails de l'employé</h1>
         <div className="flex items-center mb-4">
           <img
             src={worker.profile_picture || DEFAULT_IMAGE}
@@ -210,7 +208,9 @@ export default function WorkerDetails() {
               className="border border-gray-300 rounded p-1"
             />
           ) : (
-            <a href={`mailto:${worker.email}`} className="text-blue-600 hover:underline">{worker.email}</a>
+            <a href={`mailto:${worker.email}`} className="text-blue-600 hover:underline">
+              {worker.email}
+            </a>
           )}
         </p>
         <p>
@@ -223,12 +223,12 @@ export default function WorkerDetails() {
               onChange={handleChange}
               className="border border-gray-300 rounded p-1"
             />
+          ) : worker.numberphone ? (
+            <a href={`tel:${worker.numberphone}`} className="text-blue-600 hover:underline">
+              {worker.numberphone}
+            </a>
           ) : (
-            worker.numberphone ? (
-              <a href={`tel:${worker.numberphone}`} className="text-blue-600 hover:underline">{worker.numberphone}</a>
-            ) : (
-              "Non renseigné"
-            )
+            'Non renseigné'
           )}
         </p>
         <p>
@@ -236,8 +236,8 @@ export default function WorkerDetails() {
           {isEditing ? (
             <select
               name="role"
-              value={worker.role}
-              onChange={(e) => setWorker(prev => prev ? { ...prev, role: e.target.value as any } : prev)}
+              value={typeof worker.role === 'string' ? worker.role : worker.role?.name}
+              onChange={e => setWorker(prev => (prev ? { ...prev, role: e.target.value } : prev))}
               className="border border-gray-300 rounded p-1"
             >
               <option value="Worker">Ouvrier</option>
@@ -246,19 +246,16 @@ export default function WorkerDetails() {
               <option value="HR">RH</option>
             </select>
           ) : (
-            roleLabels[worker.role] || "Non défini"
+            roleLabels[typeof worker.role === 'string' ? worker.role : worker.role?.name || ''] ||
+            'Non défini'
           )}
         </p>
-
 
         {!isEditing && (
           <>
             <p>
               <strong>
-                <Link
-                  to="/competences"
-                  className="underline hover:text-blue-600"
-                >
+                <Link to="/competences" className="underline hover:text-blue-600">
                   Compétences
                 </Link>
                 :
@@ -266,17 +263,14 @@ export default function WorkerDetails() {
             </p>
             <div className="flex flex-wrap gap-2">
               {worker.competences && worker.competences.length > 0 ? (
-                worker.competences.map((c) => (
-                  <div
-                    key={c.competence_id}
-                    className="flex items-center space-x-1"
-                  >
+                worker.competences.map(c => (
+                  <div key={c.competence_id} className="flex items-center space-x-1">
                     <span>{c.name}</span>
                     <button
                       onClick={() =>
                         setModalData({
                           title: c.name,
-                          description: c.description ?? "Pas de description",
+                          description: c.description ?? 'Pas de description',
                         })
                       }
                       className="text-sm text-white bg-blue-500 hover:bg-blue-600 rounded-full w-5 h-5 flex items-center justify-center"
@@ -294,9 +288,9 @@ export default function WorkerDetails() {
 
         {isEditing && (
           <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-            {allSkills.map((skill) => {
+            {allSkills.map(skill => {
               const assigned = worker?.competences?.some(
-                (c) => c.competence_id === skill.competence_id
+                c => c.competence_id === skill.competence_id,
               );
               return (
                 <label key={skill.competence_id} className="flex items-center gap-2">
@@ -327,11 +321,6 @@ export default function WorkerDetails() {
           </div>
         )}
 
-        <p className="hidden">
-          <strong>Date de création :</strong>{" "}
-          {worker.createdAt || "Non spécifiée"}
-        </p>
-
         <div className="mt-6 flex justify-between">
           {canEdit && (
             <button
@@ -343,7 +332,7 @@ export default function WorkerDetails() {
               }}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
             >
-              {isEditing ? "Enregistrer" : "Modifier"}
+              {isEditing ? 'Enregistrer' : 'Modifier'}
             </button>
           )}
           {canDelete && (

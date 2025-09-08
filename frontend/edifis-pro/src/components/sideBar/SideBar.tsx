@@ -1,17 +1,32 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { House, Construction, Hammer, UserRound, LogOut, UserSearch, Wrench } from 'lucide-react';
+import { House, Construction, Hammer, UserRound, LogOut, UserSearch } from 'lucide-react';
 import clsx from 'clsx';
 import logo from '../../assets/images/logo.svg';
 import { useState, useEffect } from 'react';
 import apiService from '../../../services/apiService';
 
-const routes = [
-  { to: '/', label: 'Accueil', Icon: House },
-  { to: '/missions', label: 'Missions', Icon: Hammer },
-  { to: '/construction', label: 'Chantiers', Icon: Construction },
-  { to: '/workers', label: 'Employés', Icon: UserRound },
-  { to: '/competences', label: 'Compétences', Icon: UserSearch },
+const allRoutes = [
+  {
+    to: '/',
+    label: 'Accueil',
+    Icon: House,
+    roles: ['Admin', 'Manager', 'HR', 'Project_Chief', 'Worker'],
+  },
+  {
+    to: '/missions',
+    label: 'Missions',
+    Icon: Hammer,
+    roles: ['Admin', 'Manager', 'Project_Chief', 'Worker'],
+  },
+  {
+    to: '/construction',
+    label: 'Chantiers',
+    Icon: Construction,
+    roles: ['Admin', 'Manager', 'Project_Chief'],
+  },
+  { to: '/workers', label: 'Employés', Icon: UserRound, roles: ['Admin', 'Manager', 'HR'] },
+  { to: '/competences', label: 'Compétences', Icon: UserSearch, roles: ['Admin', 'Manager', 'HR'] },
 ];
 
 interface SideBarProps {
@@ -22,6 +37,8 @@ interface SideBarProps {
 export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBarProps) {
   const { user, logout } = useAuth();
   const [isMaintenance, setIsMaintenance] = useState(false);
+
+  const routes = allRoutes.filter(route => user?.role && route.roles.includes(user.role.name));
 
   useEffect(() => {
     // Fetch initial maintenance status
@@ -76,7 +93,12 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
               to={to}
               key={index}
               onClick={handleLinkClick} // Close nav on link click
-              className="flex items-center gap-2 h-9 px-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              className={({ isActive }) =>
+                clsx(
+                  'flex items-center gap-2 h-9 px-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors',
+                  { 'bg-gray-100 font-semibold': isActive },
+                )
+              }
             >
               <Icon size={18} />
               <span>{label}</span>
