@@ -7,7 +7,7 @@ jest.mock('../../config/database', () => {
 import Task from '../../models/Task';
 import sequelize from '../../config/database';
 
-describe('Task Model', () => {
+describe('Modèle Task', () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true });
   });

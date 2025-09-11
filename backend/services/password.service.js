@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
  * - Fournit une validation de politique (OWASP-like)
  */
 
-const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || "10", 10);
+const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS, 10);
 
 /**
  * Valide la politique de mot de passe:

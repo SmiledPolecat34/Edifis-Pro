@@ -42,7 +42,9 @@ exports.createUser = async (req, res) => {
     }
 
     // Hasher le mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // sel de 10
+    // sel qui sert à complexifier le hashage en ajoutant des caractères aléatoires
+    // Plus le sel est élevé, plus le hash est sécurisé, mais cela augmente aussi le temps de calcul.
 
     // Créer l'utilisateur
     const newUser = await User.create({
@@ -92,7 +94,12 @@ exports.getAllUsers = async (req, res) => {
       attributes: ['user_id', 'firstname', 'lastname', 'email', 'numberphone', 'profile_picture'],
       include: [
         { model: Role, as: 'role', attributes: ['name'] },
-        { model: Competence, as: 'competences', attributes: ['name', 'description'], through: { attributes: [] } },
+        {
+          model: Competence,
+          as: 'competences',
+          attributes: ['name', 'description'],
+          through: { attributes: [] },
+        },
       ],
     });
 
@@ -243,7 +250,8 @@ exports.updateUser = async (req, res) => {
 
     if (Array.isArray(competences)) {
       if (typeof user.setCompetences === 'function') {
-        await user.setCompetences(competences);
+        const competenceIds = competences.map(c => (typeof c === 'object' && c !== null) ? c.competence_id : c);
+        await user.setCompetences(competenceIds);
       }
     }
 

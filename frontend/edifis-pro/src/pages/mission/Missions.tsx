@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import taskService, { Task, TaskStatus } from '../../../services/taskService';
+import constructionService, { ConstructionSite } from '../../../services/constructionSiteService';
+import userService, { User } from '../../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import Badge from '../../components/badge/Badge';
 import { Link } from 'react-router-dom';
@@ -21,9 +23,10 @@ export default function Missions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 👇 States édition
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const [constructionSites, setConstructionSites] = useState<ConstructionSite[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -31,7 +34,7 @@ export default function Missions() {
       return;
     }
 
-    async function fetchTasks() {
+    async function fetchData() {
       try {
         let data: Task[] = [];
         if (user?.role?.name === 'Admin') {
@@ -40,6 +43,14 @@ export default function Missions() {
           data = await taskService.getByUserId(user.user_id);
         }
         setTasks(data);
+
+        const [sites, users] = await Promise.all([
+          constructionService.getAll(),
+          userService.getAllUsers(),
+        ]);
+        setConstructionSites(sites);
+        setAllUsers(users);
+
       } catch (err) {
         console.error('[Missions] Erreur API:', err);
         setError('Erreur lors du chargement des missions.');
@@ -48,7 +59,7 @@ export default function Missions() {
       }
     }
 
-    fetchTasks();
+    fetchData();
   }, [user]);
 
   useEffect(() => {
@@ -67,14 +78,38 @@ export default function Missions() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     if (!editedTask) return;
-    setEditedTask({ ...editedTask, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'construction_site_id') {
+        const site = constructionSites.find(s => s.construction_site_id === Number(value));
+        setEditedTask({ ...editedTask, construction_site: site });
+    } else {
+        setEditedTask({ ...editedTask, [name]: value });
+    }
+  };
+
+  const handleUserToggle = (userId: number) => {
+    if (!editedTask) return;
+    const currentUsers = editedTask.users.map(u => u.user_id);
+    const newUsers = currentUsers.includes(userId)
+      ? currentUsers.filter(id => id !== userId)
+      : [...currentUsers, userId];
+    
+    const newUsersObjects = allUsers.filter(u => newUsers.includes(u.user_id));
+
+    setEditedTask({ ...editedTask, users: newUsersObjects });
   };
 
   const handleSave = async () => {
     if (!editedTask) return;
     try {
-      await taskService.update(editedTask.task_id, editedTask);
-      setTasks(prev => prev.map(t => (t.task_id === editedTask.task_id ? editedTask : t)));
+      const dataToUpdate = {
+        ...editedTask,
+        construction_site_id: editedTask.construction_site?.construction_site_id,
+        userIds: editedTask.users.map(u => u.user_id),
+      };
+      const updatedTask = await taskService.update(editedTask.task_id, dataToUpdate);
+      setTasks(prev => prev.map(t => (t.task_id === updatedTask.task_id ? updatedTask : t)));
       setEditingTaskId(null);
       setEditedTask(null);
     } catch (err) {
@@ -159,9 +194,9 @@ export default function Missions() {
           <option value="">Tous statuts</option>
           <option value="En cours">En cours</option>
           <option value="En attente de validation">En attente de validation</option>
-          <option value="Prévu">Prévu</option>
-          <option value="Terminé">Terminé</option>
-          <option value="Annulé">Annulé</option>
+          <option value="Prévu">Prévue</option>
+          <option value="Terminé">Terminée</option>
+          <option value="Annulé">Annulée</option>
         </select>
       </div>
 
@@ -181,25 +216,25 @@ export default function Missions() {
                 className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm flex flex-col"
               >
                 {isEditing ? (
-                  <div className="flex flex-col h-full">
+                  <div className="flex flex-col h-full space-y-4">
                     <input
                       type="text"
                       name="name"
                       value={editedTask?.name || ''}
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-2"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
                     />
                     <textarea
                       name="description"
                       value={editedTask?.description || ''}
                       onChange={handleChange}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-2 flex-grow"
+                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
                     />
                     <select
                       name="status"
                       value={editedTask?.status || ''}
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm mb-4"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
                     >
                       <option value="En cours">En cours</option>
                       <option value="En attente de validation">En attente de validation</option>
@@ -207,6 +242,45 @@ export default function Missions() {
                       <option value="Terminé">Terminé</option>
                       <option value="Annulé">Annulé</option>
                     </select>
+                    <input
+                      type="datetime-local"
+                      name="start_date"
+                      value={editedTask?.start_date ? new Date(editedTask.start_date).toISOString().slice(0, 16) : ''}
+                      onChange={handleChange}
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="datetime-local"
+                      name="end_date"
+                      value={editedTask?.end_date ? new Date(editedTask.end_date).toISOString().slice(0, 16) : ''}
+                      onChange={handleChange}
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                    />
+                    <select
+                      name="construction_site_id"
+                      value={editedTask?.construction_site?.construction_site_id || ''}
+                      onChange={handleChange}
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                    >
+                      {constructionSites.map(site => (
+                        <option key={site.construction_site_id} value={site.construction_site_id}>
+                          {site.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="max-h-40 overflow-y-auto border rounded-lg p-2">
+                        {allUsers.map(u => (
+                            <label key={u.user_id} className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={editedTask?.users.some(eu => eu.user_id === u.user_id) || false}
+                                    onChange={() => handleUserToggle(u.user_id)}
+                                />
+                                {u.firstname} {u.lastname}
+                            </label>
+                        ))}
+                    </div>
+
 
                     <div className="flex gap-2 mt-auto">
                       <button

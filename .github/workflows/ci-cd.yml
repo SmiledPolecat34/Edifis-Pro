@@ -4,15 +4,12 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - dev                    # Branche d'intégration principale
-      - dev-backend/**         # Toutes les branches sous dev-backend
-      - dev-frontend/**        # Toutes les branches sous dev-frontend
-      - main                   # Branche de production pour le déploiement
+      - develop # Branche de développement principale
+      - main # Branche de production pour le déploiement
   pull_request:
     branches:
-      - dev
-      - dev-backend/**
-      - dev-frontend/**
+      - develop
+      - main
       # Lance les tests lors de PR vers ces branches
 
 jobs:

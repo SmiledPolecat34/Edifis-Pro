@@ -127,9 +127,9 @@ export default function EditMission() {
               disabled={!canEdit}
             >
               <option value="En cours">En cours</option>
-              <option value="Prévu">Prévu</option>
-              <option value="Terminé">Terminé</option>
-              <option value="Annulé">Annulé</option>
+              <option value="Prévu">Prévue</option>
+              <option value="Terminé">Terminée</option>
+              <option value="Annulé">Annulée</option>
             </select>
           </div>
         </div>

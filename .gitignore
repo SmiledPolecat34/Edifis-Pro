@@ -28,7 +28,7 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
-# dotenv environment variables file
+# fichier d'environnement
 .env
 
 backend/uploads/construction_sites/*

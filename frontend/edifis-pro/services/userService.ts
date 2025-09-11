@@ -13,8 +13,6 @@ export interface User {
   role: RoleType | string | { name: string };
   profile_picture?: string;
   competences?: Competence[];
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 export interface CreateUserPayload {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import TimelineChart from '../../components/timelineChart/TimelineChart';
+import SiteTaskChart from '../../components/siteTaskChart/SiteTaskChart';
 import Badge from '../../components/badge/Badge';
 import StatCard from '../../components/statCard/StatCard';
 import taskService, { Task } from '../../../services/taskService';
@@ -66,6 +66,11 @@ export default function Home() {
   const totalWorkers = workers.length;
   const tasksToDo = tasks.filter(t => t.status === 'Prévu' || t.status === 'En cours').length;
 
+  const siteTaskCounts = sites.map(site => ({
+    name: site.name,
+    taskCount: tasks.filter(task => task.construction_site?.construction_site_id === site.construction_site_id).length,
+  }));
+
   const canViewStats = user?.role?.name && ['Admin', 'Manager', 'HR'].includes(user.role.name);
 
   if (loading) return <p className="text-center text-gray-500 py-10">Chargement...</p>;
@@ -110,35 +115,27 @@ export default function Home() {
       {/* --- Original Layout Structure --- */}
       <div className="grid xl:grid-cols-[7fr_3fr] grid-cols-1 gap-8 h-full">
         <div className="flex flex-col min-h-0">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Chronologie des missions</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Tâches par chantier</h2>
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-grow">
             {tasks.length === 0 ? (
               <p className="text-gray-500 text-sm text-center pt-10">
                 Aucune mission pour le moment.
               </p>
             ) : (
-              <TimelineChart
-                tasks={tasks.map(task => ({
-                  ...task,
-                  id: task.task_id,
-                  title: task.name,
-                  start_date: task.start_date ?? '',
-                  end_date: task.end_date ?? '',
-                }))}
-              />
+              <SiteTaskChart sites={siteTaskCounts} />
             )}
           </div>
         </div>
         <div className="flex flex-col min-h-0">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Vos missions récentes</h2>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-y-auto flex-grow">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-y-auto max-h-96">
             <div className="space-y-4">
               {tasks.length === 0 ? (
                 <p className="text-gray-500 text-sm text-center pt-10">
                   Aucune mission pour le moment.
                 </p>
               ) : (
-                tasks.slice(0, 10).map(task => (
+                tasks.map(task => (
                   <div key={task.task_id} className="border-b border-gray-200 pb-4 last:border-b-0">
                     <div className="flex justify-between items-center flex-wrap mb-2 gap-2">
                       <h3 className="font-semibold text-gray-900">{task.name}</h3>

@@ -23,8 +23,6 @@ const { User, Role } = require('../models');
         profile_picture: null,
         password: hash,
         role_id: adminRole.role_id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
     });
 
