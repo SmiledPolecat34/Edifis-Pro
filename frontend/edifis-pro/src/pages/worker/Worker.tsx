@@ -90,7 +90,7 @@ export default function Workers() {
         <select
           value={roleFilter}
           onChange={e => setRoleFilter(e.target.value)}
-          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
         >
           {roles.map(role => (
             <option key={role} value={role}>

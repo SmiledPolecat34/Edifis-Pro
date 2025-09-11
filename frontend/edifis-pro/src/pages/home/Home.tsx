@@ -96,18 +96,21 @@ export default function Home() {
             title="Chantiers en cours"
             value={activeSites}
             color="bg-blue-500"
+            to="/construction"
           />
           <StatCard
             icon={<Users size={24} className="text-white" />}
             title="Employés actifs"
             value={totalWorkers}
             color="bg-green-500"
+            to="/workers"
           />
           <StatCard
             icon={<ListChecks size={24} className="text-white" />}
             title="Tâches à faire"
             value={tasksToDo}
             color="bg-orange-500"
+            to="/missions"
           />
         </div>
       )}

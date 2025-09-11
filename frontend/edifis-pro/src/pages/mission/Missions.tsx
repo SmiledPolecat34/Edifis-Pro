@@ -50,7 +50,6 @@ export default function Missions() {
         ]);
         setConstructionSites(sites);
         setAllUsers(users);
-
       } catch (err) {
         console.error('[Missions] Erreur API:', err);
         setError('Erreur lors du chargement des missions.');
@@ -81,10 +80,10 @@ export default function Missions() {
     const { name, value } = e.target;
 
     if (name === 'construction_site_id') {
-        const site = constructionSites.find(s => s.construction_site_id === Number(value));
-        setEditedTask({ ...editedTask, construction_site: site });
+      const site = constructionSites.find(s => s.construction_site_id === Number(value));
+      setEditedTask({ ...editedTask, construction_site: site });
     } else {
-        setEditedTask({ ...editedTask, [name]: value });
+      setEditedTask({ ...editedTask, [name]: value });
     }
   };
 
@@ -94,7 +93,7 @@ export default function Missions() {
     const newUsers = currentUsers.includes(userId)
       ? currentUsers.filter(id => id !== userId)
       : [...currentUsers, userId];
-    
+
     const newUsersObjects = allUsers.filter(u => newUsers.includes(u.user_id));
 
     setEditedTask({ ...editedTask, users: newUsersObjects });
@@ -189,7 +188,7 @@ export default function Missions() {
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value as TaskStatus | '')}
-          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
         >
           <option value="">Tous statuts</option>
           <option value="En cours">En cours</option>
@@ -245,14 +244,22 @@ export default function Missions() {
                     <input
                       type="datetime-local"
                       name="start_date"
-                      value={editedTask?.start_date ? new Date(editedTask.start_date).toISOString().slice(0, 16) : ''}
+                      value={
+                        editedTask?.start_date
+                          ? new Date(editedTask.start_date).toISOString().slice(0, 16)
+                          : ''
+                      }
                       onChange={handleChange}
                       className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
                     />
                     <input
                       type="datetime-local"
                       name="end_date"
-                      value={editedTask?.end_date ? new Date(editedTask.end_date).toISOString().slice(0, 16) : ''}
+                      value={
+                        editedTask?.end_date
+                          ? new Date(editedTask.end_date).toISOString().slice(0, 16)
+                          : ''
+                      }
                       onChange={handleChange}
                       className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
                     />
@@ -269,18 +276,19 @@ export default function Missions() {
                       ))}
                     </select>
                     <div className="max-h-40 overflow-y-auto border rounded-lg p-2">
-                        {allUsers.map(u => (
-                            <label key={u.user_id} className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={editedTask?.users.some(eu => eu.user_id === u.user_id) || false}
-                                    onChange={() => handleUserToggle(u.user_id)}
-                                />
-                                {u.firstname} {u.lastname}
-                            </label>
-                        ))}
+                      {allUsers.map(u => (
+                        <label key={u.user_id} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={
+                              editedTask?.users.some(eu => eu.user_id === u.user_id) || false
+                            }
+                            onChange={() => handleUserToggle(u.user_id)}
+                          />
+                          {u.firstname} {u.lastname}
+                        </label>
+                      ))}
                     </div>
-
 
                     <div className="flex gap-2 mt-auto">
                       <button

@@ -116,7 +116,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
             </p>
             <button
               onClick={handleToggleMaintenance}
-              className="text-xs text-orange-600 hover:underline mt-1"
+              className="text-xs text-orange-600 hover:underline mt-1 cursor-pointer"
             >
               Changer
             </button>
@@ -128,7 +128,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
             handleLinkClick(); // Also close nav on logout
           }}
           aria-label="Se déconnecter de votre compte"
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full shadow-sm"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full shadow-sm cursor-pointer"
         >
           <LogOut size={18} />
           <span>Se déconnecter</span>

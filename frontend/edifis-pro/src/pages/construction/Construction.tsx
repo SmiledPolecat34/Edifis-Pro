@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import constructionSiteService from '../../../services/constructionSiteService';
-
 import { useAuth } from '../../context/AuthContext';
-
 import Loading from '../../components/loading/Loading';
 import Badge from '../../components/badge/Badge';
+import { List, LayoutGrid } from 'lucide-react';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 interface ConstructionSite {
   id: number;
   name: string;
   description: string;
-  site: string;
   address: string;
   manager: string;
   status: string;
@@ -20,26 +19,100 @@ interface ConstructionSite {
   image: string;
 }
 
-export default function Home() {
+const GridView = ({ projects }: { projects: ConstructionSite[] }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {projects.map(project => (
+      <div
+        key={project.id}
+        className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300"
+      >
+        <img
+          className="h-48 w-full object-cover rounded-md mb-4"
+          src={project.image}
+          alt={project.name}
+        />
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-bold text-lg text-gray-900 mr-2">{project.name}</h3>
+          {['En cours', 'Terminé', 'Annulé', 'Prévu'].includes(project.status) && (
+            <Badge status={project.status as 'En cours' | 'Terminé' | 'Annulé' | 'Prévu'} />
+          )}
+        </div>
+        <p className="text-sm text-gray-600 mb-4 flex-grow">{project.description}</p>
+        <Link
+          to={`/ConstructionDetails/${project.id}`}
+          className="mt-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
+        >
+          Voir plus
+        </Link>
+      </div>
+    ))}
+  </div>
+);
+
+const ListView = ({ projects }: { projects: ConstructionSite[] }) => (
+  <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <table className="w-full text-sm">
+      <thead className="bg-gray-50">
+        <tr>
+          <th className="px-6 py-3 text-left font-medium text-gray-600">Nom</th>
+          <th className="px-6 py-3 text-left font-medium text-gray-600">Adresse</th>
+          <th className="px-6 py-3 text-left font-medium text-gray-600">Chef de chantier</th>
+          <th className="px-6 py-3 text-left font-medium text-gray-600">Statut</th>
+          <th className="px-6 py-3 text-left font-medium text-gray-600"></th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {projects.map(project => (
+          <tr key={project.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 font-semibold text-gray-900">{project.name}</td>
+            <td className="px-6 py-4 text-gray-700">{project.address}</td>
+            <td className="px-6 py-4 text-gray-700">{project.manager}</td>
+            <td className="px-6 py-4">
+              {['En cours', 'Terminé', 'Annulé', 'Prévu'].includes(project.status) && (
+                <Badge status={project.status as 'En cours' | 'Terminé' | 'Annulé' | 'Prévu'} />
+              )}
+            </td>
+            <td className="px-6 py-4 text-right">
+              <Link
+                to={`/ConstructionDetails/${project.id}`}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-8 px-3 py-1 bg-gray-200 text-gray-800 hover:bg-gray-300"
+              >
+                Voir
+              </Link>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+export default function Construction() {
   const { user } = useAuth();
   const [projects, setProjects] = useState<ConstructionSite[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Tous'); // State for status filter
+  const [statusFilter, setStatusFilter] = useState('Tous');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState('grid'); // 'grid' or 'list'
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const statuses = ['Tous', 'En cours', 'Terminé', 'Annulé', 'Prévu']; // Status options
+  const statuses = ['Tous', 'En cours', 'Terminé', 'Annulé', 'Prévu'];
+
+  useEffect(() => {
+    if (isMobile) {
+      setView('grid');
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     const fetchConstructionSites = async () => {
       try {
         const data = await constructionSiteService.getAll();
-
         const formattedData = data.map(site => ({
           id: site.construction_site_id ?? 0,
           name: site.name ?? '',
           description: site.description ?? '',
-          site: site.adresse ?? '',
           address: site.adresse ?? '',
           manager: String(site.chef_de_projet_id ?? ''),
           status: site.state ?? 'Prévu',
@@ -47,9 +120,8 @@ export default function Home() {
           endDate: site.end_date ?? '',
           image:
             site.image_url ||
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSANsddCLc_2TYdgSqBQVFNutn0FvR6qB7BQg&s', // Image par défaut
+            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSANsddCLc_2TYdgSqBQVFNutn0FvR6qB7BQg&s',
         }));
-
         setProjects(formattedData);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -116,66 +188,24 @@ export default function Home() {
             </option>
           ))}
         </select>
+        <div className="hidden md:flex items-center gap-2 ml-auto">
+          <button onClick={() => setView('grid')} className={`p-2 rounded-md ${view === 'grid' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+            <LayoutGrid size={20} />
+          </button>
+          <button onClick={() => setView('list')} className={`p-2 rounded-md ${view === 'list' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+            <List size={20} />
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProjects.length > 0 ? (
-          filteredProjects.map(project => (
-            <div
-              key={project.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300"
-            >
-              <img
-                className="h-48 w-full object-cover rounded-md mb-4"
-                src={project.image}
-                alt={project.name}
-              />
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-bold text-lg text-gray-900 mr-2">{project.name}</h3>
-                {['En cours', 'Terminé', 'Annulé', 'Prévu'].includes(project.status) && (
-                  <Badge status={project.status as 'En cours' | 'Terminé' | 'Annulé' | 'Prévu'} />
-                )}
-              </div>
-              <p className="text-sm text-gray-600 mb-4 flex-grow">{project.description}</p>
-
-              <div className="border-t border-gray-200 pt-4">
-                <div className="flex flex-col space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-gray-500">Adresse</p>
-                    <p className="text-sm text-gray-800">{project.address}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500">Chef de chantier</p>
-                    <p className="text-sm text-gray-800">{project.manager}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500">Début</p>
-                    <p className="text-sm text-gray-800">
-                      {new Date(project.startDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-500">Fin</p>
-                    <p className="text-sm text-gray-800">
-                      {new Date(project.endDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <Link
-                to={`/ConstructionDetails/${project.id}`}
-                className="mt-4 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
-              >
-                Voir plus
-              </Link>
-            </div>
-          ))
-        ) : (
-          <p className="text-center text-gray-600 col-span-full py-10">
-            Aucun chantier ne correspond à votre recherche.
-          </p>
-        )}
-      </div>
+      {filteredProjects.length > 0 ? (
+        isMobile || view === 'grid' ? <GridView projects={filteredProjects} /> : <ListView projects={filteredProjects} />
+      ) : (
+        <p className="text-center text-gray-600 col-span-full py-10">
+          Aucun chantier ne correspond à votre recherche.
+        </p>
+      )}
     </main>
   );
 }
+
