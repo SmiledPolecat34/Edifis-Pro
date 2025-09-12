@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import userService from '../../services/userService';
@@ -97,6 +97,38 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     navigate('/login');
   };
 
+  const isAuthenticated = !!user;
+
+  useEffect(() => {
+    let inactivityTimer: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        if (isAuthenticated) {
+          logout();
+        }
+      }, 10 * 60 * 1000); // 10 minutes
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
+
+    if (isAuthenticated) {
+      activityEvents.forEach(event => {
+        window.addEventListener(event, resetTimer);
+      });
+      resetTimer();
+    }
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, resetTimer);
+      });
+    };
+  }, [isAuthenticated]);
+
+
   const updateUser = async (updatedUser: any) => {
     try {
       const userIdToUpdate = updatedUser.user_id || (user && user.user_id);
@@ -128,8 +160,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const isAuthenticated = !!user;
-
   return (
     <AuthContext.Provider
       value={{
@@ -149,7 +179,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 };
 
 const useAuth = (): AuthContextType => {
-  const context = React.useContext(AuthContext);
+  const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }

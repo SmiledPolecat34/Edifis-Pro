@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import constructionSiteService from "../../../services/constructionSiteService";
 import userService, { User } from "../../../services/userService";
 import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
@@ -9,82 +9,69 @@ import "react-datepicker/dist/react-datepicker.css";
 registerLocale('fr', fr);
 setDefaultLocale('fr');
 
-export default function AddConstruction() {
+export default function EditConstruction() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [projectChiefs, setProjectChiefs] = useState<User[]>([]);
 
-  // On déclare un état pour tous nos champs
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     adresse: "",
     chef_de_projet_id: "",
-    state: "En cours", // Valeur par défaut
+    state: "En cours",
     start_date: "",
     end_date: "",
   });
 
-  // Image sélectionnée
   const [image, setImage] = useState<File | null>(null);
 
-  // Au chargement, on récupère tous les chefs de projet
   useEffect(() => {
+    const fetchConstructionSite = async () => {
+      try {
+        const siteData = await constructionSiteService.getById(Number(id));
+        setFormData({
+            name: siteData.name,
+            description: siteData.description || "",
+            adresse: siteData.adresse || "",
+            chef_de_projet_id: siteData.chef_de_projet_id?.toString() || "",
+            state: siteData.state || "En cours",
+            start_date: siteData.start_date || "",
+            end_date: siteData.end_date || "",
+        });
+      } catch (error) {
+        console.error("Erreur lors de la récupération du chantier :", error);
+      }
+    };
+
     const fetchProjectChiefs = async () => {
       try {
         const projectChiefsData = await userService.getAllProjectChiefs();
-        console.log('Chefs de projet récupérés :', projectChiefsData);
         setProjectChiefs(projectChiefsData);
       } catch (error) {
         console.error("Erreur lors de la récupération des chefs de projet :", error);
       }
     };
-    fetchProjectChiefs();
-  }, []);
 
-  // Gestion des champs "text", "select", etc.
+    fetchConstructionSite();
+    fetchProjectChiefs();
+  }, [id]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
     let { name, value } = e.target;
-
-    if (name === "name") {
-      // Autorise lettres, chiffres, espaces, tiret, underscore
-      value = value.replace(/[^a-zA-Z0-9\s\-_]/g, "");
-    }
-    if (name === "description") {
-      // Retire < et >
-      value = value.replace(/[<>]/g, "");
-    }
-    if (name === "adresse") {
-      // Autorise lettres, chiffres, espaces, virgule
-      value = value.replace(/[^a-zA-Z0-9\s,]/g, "");
-    }
-
-    // On met à jour l'état
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Gestion du fichier image
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      // Vérifie l’extension
-      const allowedExtensions = ["jpg", "jpeg", "png"];
-      const extension = file.name.split(".").pop()?.toLowerCase();
-      if (extension && allowedExtensions.includes(extension)) {
-        setImage(file);
-      } else {
-        alert("Extension non autorisée. Veuillez sélectionner un fichier JPG, JPEG, ou PNG.");
-      }
+      setImage(e.target.files[0]);
     }
   };
 
-  // Envoi du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -93,11 +80,8 @@ export default function AddConstruction() {
       return;
     }
 
-    // On va créer un objet FormData qui contient toutes les infos
     const formDataToSend = new FormData();
 
-    // On convertit chef_de_projet_id en nombre s’il est renseigné
-    // (sinon, on laisse vide -> NULL)
     const data = {
       ...formData,
       chef_de_projet_id: formData.chef_de_projet_id
@@ -105,28 +89,21 @@ export default function AddConstruction() {
         : undefined,
     };
 
-    // On parcourt l'objet "data" et on ajoute chaque champ à FormData
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         formDataToSend.append(key, String(value));
       }
     });
 
-    // Si on a sélectionné un fichier image, on l’ajoute
     if (image) {
       formDataToSend.append("image", image);
     }
 
-    // Juste pour debug, affiche le contenu de FormData dans la console
-    console.log("FormData envoyé :", Object.fromEntries(formDataToSend));
-
     try {
-      // Appel du service (multipart/form-data)
-      await constructionSiteService.create(formDataToSend);
-      console.log("Chantier ajouté avec succès");
+      await constructionSiteService.update(Number(id), formDataToSend);
       navigate("/construction");
     } catch (error) {
-      console.error("Erreur lors de l'ajout du chantier :", error);
+      console.error("Erreur lors de la mise à jour du chantier :", error);
     }
   };
 
@@ -137,7 +114,7 @@ export default function AddConstruction() {
                 <button onClick={() => navigate(-1)} className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4">
                     Retour
                 </button>
-                <h1 className="text-3xl font-bold text-gray-900">Ajouter un chantier</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Modifier le chantier</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
@@ -209,7 +186,7 @@ export default function AddConstruction() {
 
                 <div className="border-t border-gray-200 pt-6 flex justify-end">
                     <button type="submit" className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 shadow-sm">
-                        Ajouter le chantier
+                        Mettre à jour le chantier
                     </button>
                 </div>
             </form>

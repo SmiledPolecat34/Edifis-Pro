@@ -15,6 +15,21 @@ export default function HelpCenter() {
       answer:
         "Les administrateurs et les managers peuvent créer de nouvelles missions et y assigner des employés. Les chefs de projet peuvent également avoir des droits d'assignation sur leurs chantiers respectifs.",
     },
+    {
+      question: 'Comment voir les détails d\'un chantier ?',
+      answer:
+        "Sur la page des chantiers, cliquez sur le bouton 'Voir plus' d'un chantier pour accéder à sa page de détails, où vous trouverez toutes les informations et les missions associées.",
+    },
+    {
+      question: 'Comment filtrer la liste des missions ?',
+      answer:
+        "Sur la page des missions, vous pouvez utiliser la barre de recherche pour trouver une mission par son nom ou sa description, et utiliser le menu déroulant pour filtrer par statut.",
+    },
+    {
+      question: 'Que signifient les différents statuts de mission ?',
+      answer:
+        "'Prévu': La mission est planifiée mais n'a pas encore commencé. 'En cours': La mission est actuellement en cours de réalisation. 'En attente de validation': La mission est terminée et attend la validation d'un manager. 'Terminé': La mission est terminée et validée. 'Annulé': La mission a été annulée.",
+    },
   ];
 
   return (

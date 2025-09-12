@@ -5,14 +5,20 @@ import constructionService from '../../../services/constructionSiteService'; // 
 import { useNavigate } from 'react-router-dom';
 import { User } from '../../../services/userService';
 import type { TaskStatus } from '../../../services/taskService';
+import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import fr from 'date-fns/locale/fr';
+import "react-datepicker/dist/react-datepicker.css";
+
+registerLocale('fr', fr);
+setDefaultLocale('fr');
 
 export default function CreateTask() {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [status, setStatus] = useState<TaskStatus>('Prévu');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [selectedConstruction, setSelectedConstruction] = useState<number | null>(null);
   const [description, setDescription] = useState('');
@@ -67,7 +73,7 @@ export default function CreateTask() {
       setLoading(false);
       return;
     }
-    if (new Date(startDate) > new Date(endDate)) {
+    if (startDate && endDate && startDate > endDate) {
       setError('La date de début doit être avant la date de fin.');
       setLoading(false);
       return;
@@ -81,8 +87,8 @@ export default function CreateTask() {
         name,
         description,
         status,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDate?.toISOString(),
+        end_date: endDate?.toISOString(),
         construction_site: selectedConstructionObj,
       });
 
@@ -181,22 +187,26 @@ export default function CreateTask() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium text-gray-700">Date de début</label>
-                <input
-                  type="datetime-local"
-                  value={startDate}
-                  onChange={e => setStartDate(e.target.value)}
-                  required
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date: Date) => setStartDate(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
                   className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
+                  minDate={new Date()}
+                  locale="fr"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Date de fin</label>
-                <input
-                  type="datetime-local"
-                  value={endDate}
-                  onChange={e => setEndDate(e.target.value)}
-                  required
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date: Date) => setEndDate(date)}
+                  showTimeSelect
+                  minDate={startDate || new Date()}
+                  dateFormat="Pp"
                   className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
+                  locale="fr"
                 />
               </div>
             </div>

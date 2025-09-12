@@ -27,6 +27,13 @@ const ConstructionSite = sequelize.define(
     tableName: 'construction_site',
     timestamps: false,
     underscored: true,
+    validate: {
+      endDateAfterStartDate() {
+        if (this.end_date && this.start_date && new Date(this.end_date) < new Date(this.start_date)) {
+          throw new Error('End date must be after start date.');
+        }
+      }
+    }
   },
 );
 

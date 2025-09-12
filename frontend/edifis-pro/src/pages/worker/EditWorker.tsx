@@ -213,6 +213,9 @@ export default function EditWorker() {
                     onChange={handleChange}
                     className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
                     required
+                    maxLength={10}
+                    pattern="\d{10}"
+                    title="Le numéro de téléphone doit contenir 10 chiffres."
                   />
                 </div>
               </div>

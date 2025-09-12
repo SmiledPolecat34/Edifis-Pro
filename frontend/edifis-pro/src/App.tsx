@@ -26,6 +26,8 @@ import { ManageCompetences } from "./pages/competence/ManageCompetences";
 import AddCompetence from "./pages/competence/AddCompetence";
 import EditCompetence from "./pages/competence/EditCompetence";
 
+import EditConstruction from "./pages/construction/EditConstruction";
+
 // Static Pages
 import Careers from "./pages/static/Careers";
 import Legal from "./pages/static/Legal";
@@ -88,6 +90,7 @@ function App() {
                     {/* Routes for Admin, Manager */}
                     <Route element={<ProtectedRoute allowedRoles={["Admin", "Manager"]} />}>
                         <Route path="/AddConstruction" element={<AddConstruction />} />
+                        <Route path="/construction/edit/:id" element={<EditConstruction />} />
                     </Route>
 
                     {/* Routes for Admin, Manager, Project_Chief */}

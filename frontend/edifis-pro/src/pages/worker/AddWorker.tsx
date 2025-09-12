@@ -219,6 +219,9 @@ export default function AddWorker() {
                 onChange={handleChange}
                 className="mt-1 block w-full p-2 border rounded-md"
                 required
+                maxLength={10}
+                pattern="\d{10}"
+                title="Le numéro de téléphone doit contenir 10 chiffres."
               />
             </div>
             <div>

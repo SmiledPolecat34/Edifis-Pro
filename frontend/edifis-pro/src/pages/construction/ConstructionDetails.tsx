@@ -1,5 +1,5 @@
 import { useState, useEffect, ChangeEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import constructionSiteService, {
   ConstructionSite,
@@ -265,12 +265,12 @@ export default function ConstructionDetails() {
                   </button>
                 )}
                 {canEdit && (
-                  <button
-                    onClick={() => setIsEditing(true)}
+                  <Link
+                    to={`/construction/edit/${id}`}
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full md:w-auto shadow-sm"
                   >
                     Modifier
-                  </button>
+                  </Link>
                 )}
               </>
             )}

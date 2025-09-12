@@ -4,6 +4,12 @@ import taskService, { Task } from '../../../services/taskService';
 import userService, { User } from '../../../services/userService';
 import Loading from '../../components/loading/Loading';
 import { useAuth } from '../../context/AuthContext';
+import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import fr from 'date-fns/locale/fr';
+import "react-datepicker/dist/react-datepicker.css";
+
+registerLocale('fr', fr);
+setDefaultLocale('fr');
 
 export default function EditMission() {
   const { id } = useParams<{ id: string }>();
@@ -63,6 +69,12 @@ export default function EditMission() {
 
   const handleSave = async () => {
     if (!mission || !canEdit) return;
+
+    if (mission.end_date && mission.start_date && new Date(mission.end_date) < new Date(mission.start_date)) {
+      alert("La date de fin ne peut pas être antérieure à la date de début.");
+      return;
+    }
+
     try {
       await taskService.update(mission.task_id, {
         ...mission,
@@ -149,26 +161,28 @@ export default function EditMission() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="text-sm font-medium text-gray-700">Date de début</label>
-            <input
-              type="datetime-local"
-              name="start_date"
-              value={
-                mission.start_date ? new Date(mission.start_date).toISOString().slice(0, 16) : ''
-              }
-              onChange={handleChange}
+            <DatePicker
+              selected={mission.start_date ? new Date(mission.start_date) : null}
+              onChange={(date: Date) => setMission({ ...mission, start_date: date.toISOString() })}
+              showTimeSelect
+              dateFormat="Pp"
               className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
               disabled={!canEdit}
+              minDate={new Date()}
+              locale="fr"
             />
           </div>
           <div>
             <label className="text-sm font-medium text-gray-700">Date de fin</label>
-            <input
-              type="datetime-local"
-              name="end_date"
-              value={mission.end_date ? new Date(mission.end_date).toISOString().slice(0, 16) : ''}
-              onChange={handleChange}
+            <DatePicker
+              selected={mission.end_date ? new Date(mission.end_date) : null}
+              onChange={(date: Date) => setMission({ ...mission, end_date: date.toISOString() })}
+              showTimeSelect
+              minDate={mission.start_date ? new Date(mission.start_date) : new Date()}
+              dateFormat="Pp"
               className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
               disabled={!canEdit}
+              locale="fr"
             />
           </div>
         </div>
