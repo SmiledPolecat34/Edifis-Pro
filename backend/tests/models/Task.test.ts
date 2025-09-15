@@ -39,7 +39,7 @@ describe('Modèle Task', () => {
     const task = await Task.create({
       name: 'Task with default status',
     });
-    expect(task.status).toBe('Prévu');
+    expect((task as any).status).toBe('Prévu');
   });
 
   it('ne devrait pas créer une tâche avec un statut invalide', async () => {
@@ -59,15 +59,15 @@ describe('Modèle Task', () => {
 
   it("mise à jour d'une tâche", async () => {
     const task = await Task.create({ name: 'Task to update' });
-    task.name = 'Updated Task Name';
+    (task as any).name = 'Updated Task Name';
     await task.save();
-    const updatedTask = await Task.findByPk(task.task_id);
-    expect(updatedTask?.name).toBe('Updated Task Name');
+    const updatedTask = await Task.findByPk((task as any).task_id);
+    expect((updatedTask as any)?.name).toBe('Updated Task Name');
   });
 
   it("suppression d'une tâche", async () => {
     const task = await Task.create({ name: 'Task to delete' });
-    const taskId = task.task_id;
+    const taskId = (task as any).task_id;
     await task.destroy();
     const deletedTask = await Task.findByPk(taskId);
     expect(deletedTask).toBeNull();

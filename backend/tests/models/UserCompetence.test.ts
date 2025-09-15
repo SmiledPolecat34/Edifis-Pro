@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import UserCompetence from "../../models/UserCompetence";
-import { sequelize } from "../../config/sequelize";
+const sequelize = require("../../config/sequelize");
 
 describe("UserCompetence Model", () => {
   beforeAll(async () => {
@@ -20,11 +20,11 @@ describe("UserCompetence Model", () => {
 
     expect(attributes).toHaveProperty("user_id");
     expect(attributes.user_id.primaryKey).toBe(true);
-    expect(attributes.user_id.type.key).toEqual(DataTypes.INTEGER.key);
+    expect(attributes.user_id.type).toBeInstanceOf(DataTypes.INTEGER);
 
     expect(attributes).toHaveProperty("competence_id");
     expect(attributes.competence_id.primaryKey).toBe(true);
-    expect(attributes.competence_id.type.key).toEqual(DataTypes.INTEGER.key);
+    expect(attributes.competence_id.type).toBeInstanceOf(DataTypes.INTEGER);
 
     expect(attributes).toHaveProperty("createdAt");
     expect(attributes).toHaveProperty("updatedAt");
@@ -35,10 +35,10 @@ describe("UserCompetence Model", () => {
       user_id: 1,
       competence_id: 101,
     });
-    expect(userCompetence.user_id).toBe(1);
-    expect(userCompetence.competence_id).toBe(101);
-    expect(userCompetence.createdAt).toBeDefined();
-    expect(userCompetence.updatedAt).toBeDefined();
+    expect((userCompetence as any).user_id).toBe(1);
+    expect((userCompetence as any).competence_id).toBe(101);
+    expect((userCompetence as any).createdAt).toBeDefined();
+    expect((userCompetence as any).updatedAt).toBeDefined();
   });
 
   it("ne devrait pas créer une association en double", async () => {

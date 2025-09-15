@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import User from "../../models/User";
 const Task = require("../../models/Task");
 const taskController = require("../../controllers/task.controller");
 
@@ -263,7 +264,3 @@ describe("Task Controller", () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: "Server error" });
     });
-  });
-});
-  });
-});

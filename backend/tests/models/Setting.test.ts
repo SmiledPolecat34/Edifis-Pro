@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import Setting from "../../models/Setting";
-import { sequelize } from "../../config/sequelize";
+const sequelize = require("../../config/sequelize");
 
 describe("Setting Model", () => {
   beforeAll(async () => {
@@ -21,11 +21,11 @@ describe("Setting Model", () => {
     expect(attributes).toHaveProperty("key");
     expect(attributes.key.primaryKey).toBe(true);
     expect(attributes.key.allowNull).toBe(false);
-    expect(attributes.key.type.key).toEqual(DataTypes.STRING.key);
+    expect(attributes.key.type).toBeInstanceOf(DataTypes.STRING);
 
     expect(attributes).toHaveProperty("value");
     expect(attributes.value.allowNull).toBe(false);
-    expect(attributes.value.type.key).toEqual(DataTypes.STRING.key);
+    expect(attributes.value.type).toBeInstanceOf(DataTypes.STRING);
 
     expect(attributes).toHaveProperty("createdAt");
     expect(attributes).toHaveProperty("updatedAt");
@@ -36,10 +36,10 @@ describe("Setting Model", () => {
       key: "test_key",
       value: "test_value",
     });
-    expect(setting.key).toBe("test_key");
-    expect(setting.value).toBe("test_value");
-    expect(setting.createdAt).toBeDefined();
-    expect(setting.updatedAt).toBeDefined();
+    expect((setting as any).key).toBe("test_key");
+    expect((setting as any).value).toBe("test_value");
+    expect((setting as any).createdAt).toBeDefined();
+    expect((setting as any).updatedAt).toBeDefined();
   });
 
   it("devrait mettre à jour un paramètre existant", async () => {
@@ -55,7 +55,7 @@ describe("Setting Model", () => {
     expect(updatedSetting[0]).toBe(1); // Number of affected rows
 
     const foundSetting = await Setting.findByPk("update_key");
-    expect(foundSetting.value).toBe("new_value");
+    expect((foundSetting as any).value).toBe("new_value");
   });
 
   it("devrait trouver un paramètre par sa clé", async () => {
@@ -66,7 +66,9 @@ describe("Setting Model", () => {
 
     const foundSetting = await Setting.findByPk("find_key");
     expect(foundSetting).toBeDefined();
-    expect(foundSetting.value).toBe("find_value");
+    if (foundSetting) {
+      expect((foundSetting as any).value).toBe("find_value");
+    }
   });
 
   it("ne devrait pas créer un paramètre sans clé", async () => {

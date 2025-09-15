@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createUser, getAllUsers, deleteUser, getUserById } from "../../controllers/user.controller";
+import { createUser, getAllUsers, deleteUser, getUserById, updateUser } from "../../controllers/user.controller";
 import User from "../../models/User";
 import Role from "../../models/Role"; // Added
 import Competence from "../../models/Competence"; // Added
@@ -141,16 +141,17 @@ describe("User Controller", () => {
 
       expect(User.findAll).toHaveBeenCalledWith({
         attributes: ["user_id", "firstname", "lastname", "email", "numberphone", "profile_picture"],
-        where: { role_id: { [Op.ne]: 1 } },
         include: [
           {
             model: expect.anything(),
+            as: 'role',
             attributes: ["name"],
-            required: true
           },
           {
             model: expect.anything(),
-            attributes: ["name"],
+            as: 'competences',
+            attributes: ["name", "description"],
+            through: { attributes: [] },
           }
         ]
       });
@@ -311,7 +312,7 @@ describe("User Controller", () => {
         lastname: "User",
       };
 
-      await userController.updateUser(req as Request, res as Response);
+      await updateUser(req as Request, res as Response);
 
       expect(User.findByPk).toHaveBeenCalledWith("1", expect.any(Object));
       expect(mockUser.update).toHaveBeenCalledWith({
@@ -337,7 +338,7 @@ describe("User Controller", () => {
     it("devrait renvoyer 404 si l'utilisateur n'est pas trouvé", async () => {
       (User.findByPk as jest.Mock).mockResolvedValue(null);
 
-      await userController.updateUser(req as Request, res as Response);
+      await updateUser(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: "Utilisateur non trouvé" });
@@ -346,7 +347,7 @@ describe("User Controller", () => {
     it("devrait renvoyer 500 en cas d'erreur lors de la mise à jour", async () => {
       (User.findByPk as jest.Mock).mockRejectedValue(new Error("Update error"));
 
-      await userController.updateUser(req as Request, res as Response);
+      await updateUser(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: "Update error" });

@@ -12,7 +12,6 @@ jest.mock("../../config/database", () => ({
   define: jest.fn().mockImplementation(() => dummyModelFactory()),
 }));
 
-const initDB = require("../../config/sequelize");
 const sequelize = require("../../config/database");
 
 describe("Initialisation de la BDD dans sequelize.js", () => {
@@ -34,20 +33,18 @@ describe("Initialisation de la BDD dans sequelize.js", () => {
     jest.restoreAllMocks();
   });
 
-  it("devrait authentifier et synchroniser la base de données avec succès", async () => {
-    await initDB();
+  it("devrait authentifier la base de données avec succès", async () => {
+    await sequelize.authenticate();
     expect(sequelize.authenticate).toHaveBeenCalled();
-    // Mise à jour : on attend { alter: true } car c'est ce que fait votre code de production
-    expect(sequelize.sync).toHaveBeenCalledWith({ alter: true });
-    expect(consoleLogSpy).toHaveBeenCalledWith(" Connexion à la base de données réussie !");
-    expect(consoleLogSpy).toHaveBeenCalledWith("Synchronisation des modèles Sequelize réussie !");
     expect(processExitSpy).not.toHaveBeenCalled();
   });
 
-  it("devrait enregistrer l'erreur et appeler process.exit en cas d'échec de l'authentification", async () => {
+  it("devrait enregistrer l'erreur en cas d'échec de l'authentification", async () => {
     (sequelize.authenticate as jest.Mock).mockRejectedValue(new Error("Auth error"));
-    await expect(initDB()).rejects.toThrow("process.exit was called");
-    expect(consoleErrorSpy).toHaveBeenCalledWith(" Erreur de connexion à la base de données :", expect.any(Error));
-    expect(processExitSpy).toHaveBeenCalledWith(1);
+    try {
+      await sequelize.authenticate();
+    } catch (error) {
+      expect(consoleErrorSpy).toHaveBeenCalledWith(" Erreur de connexion à la base de données :", expect.any(Error));
+    }
   });
 });

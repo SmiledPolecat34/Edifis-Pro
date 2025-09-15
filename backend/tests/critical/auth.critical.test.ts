@@ -69,20 +69,17 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
 
   describe("POST /api/users/login", () => {
     it("devrait retourner 200 avec un JWT valide (happy path)", async () => {
-      const userController = require("../../controllers/user.controller");
-      jest.spyOn(userController, "login").mockImplementation((req, res) => {
-        res.status(200).json({ token: "jwt.token" });
-      });
       jest.spyOn(User, "findOne").mockResolvedValue({
         user_id: 1,
-        role: "Admin",
+        role_id: 1,
         password: "hashed",
+        role: { name: 'Admin' }
       } as any);
       jest.spyOn(bcryptjs, "compare").mockResolvedValue(true as any);
       jest.spyOn(jwt, "sign").mockReturnValue("jwt.token" as any);
 
       const res = await request(app)
-        .post("/api/users/login")
+        .post("/api/auth/login")
         .send({ email: "john@example.com", password: "Sup3rPassword!" });
 
       expect(res.status).toBe(200);
@@ -93,7 +90,7 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
       jest.spyOn(User, "findOne").mockResolvedValue(null as any);
 
       const res = await request(app)
-        .post("/api/users/login")
+        .post("/api/auth/login")
         .send({ email: "unknown@example.com", password: "invalid" });
 
       expect(res.status).toBe(401);
@@ -108,7 +105,7 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
       jest.spyOn(bcrypt, "compare").mockResolvedValue(false as any);
 
       const res = await request(app)
-        .post("/api/users/login")
+        .post("/api/auth/login")
         .send({ email: "john@example.com", password: "wrongPassword" });
 
       expect(res.status).toBe(401);

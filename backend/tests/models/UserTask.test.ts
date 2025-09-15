@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import UserTask from "../../models/UserTask";
-import { sequelize } from "../../config/sequelize";
+const sequelize = require("../../config/sequelize");
 
 describe("UserTask Model", () => {
   beforeAll(async () => {
@@ -20,11 +20,11 @@ describe("UserTask Model", () => {
 
     expect(attributes).toHaveProperty("user_id");
     expect(attributes.user_id.primaryKey).toBe(true);
-    expect(attributes.user_id.type.key).toEqual(DataTypes.INTEGER.key);
+    expect(attributes.user_id.type).toBeInstanceOf(DataTypes.INTEGER);
 
     expect(attributes).toHaveProperty("task_id");
     expect(attributes.task_id.primaryKey).toBe(true);
-    expect(attributes.task_id.type.key).toEqual(DataTypes.INTEGER.key);
+    expect(attributes.task_id.type).toBeInstanceOf(DataTypes.INTEGER);
 
     expect(attributes).toHaveProperty("createdAt");
     expect(attributes).toHaveProperty("updatedAt");
@@ -35,10 +35,10 @@ describe("UserTask Model", () => {
       user_id: 1,
       task_id: 101,
     });
-    expect(userTask.user_id).toBe(1);
-    expect(userTask.task_id).toBe(101);
-    expect(userTask.createdAt).toBeDefined();
-    expect(userTask.updatedAt).toBeDefined();
+    expect((userTask as any).user_id).toBe(1);
+    expect((userTask as any).task_id).toBe(101);
+    expect((userTask as any).createdAt).toBeDefined();
+    expect((userTask as any).updatedAt).toBeDefined();
   });
 
   it("ne devrait pas créer une association en double", async () => {

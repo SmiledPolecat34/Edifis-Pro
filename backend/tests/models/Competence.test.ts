@@ -28,31 +28,32 @@ describe("Competence Model", () => {
 
     expect(attributes).toHaveProperty("description");
     expect(attributes.description.allowNull).toBe(true);
-
-    expect(attributes).toHaveProperty("isDeleted");
-    expect(attributes.isDeleted.defaultValue).toBe(false);
-    expect(attributes.isDeleted.allowNull).toBe(false);
-
-    expect(attributes).toHaveProperty("deletedAt");
-    expect(attributes.deletedAt.allowNull).toBe(true);
-
-    expect(attributes).toHaveProperty("createdAt");
-    expect(attributes).toHaveProperty("updatedAt");
   });
 
-  it("devrait créer une compétence", async () => {
+    it("devrait créer une compétence", async () => {
     const competence = await Competence.create({
       name: "JavaScript",
       description: "Programming language",
     });
-    expect(competence.competence_id).toBeDefined();
-    expect(competence.name).toBe("JavaScript");
-    expect(competence.description).toBe("Programming language");
-    expect(competence.isDeleted).toBe(false);
-    expect(competence.deletedAt).toBeNull();
-    expect(competence.createdAt).toBeDefined();
-    expect(competence.updatedAt).toBeDefined();
+    expect((competence as any).competence_id).toBeDefined();
+    expect((competence as any).name).toBe("JavaScript");
+    expect((competence as any).description).toBe("Programming language");
   });
+
+  it("ne devrait pas créer une compétence avec un nom en double", async () => {
+    await Competence.create({ name: "Node.js" });
+    await expect(Competence.create({ name: "Node.js" })).rejects.toThrow();
+  });
+
+  it("devrait supprimer une compétence", async () => {
+    const competence = await Competence.create({ name: "Python" });
+    await (competence as any).destroy();
+
+    const foundCompetence = await Competence.findByPk((competence as any).competence_id);
+    expect(foundCompetence).toBeNull();
+  });
+});
+
 
   it("ne devrait pas créer une compétence avec un nom en double", async () => {
     await Competence.create({ name: "Node.js" });

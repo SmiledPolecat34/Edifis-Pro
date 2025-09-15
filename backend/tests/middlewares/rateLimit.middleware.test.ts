@@ -18,7 +18,7 @@ describe("Rate Limit Middleware", () => {
     req = {
       ip: "127.0.0.1",
       headers: {},
-      connection: { remoteAddress: "127.0.0.1" },
+      connection: { remoteAddress: "127.0.0.1" } as any,
       body: {},
     };
     res = {

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { setUploadType } from "../../middlewares/upload.middleware";
+import multer from 'multer';
 
 // Mock multer's internal fileFilter function
 const mockFileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
