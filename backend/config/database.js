@@ -9,6 +9,12 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   dialect: process.env.DB_DIALECT,
   logging: false,
   port: parseInt(process.env.DB_PORT, 10) || 3306,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
 });
 
 module.exports = sequelize;
