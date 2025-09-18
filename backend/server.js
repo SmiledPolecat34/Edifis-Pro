@@ -54,6 +54,8 @@ app.use(
   }),
 );
 
+app.options('*', cors());
+
 // Middleware pour gérer JSON et formulaires
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -110,10 +112,8 @@ const swaggerOptions = {
       description: "Documentation de l'API pour la plateforme de gestion de chantiers Edifis-Pro",
     },
     servers: [
-      {
-        url: `http://localhost:${process.env.PORT || 5000}`,
-        description: 'Serveur de développement',
-      },
+      { url: `http://localhost:${process.env.PORT || 5000}`, description: 'Développement' },
+      { url: 'https://edifis-pro-1.onrender.com/api', description: 'Production' },
     ],
   },
   apis: ['./routes/*.js'], // Pointe vers les fichiers contenant les annotations
