@@ -3,7 +3,6 @@ const User = require('../models/User');
 const ConstructionSite = require('../models/ConstructionSite');
 const Role = require('../models/Role');
 
-// CRUD identique à `users`
 exports.createTask = async (req, res) => {
   try {
     const { construction_site, ...restOfBody } = req.body;
@@ -26,6 +25,7 @@ exports.createTask = async (req, res) => {
           as: 'users',
           attributes: ['user_id', 'firstname', 'lastname', 'email', 'profile_picture'],
           through: { attributes: [] },
+          task,
         },
         {
           model: User,
@@ -40,6 +40,7 @@ exports.createTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getAllTasks = async (req, res) => {
   try {
     const tasks = await Task.findAll({
@@ -81,6 +82,7 @@ exports.getAllTasks = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getTaskById = async (req, res) => {
   try {
     const task = await Task.findByPk(req.params.id, {
@@ -122,7 +124,7 @@ exports.getTaskById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// task by userid
+
 exports.updateTask = async (req, res) => {
   try {
     const { id } = req.params;
@@ -157,6 +159,7 @@ exports.updateTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.deleteTask = async (req, res) => {
   try {
     const task = await Task.findByPk(req.params.id);
@@ -168,7 +171,7 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// Assigner plusieurs utilisateurs à une tâche
+
 exports.assignUsersToTask = async (req, res) => {
   try {
     const { taskId, userIds } = req.body;
@@ -216,6 +219,7 @@ exports.assignUsersToTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getTasksByUserId = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -257,6 +261,7 @@ exports.getTasksByUserId = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.getTasksByConstructionSite = async (req, res) => {
   try {
     const { siteId } = req.params;

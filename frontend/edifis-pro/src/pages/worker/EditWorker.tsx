@@ -172,7 +172,7 @@ export default function EditWorker() {
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4  cursor-pointer"
           >
             Retour
           </button>
@@ -238,7 +238,7 @@ export default function EditWorker() {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
+                  className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 cursor-pointer"
                 >
                   <option value="Worker">Ouvrier</option>
                   <option value="Project_Chief">Chef de projet</option>
@@ -285,7 +285,7 @@ export default function EditWorker() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm"
+                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
                 >
                   {submitting ? 'Mise à jour...' : "Mettre à jour l'employé"}
                 </button>
@@ -293,7 +293,7 @@ export default function EditWorker() {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 shadow-sm"
+                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 shadow-sm cursor-pointer"
                 >
                   Supprimer l'employé
                 </button>
@@ -302,7 +302,7 @@ export default function EditWorker() {
           </div>
 
           {/* --- Add Competence Form --- */}
-          <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div className="lg:col-span-1 bg-white p-6 rounded-lg shadow-sm border border-gray-200 cursor-pointer ">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Ajouter une compétence</h2>
             <form onSubmit={handleAddCompetence} className="space-y-4">
               <div>
@@ -331,7 +331,7 @@ export default function EditWorker() {
               <div className="border-t border-gray-200 pt-4">
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-60 shadow-sm"
+                  className="w-full inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:opacity-60 shadow-sm cursor-pointer"
                   disabled={addingCompetence}
                 >
                   {addingCompetence ? 'Ajout...' : 'Ajouter la compétence'}

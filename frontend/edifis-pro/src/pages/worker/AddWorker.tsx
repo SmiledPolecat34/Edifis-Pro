@@ -279,7 +279,7 @@ export default function AddWorker() {
               disabled={submitting}
               className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
             >
-              {submitting ? 'Création en cours…' : 'Ajouter'}
+              {submitting ? 'Création en cours…' : 'Ajouter un employé'}
             </button>
           </form>
         </div>
@@ -306,7 +306,7 @@ export default function AddWorker() {
             />
             <button
               type="submit"
-              className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
+              className="w-full text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer"
               disabled={addingCompetence}
             >
               {addingCompetence ? 'Ajout en cours...' : 'Ajouter la compétence'}

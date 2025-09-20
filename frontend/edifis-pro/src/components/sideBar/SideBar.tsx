@@ -41,7 +41,6 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
   const routes = allRoutes.filter(route => user?.role && route.roles.includes(user.role.name));
 
   useEffect(() => {
-    // Fetch initial maintenance status
     apiService
       .get<{ maintenance_mode: boolean }>('/status')
       .then(response => setIsMaintenance(response.maintenance_mode))
@@ -73,7 +72,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
           'translate-x-0': isMobileNavOpen,
           '-translate-x-full': !isMobileNavOpen,
         },
-        'md:translate-x-0', // Always visible on medium screens and up
+        'md:translate-x-0',
       )}
     >
       <div>
@@ -92,7 +91,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
             <NavLink
               to={to}
               key={index}
-              onClick={handleLinkClick} // Close nav on link click
+              onClick={handleLinkClick}
               className={({ isActive }) =>
                 clsx(
                   'flex items-center gap-2 h-9 px-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-colors',
@@ -125,7 +124,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
         <button
           onClick={() => {
             logout();
-            handleLinkClick(); // Also close nav on logout
+            handleLinkClick();
           }}
           aria-label="Se déconnecter de votre compte"
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full shadow-sm cursor-pointer"

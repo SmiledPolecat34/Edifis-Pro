@@ -5,9 +5,9 @@ import constructionService from '../../../services/constructionSiteService'; // 
 import { useNavigate } from 'react-router-dom';
 import { User } from '../../../services/userService';
 import type { TaskStatus } from '../../../services/taskService';
-import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import DatePicker, { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 
 registerLocale('fr', fr);
 setDefaultLocale('fr');
@@ -111,7 +111,7 @@ export default function CreateTask() {
         <div className="flex items-center mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm mr-4  cursor-pointer"
           >
             Retour
           </button>

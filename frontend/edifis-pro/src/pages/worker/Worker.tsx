@@ -157,7 +157,7 @@ export default function Workers() {
                   </Link>
                   <button
                     onClick={() => handleDelete(worker.user_id!)}
-                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                   >
                     Supprimer
                   </button>

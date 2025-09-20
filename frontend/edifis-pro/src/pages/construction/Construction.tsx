@@ -180,7 +180,7 @@ export default function Construction() {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="h-10 w-full md:w-auto rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent cursor-pointer"
         >
           {statuses.map(status => (
             <option key={status} value={status}>
@@ -189,17 +189,27 @@ export default function Construction() {
           ))}
         </select>
         <div className="hidden md:flex items-center gap-2 ml-auto">
-          <button onClick={() => setView('grid')} className={`p-2 rounded-md ${view === 'grid' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+          <button
+            onClick={() => setView('grid')}
+            className={`p-2 cursor-pointer rounded-md ${view === 'grid' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
             <LayoutGrid size={20} />
           </button>
-          <button onClick={() => setView('list')} className={`p-2 rounded-md ${view === 'list' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}>
+          <button
+            onClick={() => setView('list')}
+            className={`p-2 cursor-pointer rounded-md ${view === 'list' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+          >
             <List size={20} />
           </button>
         </div>
       </div>
 
       {filteredProjects.length > 0 ? (
-        isMobile || view === 'grid' ? <GridView projects={filteredProjects} /> : <ListView projects={filteredProjects} />
+        isMobile || view === 'grid' ? (
+          <GridView projects={filteredProjects} />
+        ) : (
+          <ListView projects={filteredProjects} />
+        )
       ) : (
         <p className="text-center text-gray-600 col-span-full py-10">
           Aucun chantier ne correspond à votre recherche.
@@ -208,4 +218,3 @@ export default function Construction() {
     </main>
   );
 }
-

@@ -31,16 +31,16 @@ Role.hasMany(User, { foreignKey: 'role_id', as: 'users' });
 // User <-> Competence (N-N)
 User.belongsToMany(Competence, {
   through: UserCompetence,
-  as: 'competences',
   foreignKey: 'user_id',
   otherKey: 'competence_id',
   as: 'competences',
 });
+
 Competence.belongsToMany(User, {
   through: UserCompetence,
-  as: 'users',
   foreignKey: 'competence_id',
   otherKey: 'user_id',
+  as: 'users',
 });
 
 // User <-> PasswordResetToken (1-N)

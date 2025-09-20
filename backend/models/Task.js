@@ -8,7 +8,7 @@ const Task = sequelize.define(
     name: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.TEXT, allowNull: true },
     status: {
-      type: DataTypes.ENUM('En cours', 'Terminé', 'Annulé', 'Prévu', 'En attente de validation'),
+      type: DataTypes.ENUM('En cours', 'Terminé', 'Annulé', 'Prévu'),
       allowNull: false,
       defaultValue: 'Prévu',
     },
@@ -22,16 +22,29 @@ const Task = sequelize.define(
     timestamps: false,
     underscored: true,
     validate: {
-      endDateAfterStartDate() {
-        if (this.end_date && this.start_date && new Date(this.end_date) < new Date(this.start_date)) {
-          throw new Error('End date must be after start date.');
+      startDateBeforeEndDate() {
+        if (
+          this.start_date &&
+          this.end_date &&
+          new Date(this.start_date) > new Date(this.end_date)
+        ) {
+          throw new Error('Date de début doit être antérieure à la date de fin');
         }
-      }
-    }
-  }
+      },
+      endDateAfterStartDate() {
+        if (
+          this.end_date &&
+          this.start_date &&
+          new Date(this.end_date) < new Date(this.start_date)
+        ) {
+          throw new Error('Date de fin doit être postérieure à la date de début');
+        }
+      },
+    },
+  },
 );
 
-Task.associate = (models) => {
+Task.associate = models => {
   Task.belongsTo(models.ConstructionSite, {
     as: 'constructionSite',
     foreignKey: { name: 'construction_site_id', allowNull: true },
