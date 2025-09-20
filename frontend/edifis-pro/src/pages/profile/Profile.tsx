@@ -125,14 +125,14 @@ export default function Profile() {
           <div className="flex gap-2 w-full sm:w-auto">
             {isEditing && (
               <button
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full sm:w-auto shadow-sm"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full sm:w-auto shadow-sm cursor-pointer"
                 onClick={handleCancel}
               >
                 Annuler
               </button>
             )}
             <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-auto shadow-sm"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-auto shadow-sm cursor-pointer"
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
             >
               {isEditing ? 'Sauvegarder' : 'Modifier le profil'}
@@ -197,7 +197,7 @@ export default function Profile() {
                   accept="image/*"
                   onChange={handleImageChange}
                   disabled={!isEditing}
-                  className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="cursor-pointer mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function Profile() {
                   <button
                     type="submit"
                     disabled={pwLoading}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
                   >
                     {pwLoading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
                   </button>

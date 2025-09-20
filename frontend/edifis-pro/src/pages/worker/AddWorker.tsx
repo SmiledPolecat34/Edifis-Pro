@@ -159,7 +159,7 @@ export default function AddWorker() {
     <main className="min-h-[calc(100dvh-65px)] p-4 bg-gray-100">
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-1 outline-offset-4 disabled:pointer-events-none disabled:opacity-50 bg-slate-200 text-slate-950 hover:bg-slate-300 h-9 px-4 py-2 text-center cursor-pointer"
       >
         Retour
       </button>
@@ -243,7 +243,7 @@ export default function AddWorker() {
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-md"
+                className="mt-1 block w-full p-2 border rounded-md cursor-pointer"
               >
                 <option value="Manager">Manager</option>
                 <option value="HR">RH</option>
@@ -277,7 +277,7 @@ export default function AddWorker() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5"
+              className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer"
             >
               {submitting ? 'Création en cours…' : 'Ajouter un employé'}
             </button>
