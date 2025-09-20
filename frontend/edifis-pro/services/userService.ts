@@ -21,7 +21,7 @@ export interface CreateUserPayload {
   email: string;
   numberphone: string;
   role: RoleType;
-  competences: Competence[];
+  competences: number[]; // tableau d’IDs de compétences
 }
 
 export interface CreateUserResponse {

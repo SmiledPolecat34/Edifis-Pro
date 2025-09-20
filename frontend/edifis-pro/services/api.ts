@@ -1,17 +1,18 @@
 import axios from 'axios';
 
-const env = import.meta.env;
-const rawBase = env?.VITE_API_URL;
-const normalizedBase = (() => {
-  const trimmed = rawBase?.replace(/\/$/, '');
-  return trimmed?.endsWith('/api') ? trimmed : `${trimmed}/api`;
-})();
+const rawBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Supprime le slash final s'il existe
+const trimmed = rawBase.replace(/\/$/, '');
+
+// Force /api à la fin
+const normalizedBase = trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
 
 const api = axios.create({
   baseURL: normalizedBase,
 });
 
-// Middleware pour ajouter automatiquement le token
+// Ajout auto du Bearer token
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
   if (token) {

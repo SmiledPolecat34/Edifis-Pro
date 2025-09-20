@@ -13,7 +13,7 @@ interface UserPayload {
   password?: string;
   numberphone: string;
   role: RoleType;
-  competences: Competence[]; // tableau d’objets Competence, pas seulement d’IDs
+  competences: number[]; // tableau d’IDs de compétences
 }
 
 export default function AddWorker() {
@@ -82,8 +82,8 @@ export default function AddWorker() {
       newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '').toUpperCase();
     } else if (name === 'firstname') {
       newValue = newValue.replace(/[^a-zA-ZÀ-ÖÙ-öù-ÿ-]/g, '');
-    } else if (name === "numberphone") {
-      newValue = newValue.replace(/[^0-9]/g, "");
+    } else if (name === 'numberphone') {
+      newValue = newValue.replace(/[^0-9]/g, '');
     }
 
     setFormData(prev => ({ ...prev, [name]: newValue }));
@@ -129,10 +129,6 @@ export default function AddWorker() {
     setSubmitError(null);
     setSubmitOk(null);
 
-    const selectedCompetences: Competence[] = competences.filter(comp =>
-      formData.competences.includes(comp.competence_id),
-    );
-
     const newUser: UserPayload = {
       firstname: formData.firstname,
       lastname: formData.lastname,
@@ -140,7 +136,7 @@ export default function AddWorker() {
       numberphone: formData.numberphone,
       password: formData.password,
       role: formData.role,
-      competences: selectedCompetences,
+      competences: formData.competences,
     };
 
     try {
@@ -148,11 +144,14 @@ export default function AddWorker() {
       const res = await userService.createUser(newUser);
       setSubmitOk(`Utilisateur créé. Mot de passe provisoire : ${res.tempPassword ?? 'généré'}`);
       navigate('/workers');
-    } catch (err: any) {
-      console.error('createUser error:', err); // va afficher Error: <message du serveur>
-      setSubmitError(err?.message || 'Erreur inconnue.');
-    } finally {
-      setSubmitting(false);
+    } catch (err) {
+      if (err instanceof Error) {
+        console.error('createUser error:', err.message);
+        setSubmitError(err.message);
+      } else {
+        console.error('createUser error:', err);
+        setSubmitError('Erreur inconnue.');
+      }
     }
   };
 
