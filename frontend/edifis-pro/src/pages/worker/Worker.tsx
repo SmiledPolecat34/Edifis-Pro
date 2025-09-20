@@ -25,6 +25,19 @@ export default function Workers() {
     HR: 'Ressources Humaines',
   };
 
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cet employé ?')) return;
+
+    try {
+      await userService.delete(id);
+      setWorkers(prev => prev.filter(w => w.user_id !== id)); // mise à jour de la liste
+      alert('Employé supprimé avec succès.');
+    } catch (err) {
+      console.error('Erreur lors de la suppression:', err);
+      alert('Impossible de supprimer l’employé.');
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     async function fetchWorkers() {
@@ -134,14 +147,20 @@ export default function Workers() {
               </p>
               <div className="flex-grow"></div>
               {canCreate && (
-                <div className="mt-4 w-full">
+                <div className="mt-4 w-full flex gap-2">
                   <Link
                     to={`/workers/edit/${worker.user_id}`}
                     aria-label={`Modifier le profil de ${worker.firstname} ${worker.lastname}`}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 w-full"
+                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300"
                   >
                     Modifier
                   </Link>
+                  <button
+                    onClick={() => handleDelete(worker.user_id!)}
+                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-600 text-white hover:bg-red-700"
+                  >
+                    Supprimer
+                  </button>
                 </div>
               )}
             </div>

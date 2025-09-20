@@ -123,6 +123,19 @@ export default function EditWorker() {
     );
   });
 
+  const handleDelete = async () => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cet employé ?')) return;
+
+    try {
+      await userService.delete(Number(id));
+      alert('Employé supprimé avec succès.');
+      navigate('/workers'); // retour à la liste
+    } catch (err) {
+      console.error('Erreur lors de la suppression:', err);
+      alert('Impossible de supprimer l’employé.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -268,13 +281,21 @@ export default function EditWorker() {
               </div>
               {submitError && <p className="text-red-600 text-sm">{submitError}</p>}
               {submitOk && <p className="text-green-600 text-sm">{submitOk}</p>}
-              <div className="border-t border-gray-200 pt-6">
+              <div className="border-t border-gray-200 pt-6 flex flex-col md:flex-row gap-4">
                 <button
                   type="submit"
                   disabled={submitting}
                   className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm"
                 >
                   {submitting ? 'Mise à jour...' : "Mettre à jour l'employé"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 shadow-sm"
+                >
+                  Supprimer l'employé
                 </button>
               </div>
             </form>
