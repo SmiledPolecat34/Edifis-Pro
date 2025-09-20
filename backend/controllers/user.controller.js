@@ -20,15 +20,14 @@ const logger = require('../config/logger');
 // Inscription (Création de compte avec JWT)
 exports.createUser = async (req, res) => {
   try {
-    const { firstname, lastname, email, password, numberphone, role, role_id } = req.body;
+    const { firstname, lastname, email, password, numberphone, role, role_id, competences } =
+      req.body;
 
-    // Validation simple
     if (!firstname || !lastname || !email || !password) {
       return res.status(400).json({ message: 'Tous les champs obligatoires doivent être fournis' });
     }
 
     let final_role_id = role_id;
-
     if (role && !final_role_id) {
       const role_obj = await Role.findOne({ where: { name: role } });
       if (!role_obj) {
@@ -36,17 +35,11 @@ exports.createUser = async (req, res) => {
       }
       final_role_id = role_obj.role_id;
     }
+    if (!final_role_id) final_role_id = 2; // Worker par défaut
 
-    if (!final_role_id) {
-      final_role_id = 2; // Default to 'Worker'
-    }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Hasher le mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10); // sel de 10
-    // sel qui sert à complexifier le hashage en ajoutant des caractères aléatoires
-    // Plus le sel est élevé, plus le hash est sécurisé, mais cela augmente aussi le temps de calcul.
-
-    // Créer l'utilisateur
+    // 🔹 Créer l’utilisateur
     const newUser = await User.create({
       firstname,
       lastname,
@@ -56,17 +49,28 @@ exports.createUser = async (req, res) => {
       role_id: final_role_id,
     });
 
-    // Ne pas renvoyer le mot de passe
-    const userResponse = {
-      user_id: newUser.user_id,
-      firstname: newUser.firstname,
-      lastname: newUser.lastname,
-      email: newUser.email,
-      numberphone: newUser.numberphone,
-      role_id: newUser.role_id,
-    };
+    // 🔹 Associer les compétences si envoyées
+    if (Array.isArray(competences) && competences.length > 0) {
+      await newUser.setCompetences(competences);
+    }
 
-    res.status(201).json(userResponse);
+    const userResponse = await User.findByPk(newUser.user_id, {
+      attributes: ['user_id', 'firstname', 'lastname', 'email', 'numberphone'],
+      include: [
+        { model: Role, as: 'role', attributes: ['name'] },
+        {
+          model: Competence,
+          as: 'competences',
+          attributes: ['competence_id', 'name', 'description'],
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    res.status(201).json({
+      message: 'Utilisateur créé avec succès',
+      user: userResponse,
+    });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({ message: "L'email existe déjà" });
@@ -250,7 +254,9 @@ exports.updateUser = async (req, res) => {
 
     if (Array.isArray(competences)) {
       if (typeof user.setCompetences === 'function') {
-        const competenceIds = competences.map(c => (typeof c === 'object' && c !== null) ? c.competence_id : c);
+        const competenceIds = competences.map(c =>
+          typeof c === 'object' && c !== null ? c.competence_id : c,
+        );
         await user.setCompetences(competenceIds);
       }
     }
