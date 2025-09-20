@@ -136,7 +136,7 @@ export default function AddWorker() {
       numberphone: formData.numberphone,
       password: formData.password,
       role: formData.role,
-      competences: formData.competences,
+      competences: formData.competences.map(c => (typeof c === 'number' ? c : c.competence_id)), // tableau d’IDs de compétences
     };
 
     try {
@@ -254,7 +254,7 @@ export default function AddWorker() {
             <div>
               <label className="block text-sm font-medium">Compétences</label>
               <div className="mt-1 flex flex-col gap-2 max-h-48 overflow-y-auto">
-                {competences.map(comp => {
+                {competences.map((comp: Competence) => {
                   const isSelected = formData.competences.includes(comp.competence_id);
                   return (
                     <div
@@ -317,8 +317,8 @@ export default function AddWorker() {
             <div className="mt-4 p-2 border rounded bg-blue-50">
               <strong>Compétences sélectionnées :</strong>{' '}
               {competences
-                .filter(comp => formData.competences.includes(comp.competence_id))
-                .map(comp => comp.name)
+                .filter((comp: Competence) => formData.competences.includes(comp.competence_id))
+                .map((comp: Competence) => comp.name)
                 .join(', ')}
             </div>
           )}

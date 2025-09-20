@@ -12,7 +12,6 @@ const { hash } = require('../services/password.service');
       defaults: { name: 'Admin' },
     });
 
-    // ✅ hash avec ta politique globale (bcrypt + BCRYPT_ROUNDS)
     const hashedPassword = await hash('AdminEdifis2025!');
 
     const [user, created] = await User.findOrCreate({
