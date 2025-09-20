@@ -4,7 +4,6 @@ export default function ContactUs() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
-    // Here you would typically handle form submission, e.g., send data to an API.
   };
 
   return (
