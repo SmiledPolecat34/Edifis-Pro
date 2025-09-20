@@ -111,8 +111,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             logout();
           }
         },
-        10 * 60 * 1000,
-      ); // 10 minutes
+        40 * 60 * 1000,
+      ); // 40 minutes
     };
 
     const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
