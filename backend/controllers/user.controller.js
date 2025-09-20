@@ -51,7 +51,10 @@ exports.createUser = async (req, res) => {
 
     // 🔹 Associer les compétences si envoyées
     if (Array.isArray(competences) && competences.length > 0) {
-      await newUser.setCompetences(competences);
+      const competenceIds = competences.map(c =>
+        typeof c === 'object' && c !== null ? c.competence_id : c,
+      );
+      await newUser.setCompetences(competenceIds);
     }
 
     const userResponse = await User.findByPk(newUser.user_id, {
