@@ -1,6 +1,7 @@
 import apiService from './apiService';
 import { ConstructionSite } from './constructionSiteService';
 
+export type TaskStatus = 'Prévu' | 'En cours' | 'Annulé' | 'Terminé' | 'En attente de validation';
 export interface TaskUser {
   user_id: number;
   firstname: string;
@@ -8,8 +9,6 @@ export interface TaskUser {
   email: string;
   profile_picture?: string;
 }
-
-export type TaskStatus = 'Prévu' | 'En cours' | 'Annulé' | 'Terminé' | 'En attente de validation';
 
 export interface Task {
   task_id: number;
@@ -65,11 +64,6 @@ const taskService = {
 
   getByConstructionSiteId: async (siteId: number): Promise<Task[]> => {
     const res = await apiService.get<Task[]>(`/tasks/site/${siteId}`);
-    return res as Task[];
-  },
-
-  getFeed: async (): Promise<Task[]> => {
-    const res = await apiService.get<Task[]>('/tasks/feed');
     return res as Task[];
   },
 };

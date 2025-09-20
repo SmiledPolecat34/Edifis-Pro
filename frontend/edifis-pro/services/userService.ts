@@ -1,4 +1,4 @@
-import apiService from './apiService';
+import api from './api';
 import { Competence } from './competenceService';
 
 type RoleType = 'Admin' | 'Worker' | 'Manager' | 'HR' | 'Project_Chief';
@@ -37,86 +37,90 @@ export interface CreateUserResponse {
   tempPassword?: string;
 }
 
-export interface UpdateUserPayload {
-  firstname?: string;
-  lastname?: string;
-  email?: string;
-  numberphone?: string;
-  role?: RoleType | string;
-  competences?: number[];
-}
-
 const userService = {
   getAllWorkers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/getallworkers');
+    const res = await api.get<User[]>('/users/getallworkers');
+    return res.data;
   },
 
   getAllUsers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/all');
+    const res = await api.get<User[]>('/users/all');
+    return res.data;
   },
 
   getAllManagers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/all/manager');
+    const res = await api.get<User[]>('/users/all/manager');
+    return res.data;
   },
 
   getAllProjectChiefs: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/project-chiefs');
+    const res = await api.get<User[]>('/users/project-chiefs');
+    return res.data;
   },
 
   getDirectory: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/list');
+    const res = await api.get<User[]>('/users/list');
+    return res.data;
   },
 
   getAssignableUsers: async (): Promise<User[]> => {
-    return await apiService.get<User[]>('/users/assignable-to-task');
+    const res = await api.get<User[]>('/users/assignable-to-task');
+    return res.data;
   },
 
-  getById: async (id: number) => {
-    return await apiService.get(`/users/${id}`);
+  getById: async (id: number): Promise<User> => {
+    const res = await api.get<User>(`/users/${id}`);
+    return res.data;
   },
 
-  update: async (id: number, data: Partial<User>) => {
-    return await apiService.put<User>(`/users/${id}`, data);
+  update: async (id: number, data: Partial<User>): Promise<User> => {
+    const res = await api.put<User>(`/users/${id}`, data);
+    return res.data;
   },
 
-  updateUser: async (id: number, data: Partial<User>) => {
-    return await apiService.put<User>(`/users/${id}`, data);
+  updateUser: async (id: number, data: Partial<User>): Promise<User> => {
+    const res = await api.put<User>(`/users/${id}`, data);
+    return res.data;
   },
 
   createUser: async (payload: CreateUserPayload): Promise<CreateUserResponse> => {
-    return await apiService.post<CreateUserResponse>('/users', payload);
+    const res = await api.post<CreateUserResponse>('/users', payload);
+    return res.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    return await apiService.delete(`/users/${id}`);
+    await api.delete(`/users/${id}`);
   },
 
   changePassword: async (payload: {
     currentPassword: string;
     newPassword: string;
   }): Promise<{ message: string }> => {
-    return await apiService.post<{ message: string }>('/users/change-password', payload);
+    const res = await api.post<{ message: string }>('/users/change-password', payload);
+    return res.data;
   },
 
   updatePassword: async (payload: {
     currentPassword: string;
     newPassword: string;
   }): Promise<{ message: string }> => {
-    return await apiService.post<{ message: string }>('/users/update-password', payload);
+    const res = await api.post<{ message: string }>('/users/update-password', payload);
+    return res.data;
   },
 
   uploadProfilePicture: async (file: File): Promise<{ profile_picture: string }> => {
     const formData = new FormData();
     formData.append('profilePicture', file);
-    return await apiService.postForm<{ profile_picture: string }>(
-      '/users/upload-profile',
-      formData,
-    );
+    const res = await api.post<{ profile_picture: string }>('/users/upload-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
   },
 
   suggestEmail: async (firstname: string, lastname: string): Promise<{ email: string }> => {
     const params = new URLSearchParams({ firstname, lastname });
-    return await apiService.get<{ email: string }>(`/users/suggest-email?${params.toString()}`);
+    const res = await api.get<{ email: string }>(`/users/suggest-email?${params.toString()}`);
+    return res.data;
   },
 };
 

@@ -1,18 +1,6 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { LoginData } from '../model/Auth';
-
-const env = import.meta.env;
-
-// Normalize base URL to ensure it contains "/api"
-const rawBase = env?.VITE_API_URL;
-const normalizedBase = (() => {
-  const trimmed = rawBase?.replace(/\/$/, '');
-  return trimmed?.endsWith('/api') ? trimmed : `${trimmed}/api`;
-})();
-
-const api = axios.create({
-  baseURL: normalizedBase,
-});
+import api from './api';
 
 export interface LoginResponse {
   token: string;

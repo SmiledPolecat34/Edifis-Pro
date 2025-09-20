@@ -75,6 +75,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const login = async (token: string) => {
     try {
       localStorage.setItem('token', token);
+
       const decoded = jwtDecode<any>(token);
       const uid = decoded.id || decoded.userId || decoded.user_id || decoded.sub;
 
@@ -104,11 +105,14 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const resetTimer = () => {
       clearTimeout(inactivityTimer);
-      inactivityTimer = setTimeout(() => {
-        if (isAuthenticated) {
-          logout();
-        }
-      }, 10 * 60 * 1000); // 10 minutes
+      inactivityTimer = setTimeout(
+        () => {
+          if (isAuthenticated) {
+            logout();
+          }
+        },
+        10 * 60 * 1000,
+      ); // 10 minutes
     };
 
     const activityEvents = ['mousemove', 'keydown', 'click', 'scroll'];
@@ -127,7 +131,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       });
     };
   }, [isAuthenticated]);
-
 
   const updateUser = async (updatedUser: any) => {
     try {
