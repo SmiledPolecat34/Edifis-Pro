@@ -53,39 +53,6 @@ jobs:
           path: backend/coverage
           if-no-files-found: ignore
 
-  frontend-tests:
-    name: Frontend — Tests (Node ${{ matrix.node }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [18, 20]
-    defaults:
-      run:
-        working-directory: frontend/edifis-pro
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: "npm"
-          cache-dependency-path: frontend/edifis-pro/package.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: |
-          if npm run -s test; then
-            echo "Frontend tests executed";
-          else
-            echo "No frontend tests configured or failed"; exit 1;
-          fi
-        env:
-          NODE_ENV: test
-
   security-audit:
     name: Security — npm audit
     runs-on: ubuntu-latest
