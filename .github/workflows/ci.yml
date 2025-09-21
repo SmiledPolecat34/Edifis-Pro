@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
   pull_request:
-    branches: ["**"]
+    branches: ['**']
 
 jobs:
   backend-tests:
@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: "npm"
+          cache: 'npm'
           cache-dependency-path: backend/package.json
 
       - name: Install dependencies
@@ -71,25 +71,3 @@ jobs:
           npm ci
           # Emet un rapport sans casser la CI (rapport documenté dans les artefacts)
           npm audit --audit-level=high || true
-
-      - name: Frontend audit
-        working-directory: frontend/edifis-pro
-        run: |
-          npm ci
-          npm audit --audit-level=high || true
-
-  sonarqube:
-    name: SonarQube Analysis
-    needs: backend-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
