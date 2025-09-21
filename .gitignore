@@ -31,8 +31,6 @@ jspm_packages/
 # fichier d'environnement
 .env
 
-backend/uploads/construction_sites/*
-backend/uploads/profile_pictures/*
 # IDEs and editors
 .vscode/
 .idea/

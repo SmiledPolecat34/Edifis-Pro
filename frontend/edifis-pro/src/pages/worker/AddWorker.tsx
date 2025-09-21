@@ -277,7 +277,7 @@ export default function AddWorker() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer"
+              className="w-full text-white bg-orange-700 hover:bg-orange-800 disabled:opacity-60 disabled:cursor-not-allowed focus:ring-4 focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer"
             >
               {submitting ? 'Création en cours…' : 'Ajouter un employé'}
             </button>

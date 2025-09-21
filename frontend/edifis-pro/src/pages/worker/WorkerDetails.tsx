@@ -208,7 +208,7 @@ export default function WorkerDetails() {
               className="border border-gray-300 rounded p-1"
             />
           ) : (
-            <a href={`mailto:${worker.email}`} className="text-blue-600 hover:underline">
+            <a href={`mailto:${worker.email}`} className="text-orange-600 hover:underline">
               {worker.email}
             </a>
           )}
@@ -224,7 +224,7 @@ export default function WorkerDetails() {
               className="border border-gray-300 rounded p-1"
             />
           ) : worker.numberphone ? (
-            <a href={`tel:${worker.numberphone}`} className="text-blue-600 hover:underline">
+            <a href={`tel:${worker.numberphone}`} className="text-orange-600 hover:underline">
               {worker.numberphone}
             </a>
           ) : (
@@ -238,7 +238,7 @@ export default function WorkerDetails() {
               name="role"
               value={typeof worker.role === 'string' ? worker.role : worker.role?.name}
               onChange={e => setWorker(prev => (prev ? { ...prev, role: e.target.value } : prev))}
-              className="border border-gray-300 rounded p-1"
+              className="border border-gray-300 rounded p-1 cursor-pointer"
             >
               <option value="Worker">Ouvrier</option>
               <option value="Manager">Chef de projet</option>
@@ -255,7 +255,7 @@ export default function WorkerDetails() {
           <>
             <p>
               <strong>
-                <Link to="/competences" className="underline hover:text-blue-600">
+                <Link to="/competences" className="underline hover:text-orange-600">
                   Compétences
                 </Link>
                 :
@@ -273,7 +273,7 @@ export default function WorkerDetails() {
                           description: c.description ?? 'Pas de description',
                         })
                       }
-                      className="text-sm text-white bg-blue-500 hover:bg-orange-500 rounded-full w-5 h-5 flex items-center justify-center"
+                      className="text-sm text-white bg-orange-500 hover:bg-orange-500 rounded-full w-5 h-5 flex items-center justify-center"
                     >
                       ?
                     </button>
@@ -293,7 +293,7 @@ export default function WorkerDetails() {
                 c => c.competence_id === skill.competence_id,
               );
               return (
-                <label key={skill.competence_id} className="flex items-center gap-2">
+                <label key={skill.competence_id} className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={!!assigned}
@@ -330,7 +330,7 @@ export default function WorkerDetails() {
                 }
                 setIsEditing(!isEditing);
               }}
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition cursor-pointer"
             >
               {isEditing ? 'Enregistrer' : 'Modifier'}
             </button>
@@ -338,7 +338,7 @@ export default function WorkerDetails() {
           {canDelete && (
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer"
             >
               Supprimer
             </button>
