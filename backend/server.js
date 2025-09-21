@@ -24,18 +24,26 @@ const app = express();
 // Middleware de sécurité et logs
 app.use(
   helmet({
+    // Sécuriser les en-têtes HTTP
     contentSecurityPolicy: {
+      // Directives par défaut
       useDefaults: true,
+      // Personnalisation des directives
       directives: {
-        'default-src': ["'self'"],
-        'img-src': ["'self'", 'data:', 'http://localhost:5000'],
+        // Sources autorisées pour le contenu
+        'default-src': ["'self'"], // Autoriser uniquement le même domaine
+        'img-src': ["'self'", 'data:', 'http://localhost:5000'], // Autoriser les images du même domaine, data URIs et localhost
       },
     },
+    // Politique de ressources croisées
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    // Politique de référent
     referrerPolicy: { policy: 'no-referrer' },
+    // Désactiver HSTS en développement pour éviter les problèmes de cache HTTPS
     hsts: process.env.NODE_ENV === 'production' ? undefined : false,
   }),
 );
+
 app.use(morgan('combined', { stream: logger.stream }));
 
 // Configuration CORS (uniquement une fois)
