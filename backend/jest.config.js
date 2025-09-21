@@ -7,5 +7,8 @@ module.exports = {
     "^.+\\.js$": ["ts-jest", { useESM: true }]
   },
   testMatch: ["**/tests/**/*.test.(ts|js)"],
-  setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"]
+  setupFilesAfterEnv: ["<rootDir>/tests/setup.ts"],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/$1'
+  }
 };

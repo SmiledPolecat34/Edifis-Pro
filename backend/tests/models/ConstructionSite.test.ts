@@ -1,22 +1,6 @@
-// Moquer la configuration de la base de données pour utiliser SQLite en mémoire
-jest.mock("../../config/database", () => {
-    const { Sequelize } = require("sequelize");
-    return new Sequelize("sqlite::memory:", { logging: false });
-  });
-  
-  import ConstructionSite from "../../models/ConstructionSite";
-  import sequelize from "../../config/database";
-  
-  describe("ConstructionSite Model", () => {
-    beforeAll(async () => {
-      // Synchronise la base de données (SQLite en mémoire)
-      await sequelize.sync({ force: true });
-    });
-  
-    afterAll(async () => {
-      await sequelize.close();
-    });
-  
+import ConstructionSite from "../../models/ConstructionSite";
+
+describe("ConstructionSite Model", () => {
     it("devrait avoir les attributs corrects", () => {
       const attributes = ConstructionSite.rawAttributes;
   

@@ -1,20 +1,6 @@
-jest.mock("../../config/database", () => {
-    const { Sequelize } = require("sequelize");
-    return new Sequelize("sqlite::memory:", { logging: false });
-  });
-  
 import Role from "../../models/Role";
-import sequelize from "../../config/database";
 
 describe("Role Model", () => {
-  beforeAll(async () => {
-    await sequelize.sync({ force: true });
-  });
-
-  afterAll(async () => {
-    await sequelize.close();
-  });
-
   it("devrait avoir les attributs corrects", () => {
     const attributes = Role.rawAttributes;
 

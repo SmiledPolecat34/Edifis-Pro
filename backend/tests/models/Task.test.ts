@@ -1,21 +1,6 @@
-// Moquer la configuration de la base de données pour utiliser SQLite en mémoire
-jest.mock('../../config/database', () => {
-  const { Sequelize } = require('sequelize');
-  return new Sequelize('sqlite::memory:', { logging: false });
-});
-
 import Task from '../../models/Task';
-import sequelize from '../../config/database';
 
 describe('Modèle Task', () => {
-  beforeAll(async () => {
-    await sequelize.sync({ force: true });
-  });
-
-  afterAll(async () => {
-    await sequelize.close();
-  });
-
   it('devrait créer une tâche', async () => {
     const task = await Task.create({
       name: 'Task Test',
@@ -52,6 +37,8 @@ describe('Modèle Task', () => {
   });
 
   it('récupération de toutes les tâches', async () => {
+    await Task.create({ name: 'Task 1' });
+    await Task.create({ name: 'Task 2' });
     const tasks = await Task.findAll();
     expect(Array.isArray(tasks)).toBe(true);
     expect(tasks.length).toBeGreaterThanOrEqual(2); // Au moins les deux tâches créées précédemment

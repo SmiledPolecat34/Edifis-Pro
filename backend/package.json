@@ -4,7 +4,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "cross-env DISABLE_RATE_LIMIT=true nodemon server.js",
-    "test": "jest --coverage --verbose --detectOpenHandles --forceExit",
+    "test": "cross-env NODE_ENV=test jest --coverage --verbose --detectOpenHandles --forceExit",
     "test:vite": "jest --verbose --detectOpenHandles --forceExit",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,md}\"",

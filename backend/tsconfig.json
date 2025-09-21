@@ -11,6 +11,9 @@
       "forceConsistentCasingInFileNames": true,
       "types": ["node", "jest"],
       "noEmit": true,
+    "paths": {
+      "@/*": ["./*"]
+    },
     },
     "include": ["**/*.ts", "**/*.js", "jest.config.js"],
     // "exclude": [

@@ -7,10 +7,12 @@ import bcrypt from "bcrypt";
 import { Op } from "sequelize";
 
 // Define a minimal mock Request type
-interface MockRequest extends Request {
-  params: { id: string };
-  body: any; // Add other properties as needed by the controller
-  user?: any; // Add if req.user is used
+interface MockRequest extends Partial<Request> {
+  user?: {
+    id?: number;
+    role: string | number;
+    [key: string]: any;
+  };
 }
 
 // On simule les modules externes
@@ -20,7 +22,7 @@ jest.mock("jsonwebtoken");
 
 describe("User Controller", () => {
   describe("createUser", () => {
-    let req: Partial<Request>;
+    let req: MockRequest;
     let res: Partial<Response>;
 
     beforeEach(() => {

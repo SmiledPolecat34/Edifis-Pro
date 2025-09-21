@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-const Competence = require("../../models/Competence");
-const competenceController = require("../../controllers/competence.controller");
+import { Request, Response } from 'express';
+const Competence = require('../../models/Competence');
+const competenceController = require('../../controllers/competence.controller');
 
-describe("Competence Controller", () => {
+describe('Competence Controller', () => {
   let req: Partial<Request>;
   let res: Partial<Response>;
 
@@ -15,9 +15,9 @@ describe("Competence Controller", () => {
     jest.clearAllMocks();
   });
 
-  describe("createCompetence", () => {
-    it("devrait créer une compétence et renvoyer un status 201", async () => {
-      const newCompetence = { name: "Test competence" };
+  describe('createCompetence', () => {
+    it('devrait créer une compétence et renvoyer un status 201', async () => {
+      const newCompetence = { name: 'Test competence' };
       req.body = newCompetence;
       // On simule la méthode create pour renvoyer la nouvelle compétence
       Competence.create = jest.fn().mockResolvedValue(newCompetence);
@@ -30,7 +30,7 @@ describe("Competence Controller", () => {
     });
 
     it("devrait renvoyer une erreur 500 en cas d'échec lors de la création", async () => {
-      const error = new Error("Create error");
+      const error = new Error('Create error');
       Competence.create = jest.fn().mockRejectedValue(error);
       req.body = {};
 
@@ -42,9 +42,12 @@ describe("Competence Controller", () => {
     });
   });
 
-  describe("getAllCompetences", () => {
-    it("devrait renvoyer toutes les compétences", async () => {
-      const competences = [{ id: 1, name: "Compétence1" }, { id: 2, name: "Compétence2" }];
+  describe('getAllCompetences', () => {
+    it('devrait renvoyer toutes les compétences', async () => {
+      const competences = [
+        { id: 1, name: 'Compétence1' },
+        { id: 2, name: 'Compétence2' },
+      ];
       Competence.findAll = jest.fn().mockResolvedValue(competences);
 
       await competenceController.getAllCompetences(req as Request, res as Response);
@@ -54,7 +57,7 @@ describe("Competence Controller", () => {
     });
 
     it("devrait renvoyer une erreur 500 en cas d'échec lors de la récupération", async () => {
-      const error = new Error("Find all error");
+      const error = new Error('Find all error');
       Competence.findAll = jest.fn().mockRejectedValue(error);
 
       await competenceController.getAllCompetences(req as Request, res as Response);
@@ -65,131 +68,135 @@ describe("Competence Controller", () => {
     });
   });
 
-  describe("getCompetenceById", () => {
-    it("devrait renvoyer la compétence si elle est trouvée", async () => {
-      const competence = { id: 1, name: "Compétence1" };
-      req.params = { id: "1" };
+  describe('getCompetenceById', () => {
+    it('devrait renvoyer la compétence si elle est trouvée', async () => {
+      const competence = { id: 1, name: 'Compétence1' };
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockResolvedValue(competence);
 
       await competenceController.getCompetenceById(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.json).toHaveBeenCalledWith(competence);
     });
 
     it("devrait renvoyer un status 404 si la compétence n'est pas trouvée", async () => {
-      req.params = { id: "1" };
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockResolvedValue(null);
 
       await competenceController.getCompetenceById(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "Compétence non trouvée" });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Compétence non trouvée' });
     });
 
     it("devrait renvoyer une erreur 500 en cas d'erreur lors de la récupération", async () => {
-      const error = new Error("Find error");
-      req.params = { id: "1" };
+      const error = new Error('Find error');
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockRejectedValue(error);
 
       await competenceController.getCompetenceById(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
 
-  describe("updateCompetence", () => {
-    it("devrait mettre à jour la compétence si elle est trouvée", async () => {
+  describe('updateCompetence', () => {
+    it('devrait mettre à jour la compétence si elle est trouvée', async () => {
       const competence = {
         id: 1,
-        name: "Ancien nom",
-        update: jest.fn().mockResolvedValue({ id: 1, name: "Nouveau nom" }),
+        name: 'Ancien nom',
+        update: jest.fn().mockResolvedValue({ id: 1, name: 'Nouveau nom' }),
       };
-      req.params = { id: "1" };
-      req.body = { name: "Nouveau nom" };
+      req.params = { id: '1' };
+      req.body = { name: 'Nouveau nom' };
       Competence.findByPk = jest.fn().mockResolvedValue(competence);
 
       await competenceController.updateCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(competence.update).toHaveBeenCalledWith(req.body);
       expect(res.json).toHaveBeenCalledWith(competence);
     });
 
     it("devrait renvoyer un status 404 si la compétence n'est pas trouvée", async () => {
-      req.params = { id: "1" };
-      req.body = { name: "Nouveau nom" };
+      req.params = { id: '1' };
+      req.body = { name: 'Nouveau nom' };
       Competence.findByPk = jest.fn().mockResolvedValue(null);
 
       await competenceController.updateCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "Compétence non trouvée" });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Compétence non trouvée' });
     });
 
     it("devrait renvoyer une erreur 500 en cas d'erreur lors de la mise à jour", async () => {
-      const error = new Error("Update error");
-      req.params = { id: "1" };
-      req.body = { name: "Nouveau nom" };
+      const error = new Error('Update error');
+      req.params = { id: '1' };
+      req.body = { name: 'Nouveau nom' };
       Competence.findByPk = jest.fn().mockRejectedValue(error);
 
       await competenceController.updateCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
 
-  describe("deleteCompetence", () => {
-    it("devrait supprimer la compétence si elle est trouvée", async () => {
-      const competence = { id: 1, name: "Compétence1", destroy: jest.fn().mockResolvedValue(undefined) };
-      req.params = { id: "1" };
+  describe('deleteCompetence', () => {
+    it('devrait supprimer la compétence si elle est trouvée', async () => {
+      const competence = {
+        id: 1,
+        name: 'Compétence1',
+        destroy: jest.fn().mockResolvedValue(undefined),
+      };
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockResolvedValue(competence);
 
       await competenceController.deleteCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(competence.destroy).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({ message: "Compétence supprimée" });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Compétence supprimée' });
     });
 
     it("devrait renvoyer un status 404 si la compétence n'est pas trouvée", async () => {
-      req.params = { id: "1" };
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockResolvedValue(null);
 
       await competenceController.deleteCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(404);
-      expect(res.json).toHaveBeenCalledWith({ message: "Compétence non trouvée" });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Compétence non trouvée' });
     });
 
     it("devrait renvoyer une erreur 500 en cas d'erreur lors de la suppression", async () => {
-      const error = new Error("Delete error");
-      req.params = { id: "1" };
+      const error = new Error('Delete error');
+      req.params = { id: '1' };
       Competence.findByPk = jest.fn().mockRejectedValue(error);
 
       await competenceController.deleteCompetence(req as Request, res as Response);
 
-      expect(Competence.findByPk).toHaveBeenCalledWith("1");
+      expect(Competence.findByPk).toHaveBeenCalledWith('1');
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: error.message });
     });
   });
 
-  describe("getCategories", () => {
-    it("devrait renvoyer les catégories uniques", async () => {
+  describe('getCategories', () => {
+    it('devrait renvoyer les catégories uniques', async () => {
       const mockCategories = [
-        { category: "Category A" },
-        { category: "Category B" },
-        { category: "Category A" },
+        { category: 'Category A' },
+        { category: 'Category B' },
+        { category: 'Category A' },
         { category: null },
-        { category: "" },
+        { category: '' },
       ];
       Competence.findAll = jest.fn().mockResolvedValue(mockCategories);
 
@@ -199,13 +206,13 @@ describe("Competence Controller", () => {
         attributes: ['category'],
         where: { isDeleted: false },
         group: ['category'],
-        order: [['category', 'ASC']]
+        order: [['category', 'ASC']],
       });
-      expect(res.json).toHaveBeenCalledWith(["Category A", "Category B"]);
+      expect(res.json).toHaveBeenCalledWith(['Category A', 'Category B']);
     });
 
     it("devrait renvoyer une erreur 500 en cas d'erreur lors de la récupération des catégories", async () => {
-      const error = new Error("Category retrieval error");
+      const error = new Error('Category retrieval error');
       Competence.findAll = jest.fn().mockRejectedValue(error);
 
       await competenceController.getCategories(req as Request, res as Response);
@@ -215,8 +222,8 @@ describe("Competence Controller", () => {
     });
   });
 
-  describe("getLevels", () => {
-    it("devrait renvoyer les niveaux de compétence prédéfinis", async () => {
+  describe('getLevels', () => {
+    it('devrait renvoyer les niveaux de compétence prédéfinis', async () => {
       await competenceController.getLevels(req as Request, res as Response);
 
       expect(res.json).toHaveBeenCalledWith(['Beginner', 'Intermediate', 'Advanced', 'Expert']);
@@ -226,15 +233,15 @@ describe("Competence Controller", () => {
       // Simuler une erreur en forçant une exception dans le contrôleur
       // Note: C'est un cas limite car la fonction est très simple et ne devrait pas échouer
       const originalJson = res.json;
-      res.json = jest.fn(() => { throw new Error("Forced error"); });
+      res.json = jest.fn(() => {
+        throw new Error('Forced error');
+      });
 
       await competenceController.getLevels(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({ error: "Forced error" });
+      expect(res.json).toHaveBeenCalledWith({ error: 'Forced error' });
       res.json = originalJson; // Restore original json function
     });
-  });
-});
   });
 });

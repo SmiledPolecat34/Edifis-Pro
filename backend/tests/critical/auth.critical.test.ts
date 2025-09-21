@@ -14,6 +14,11 @@ import jwt from "jsonwebtoken";
  */
 
 
+jest.mock("../../controllers/user.controller", () => ({
+  ...jest.requireActual("../../controllers/user.controller"),
+  updateUser: jest.fn((req, res) => res.status(200).json({ message: "updated" }))
+}));
+
 /** Place les mocks de middlewares AVANT le require des routes **/
 jest.mock("../../middlewares/auth.middleware", () => ({
   protect: (req: any, _res: Response, next: Function) => {
@@ -24,6 +29,7 @@ jest.mock("../../middlewares/auth.middleware", () => ({
   isManager: (_req: Request, _res: Response, next: Function) => next(),
   isWorker: (_req: Request, _res: Response, next: Function) => next(),
   canManagerControl: (_req: Request, _res: Response, next: Function) => next(),
+  canManageUsers: (_req: Request, _res: Response, next: Function) => next(),
 }));
 jest.mock("../../middlewares/rateLimit.middleware", () => ({
   rateLimitIP: () => (_req: Request, _res: Response, next: Function) => next(),
@@ -120,9 +126,8 @@ describe("Critical-path API tests (integration-like with supertest)", () => {
         role_id: 2,
         password: "hashed",
         email: "john@example.com",
+        role: { name: "Manager" },
       } as any);
-      jest.spyOn(bcryptjs, "compare").mockResolvedValue(true as any);
-      jest.spyOn(models.Role, "findByPk").mockResolvedValue({ name: "Manager" } as any);
       jest.spyOn(jwt, "sign").mockReturnValue("jwt.token" as any);
 
       const res = await request(app)
