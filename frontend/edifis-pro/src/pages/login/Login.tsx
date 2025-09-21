@@ -123,7 +123,7 @@ export default function Login() {
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700"
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 cursor-pointer"
                         onClick={() => setShowPassword(!showPassword)}
                         aria-label={
                           showPassword ? 'Cacher le mot de passe' : 'Afficher le mot de passe'
@@ -138,7 +138,7 @@ export default function Login() {
                     </div>
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     <button
-                      className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm cursor-pointer"
                       disabled={isDisabled()}
                     >
                       {loading ? 'Connexion...' : 'Se connecter'}

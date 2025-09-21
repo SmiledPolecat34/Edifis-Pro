@@ -60,6 +60,13 @@ app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const fs = require('fs');
+
+// Vérifie que le dossier existe sinon le crée
+const uploadDir = path.join(__dirname, 'uploads/profile_pictures');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 app.use(
   '/uploads/profile_pictures',
   (req, res, next) => {
