@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
 const Task = sequelize.define(
   'Task',
@@ -11,6 +11,9 @@ const Task = sequelize.define(
       type: DataTypes.ENUM('En cours', 'Terminé', 'Annulé', 'Prévu'),
       allowNull: false,
       defaultValue: 'Prévu',
+      validate: {
+        isIn: [['En cours', 'Terminé', 'Annulé', 'Prévu']],
+      },
     },
     creation_date: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     start_date: { type: DataTypes.DATE, allowNull: true },

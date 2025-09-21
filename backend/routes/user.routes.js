@@ -43,4 +43,10 @@ router.post(
     userController.updateProfilePicture
 );
 
+router.post(
+    "/change-password",
+    protect,
+    userController.changePassword
+);
+
 module.exports = router;

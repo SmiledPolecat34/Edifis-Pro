@@ -1,8 +1,8 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
 const UserTask = sequelize.define(
-  "UserTask",
+  'UserTask',
   {
     user_id: {
       type: DataTypes.INTEGER,
@@ -16,9 +16,9 @@ const UserTask = sequelize.define(
     },
   },
   {
-    tableName: "user_tasks",
+    tableName: 'user_tasks',
     timestamps: false,
-  }
+  },
 );
 
 module.exports = UserTask;

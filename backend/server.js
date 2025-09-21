@@ -8,7 +8,7 @@ const logger = require('./config/logger');
 const roleRoutes = require('./routes/role.routes');
 
 // Use the same Sequelize instance as models to ensure sync/queries align
-const sequelize = require('./config/database');
+const sequelize = require('./config/sequelize');
 require('./models'); // Assurez-vous que les modèles sont chargés
 const routes = require('./routes');
 const statusRoutes = require('./routes/status.routes'); // Import status routes

@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
 const User = sequelize.define(
   'User',
@@ -13,8 +13,8 @@ const User = sequelize.define(
       allowNull: false,
       validate: {
         isNumeric: true,
-        len: [10, 10]
-      }
+        len: [10, 10],
+      },
     },
     profile_picture: { type: DataTypes.STRING, allowNull: true },
     password: { type: DataTypes.STRING, allowNull: false },

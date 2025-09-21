@@ -1,5 +1,5 @@
 const { DataTypes, STRING } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/sequelize');
 
 const ConstructionSite = sequelize.define(
   'ConstructionSite',
@@ -13,6 +13,9 @@ const ConstructionSite = sequelize.define(
     state: {
       type: DataTypes.ENUM('En cours', 'Terminé', 'Annulé', 'Prévu'),
       allowNull: false,
+      validate: {
+        isIn: [['En cours', 'Terminé', 'Annulé', 'Prévu']],
+      },
     },
     description: { type: DataTypes.TEXT },
     adresse: { type: DataTypes.STRING },
@@ -29,11 +32,15 @@ const ConstructionSite = sequelize.define(
     underscored: true,
     validate: {
       endDateAfterStartDate() {
-        if (this.end_date && this.start_date && new Date(this.end_date) < new Date(this.start_date)) {
+        if (
+          this.end_date &&
+          this.start_date &&
+          new Date(this.end_date) < new Date(this.start_date)
+        ) {
           throw new Error('End date must be after start date.');
         }
-      }
-    }
+      },
+    },
   },
 );
 

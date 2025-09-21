@@ -1,8 +1,8 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/database");
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
 
 const UserCompetence = sequelize.define(
-  "UserCompetence",
+  'UserCompetence',
   {
     user_id: {
       type: DataTypes.INTEGER,
@@ -14,9 +14,9 @@ const UserCompetence = sequelize.define(
     },
   },
   {
-    tableName: "user_competences",
+    tableName: 'user_competences',
     timestamps: false,
-  }
+  },
 );
 
 module.exports = UserCompetence;
