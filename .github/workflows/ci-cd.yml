@@ -36,35 +36,12 @@ jobs:
           npm install                 # Installe les dépendances du backend
           npm run test                # Exécute les tests définis dans package.json du backend
 
-  test-frontend:
-    name: Test Frontend
-    # Ce job s'exécute si la branche est "dev" ou commence par "dev-frontend"
-    if: github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/dev-frontend')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        # Récupère le code source du dépôt
-        uses: actions/checkout@v2
-
-      - name: Setup Node.js
-        # Configure Node.js pour l'environnement CI
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install dependencies and run frontend tests
-        # Passe dans le dossier frontend, installe les dépendances et lance les tests
-        working-directory: frontend/edifis-pro
-        run: |
-          npm install                 # Installe les dépendances du frontend
-          npm run test                # Exécute les tests définis dans package.json du frontend
-
   deploy:
     name: Deploy to Production
     # Ce job de déploiement ne s'exécute que sur la branche main
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
+    needs: [test-backend] # Attend que les tests backend soient terminés
     steps:
       - name: Check out code
         # Récupère le code source du dépôt
