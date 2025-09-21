@@ -14,13 +14,15 @@
 - [✨ Fonctionnalités clés](#-fonctionnalités-clés)
 - [🏛️ Architecture](#️-architecture)
 - [🛠️ Stack Technique](#️-stack-technique)
+- [📋 Prérequis](#-prérequis)
 - [🚀 Démarrage Rapide](#-démarrage-rapide)
   - [Avec Docker (Recommandé)](#avec-docker-recommandé)
   - [Manuellement (Pour le développement)](#manuellement-pour-le-développement)
+- [📜 Scripts Disponibles](#-scripts-disponibles)
 - [🔧 Variables d'environnement](#-variables-denvironnement)
 - [🧪 Lancer les tests](#-lancer-les-tests)
-
----
+- [🤝 Contribution](#-contribution)
+- [📄 Licence](#-licence)
 
 ## 🎯 Objectif du projet
 
@@ -58,7 +60,6 @@ L'ensemble de l'application est conteneurisable avec **Docker**, facilitant le d
 ## 🛠️ Stack Technique
 
 ### Backend
-
 - **Langage** : JavaScript (Node.js)
 - **Framework** : Express.js
 - **Base de données** : PostgreSQL (ou autre SGBD compatible Sequelize)
@@ -67,7 +68,6 @@ L'ensemble de l'application est conteneurisable avec **Docker**, facilitant le d
 - **Authentification** : JSON Web Tokens (JWT)
 
 ### Frontend
-
 - **Langage** : TypeScript
 - **Framework** : React
 - **Outil de build** : Vite
@@ -75,9 +75,18 @@ L'ensemble de l'application est conteneurisable avec **Docker**, facilitant le d
 - **Client API** : Axios (ou `fetch`)
 
 ### DevOps
-
 - **Conteneurisation** : Docker, Docker Compose
 - **Intégration Continue (CI/CD)** : GitHub Actions
+
+---
+
+## 📋 Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre système :
+
+- [Node.js](https://nodejs.org/) (v18.x ou v20.x recommandée)
+- [Docker](https://www.docker.com/products/docker-desktop/) et Docker Compose
+- [Git](https://git-scm.com/)
 
 ---
 
@@ -88,25 +97,23 @@ L'ensemble de l'application est conteneurisable avec **Docker**, facilitant le d
 C'est la méthode la plus simple pour lancer l'ensemble du projet.
 
 1.  **Clonez le dépôt :**
-
     ```bash
     git clone https://github.com/votre-utilisateur/Edifis-Pro.git
     cd Edifis-Pro
     ```
 
 2.  **Configurez les variables d'environnement :**
-    - Copiez `.env.example` en `.env` à la racine du projet, dans `backend/` et dans `frontend/edifis-pro/`.
-    - Remplissez les fichiers `.env` avec les informations nécessaires (voir la section [Variables d'environnement](#-variables-denvironnement)).
+    -   Copiez `.env.example` en `.env` à la racine du projet, dans `backend/` et dans `frontend/edifis-pro/`.
+    -   Remplissez les fichiers `.env` avec les informations nécessaires (voir la section [Variables d'environnement](#-variables-denvironnement)).
 
 3.  **Lancez les conteneurs :**
-
     ```bash
     docker-compose up --build
     ```
 
 4.  **Accédez à l'application :**
-    - Le frontend sera disponible sur `http://localhost:5173` (ou le port que vous avez configuré).
-    - Le backend sera disponible sur `http://localhost:5000`.
+    -   Le frontend sera disponible sur `http://localhost:5173` (ou le port que vous avez configuré).
+    -   Le backend sera disponible sur `http://localhost:3000`.
 
 ### Manuellement (Pour le développement)
 
@@ -141,6 +148,32 @@ C'est la méthode la plus simple pour lancer l'ensemble du projet.
     ```bash
     npm run dev
     ```
+
+---
+
+## 📜 Scripts Disponibles
+
+Des scripts sont disponibles via `npm` pour automatiser les tâches de développement courantes.
+
+### Backend (`backend/package.json`)
+
+| Script              | Description                                                              |
+|---------------------|--------------------------------------------------------------------------|
+| `npm start`         | Lance le serveur en mode production.                                     |
+| `npm run dev`       | Lance le serveur en mode développement avec `nodemon` pour le rechargement auto. |
+| `npm test`          | Exécute la suite de tests avec Jest.                                     |
+| `npm run test:coverage` | Exécute les tests et génère un rapport de couverture du code.            |
+| `npm run seed`      | Peuple la base de données avec des données de test initiales.            |
+
+### Frontend (`frontend/edifis-pro/package.json`)
+
+| Script          | Description                                                              |
+|-----------------|--------------------------------------------------------------------------|
+| `npm run dev`   | Lance le serveur de développement Vite avec rechargement à chaud.        |
+| `npm run build` | Vérifie les types TypeScript et compile l'application pour la production. |
+| `npm run lint`  | Analyse le code source avec ESLint pour trouver les erreurs de style.     |
+| `npm run preview`| Sert localement le build de production pour aperçu.                      |
+| `npm test`      | Exécute les tests du frontend avec Jest.                                 |
 
 ---
 
