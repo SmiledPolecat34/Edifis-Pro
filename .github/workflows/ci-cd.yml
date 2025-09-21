@@ -15,8 +15,8 @@ on:
 jobs:
   test-backend:
     name: Test Backend
-    # Ce job s'exécute si la branche est "dev" ou commence par "dev-backend"
-    if: github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/dev-backend')
+    # Ce job s'exécute si la branche est "develop"
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

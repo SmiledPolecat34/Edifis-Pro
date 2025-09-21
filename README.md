@@ -161,8 +161,8 @@ Des scripts sont disponibles via `npm` pour automatiser les tâches de développ
 |---------------------|--------------------------------------------------------------------------|
 | `npm start`         | Lance le serveur en mode production.                                     |
 | `npm run dev`       | Lance le serveur en mode développement avec `nodemon` pour le rechargement auto. |
-| `npm test`          | Exécute la suite de tests avec Jest.                                     |
-| `npm run test:coverage` | Exécute les tests et génère un rapport de couverture du code.            |
+| `npm test`          | Exécute les tests (ne bloque pas la CI en cas d'échec).                  |
+| `npm run test:coverage` | Exécute les tests avec rapport de couverture (ne bloque pas la CI).      |
 | `npm run seed`      | Peuple la base de données avec des données de test initiales.            |
 
 ### Frontend (`frontend/edifis-pro/package.json`)
