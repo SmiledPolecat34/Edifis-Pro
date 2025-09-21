@@ -20,8 +20,6 @@
   - [Manuellement (Pour le développement)](#manuellement-pour-le-développement)
 - [🔧 Variables d'environnement](#-variables-denvironnement)
 - [🧪 Lancer les tests](#-lancer-les-tests)
-- [🤝 Contribution](#-contribution)
-- [📄 Licence](#-licence)
 
 ---
 
