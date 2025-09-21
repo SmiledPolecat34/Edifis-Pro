@@ -193,7 +193,7 @@ export default function AddConstruction() {
                 name="chef_de_projet_id"
                 value={formData.chef_de_projet_id}
                 onChange={handleChange}
-                className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-orange-500 focus:border-orange-500 cursor-pointer"
               >
                 <option value="">
                   {projectChiefs.length

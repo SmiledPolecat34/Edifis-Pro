@@ -221,7 +221,7 @@ export default function Missions() {
                       name="name"
                       value={editedTask?.name || ''}
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
                     />
                     <textarea
                       name="description"
@@ -233,7 +233,7 @@ export default function Missions() {
                       name="status"
                       value={editedTask?.status || ''}
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
                     >
                       <option value="En cours">En cours</option>
                       <option value="En attente de validation">En attente de validation</option>
@@ -250,7 +250,7 @@ export default function Missions() {
                           : ''
                       }
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
                     />
                     <input
                       type="datetime-local"
@@ -261,13 +261,13 @@ export default function Missions() {
                           : ''
                       }
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
                     />
                     <select
                       name="construction_site_id"
                       value={editedTask?.construction_site?.construction_site_id || ''}
                       onChange={handleChange}
-                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                      className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm cursor-pointer"
                     >
                       {constructionSites.map(site => (
                         <option key={site.construction_site_id} value={site.construction_site_id}>
@@ -277,7 +277,7 @@ export default function Missions() {
                     </select>
                     <div className="max-h-40 overflow-y-auto border rounded-lg p-2">
                       {allUsers.map(u => (
-                        <label key={u.user_id} className="flex items-center gap-2">
+                        <label key={u.user_id} className="flex items-center gap-2 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={
@@ -294,7 +294,7 @@ export default function Missions() {
                       <button
                         onClick={handleSave}
                         aria-label="Sauvegarder les modifications de la mission"
-                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm cursor-pointer"
                       >
                         Sauvegarder
                       </button>
@@ -304,7 +304,7 @@ export default function Missions() {
                           setEditedTask(null);
                         }}
                         aria-label="Annuler la modification"
-                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm cursor-pointer"
                       >
                         Annuler
                       </button>
@@ -372,7 +372,7 @@ export default function Missions() {
                         <button
                           onClick={() => handleRequestValidation(task)}
                           aria-label={`Demander la validation pour la mission ${task.name}`}
-                          className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 shadow-sm"
+                          className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-blue-500 text-white hover:bg-orange-500 shadow-sm"
                         >
                           Terminer (demande de validation)
                         </button>
@@ -387,14 +387,14 @@ export default function Missions() {
                               <button
                                 onClick={() => handleConfirmValidation(task)}
                                 aria-label={`Confirmer la mission ${task.name}`}
-                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-green-500 text-white hover:bg-green-600 shadow-sm"
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-green-500 text-white hover:bg-green-600 shadow-sm cursor-pointer"
                               >
                                 Confirmer
                               </button>
                               <button
                                 onClick={() => handleRejectValidation(task)}
                                 aria-label={`Rejeter la mission ${task.name}`}
-                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 shadow-sm"
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 shadow-sm cursor-pointer"
                               >
                                 Rejeter
                               </button>
@@ -407,7 +407,7 @@ export default function Missions() {
                               <button
                                 onClick={() => handleStatusUpdate(task, 'Terminé')}
                                 aria-label={`Terminer la mission ${task.name}`}
-                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-green-500 text-white hover:bg-green-600 shadow-sm"
+                                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-green-500 text-white hover:bg-green-600 shadow-sm cursor-pointer"
                               >
                                 Terminer
                               </button>
@@ -419,14 +419,14 @@ export default function Missions() {
                               setEditedTask(task);
                             }}
                             aria-label={`Modifier la mission ${task.name}`}
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm"
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm cursor-pointer"
                           >
                             Modifier
                           </button>
                           <button
                             onClick={() => handleDelete(task.task_id)}
                             aria-label={`Supprimer la mission ${task.name}`}
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-500 text-white hover:bg-red-600 shadow-sm"
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-500 text-white hover:bg-red-600 shadow-sm cursor-pointer"
                           >
                             Supprimer
                           </button>

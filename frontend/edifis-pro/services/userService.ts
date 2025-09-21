@@ -112,7 +112,11 @@ const userService = {
     const formData = new FormData();
     formData.append('profilePicture', file);
     const res = await api.post<{ profile_picture: string }>('/users/upload-profile', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Accept: 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
     });
     return res.data;
   },
