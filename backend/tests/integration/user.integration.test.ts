@@ -1,15 +1,13 @@
 import request from 'supertest';
-import app from '../../server'; // Adjust path as needed
-import sequelize from '../../config/sequelize';
+import app from '../../server';
+import { sequelize } from '../../models'; // Import sequelize instance
 import { User, Role } from '../../models';
 import * as authMiddleware from '../../middlewares/auth.middleware'; // Import auth middleware
 import * as roleMiddleware from '../../middlewares/role.middleware'; // Import role middleware
 
 describe('User Integration Tests', () => {
   beforeAll(async () => {
-    // Mock any necessary models or services here
-    // For example, if you need a user to be logged in for these tests,
-    // you might mock User.findByPk or similar.
+    // Moquer les middlewares pour bypasser l'authentification et l'autorisation
     jest.spyOn(authMiddleware, 'protect').mockImplementation((req, res, next) => {
       req.user = { id: 1, role: 'Admin' }; // Mock an admin user
       next();
