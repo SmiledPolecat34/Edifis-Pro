@@ -30,11 +30,11 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
 
-    // Fetch initial status regardless of token
+    // Trouve le statut de maintenance au chargement initial
     apiService
       .get<{ maintenance_mode: boolean }>('/status')
       .then(response => setIsMaintenance(response.maintenance_mode))
-      .catch(() => setIsMaintenance(false)); // Default to false on error
+      .catch(() => setIsMaintenance(false)); // En cas d'erreur, suppose que le mode maintenance est désactivé
 
     if (token) {
       try {
@@ -66,6 +66,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('token');
         setUser(null);
         setIsLoading(false);
+        console.log(error);
       }
     } else {
       setIsLoading(false);
