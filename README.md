@@ -3,7 +3,6 @@
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue?style=for-the-badge&logo=githubactions)](.github/workflows/ci-cd.yml)
 [![Technologies](https://img.shields.io/badge/Stack-Node.js%20%26%20React-green?style=for-the-badge)]()
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=for-the-badge&logo=docker)](docker-compose.yml)
-[![License](https://img.shields.io/badge/License-MIT-lightgrey?style=for-the-badge)](LICENSE)
 
 **Edifis-Pro est une solution web complète pour la gestion de chantiers, conçue pour les professionnels du bâtiment. Elle permet de centraliser le suivi des tâches, la gestion des équipes et la communication en temps réel.**
 
