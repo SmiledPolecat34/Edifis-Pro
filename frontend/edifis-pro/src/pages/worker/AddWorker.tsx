@@ -38,7 +38,6 @@ export default function AddWorker() {
     const fetchCompetences = async () => {
       try {
         const data = await competenceService.getAllCompetences();
-        console.log('Compétences récupérées :', data);
         setCompetences(data);
       } catch (error) {
         console.error('Erreur lors de la récupération des compétences :', error);
@@ -140,7 +139,6 @@ export default function AddWorker() {
     };
 
     try {
-      console.log('payload envoyé:', newUser);
       const res = await userService.createUser(newUser);
       setSubmitOk(`Utilisateur créé. Mot de passe provisoire : ${res.tempPassword ?? 'généré'}`);
       navigate('/workers');

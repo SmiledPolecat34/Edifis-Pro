@@ -4,9 +4,9 @@ import taskService, { Task } from '../../../services/taskService';
 import userService, { User } from '../../../services/userService';
 import Loading from '../../components/loading/Loading';
 import { useAuth } from '../../context/AuthContext';
-import DatePicker, { registerLocale, setDefaultLocale } from "react-datepicker";
+import DatePicker, { registerLocale, setDefaultLocale } from 'react-datepicker';
 import fr from 'date-fns/locale/fr';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 
 registerLocale('fr', fr);
 setDefaultLocale('fr');
@@ -70,8 +70,12 @@ export default function EditMission() {
   const handleSave = async () => {
     if (!mission || !canEdit) return;
 
-    if (mission.end_date && mission.start_date && new Date(mission.end_date) < new Date(mission.start_date)) {
-      alert("La date de fin ne peut pas être antérieure à la date de début.");
+    if (
+      mission.end_date &&
+      mission.start_date &&
+      new Date(mission.end_date) < new Date(mission.start_date)
+    ) {
+      alert('La date de fin ne peut pas être antérieure à la date de début.');
       return;
     }
 
@@ -84,7 +88,6 @@ export default function EditMission() {
       navigate('/missions');
     } catch (err) {
       console.error('Erreur update mission:', err);
-      console.log(setCanEdit);
       alert('Erreur lors de la mise à jour de la mission.');
     }
   };

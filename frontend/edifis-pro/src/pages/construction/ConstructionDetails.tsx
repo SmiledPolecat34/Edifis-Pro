@@ -36,11 +36,6 @@ export default function ConstructionDetails() {
     !['Annulé', 'Terminé'].includes(construction.state || '');
   const canDelete = user && user.role && ['Admin', 'HR'].includes(user.role.name);
 
-  console.log('user', user);
-  console.log('construction', construction);
-  console.log('canEdit', canEdit);
-  console.log('canDelete', canDelete);
-
   useEffect(() => {
     async function fetchConstruction() {
       try {
@@ -60,7 +55,6 @@ export default function ConstructionDetails() {
         setTasks(tasksData);
       } catch (err) {
         setError('Erreur lors du chargement du chantier.');
-        console.log(managerError);
         console.error(err);
       } finally {
         setLoading(false);

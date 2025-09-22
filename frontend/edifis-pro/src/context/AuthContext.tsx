@@ -66,7 +66,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         localStorage.removeItem('token');
         setUser(null);
         setIsLoading(false);
-        console.log(error);
       }
     } else {
       setIsLoading(false);
@@ -144,7 +143,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       if (response) {
         const refreshedUser = await userService.getById(userIdToUpdate);
         setUser(refreshedUser);
-        console.log('Profil mis à jour avec succès');
       } else {
         console.error('Erreur: réponse inattendue lors de la mise à jour', response);
       }

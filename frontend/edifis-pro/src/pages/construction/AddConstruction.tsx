@@ -32,7 +32,6 @@ export default function AddConstruction() {
     const fetchProjectChiefs = async () => {
       try {
         const projectChiefsData = await userService.getAllProjectChiefs();
-        console.log('Chefs de projet récupérés :', projectChiefsData);
         setProjectChiefs(projectChiefsData);
       } catch (error) {
         console.error('Erreur lors de la récupération des chefs de projet :', error);
@@ -119,13 +118,9 @@ export default function AddConstruction() {
       formDataToSend.append('image', image);
     }
 
-    // Juste pour debug, affiche le contenu de FormData dans la console
-    console.log('FormData envoyé :', Object.fromEntries(formDataToSend));
-
     try {
       // Appel du service (multipart/form-data)
       await constructionSiteService.create(formDataToSend);
-      console.log('Chantier ajouté avec succès');
       navigate('/construction');
     } catch (error) {
       console.error("Erreur lors de l'ajout du chantier :", error);
