@@ -3,12 +3,12 @@ services:
   backend:
     build: ./backend
     ports:
-      - '3000:3000'
+      - '${BACKEND_PORT}:3000'
     environment:
       - DB_HOST=mariadb
-      - DB_USER=root
-      - DB_PASSWORD=edifis
-      - DB_NAME=edifis_pro
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       - mariadb
 
@@ -25,7 +25,7 @@ services:
     image: mariadb:10.11
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: edifis
-      MYSQL_DATABASE: edifis_pro
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_DOCK}
+      MYSQL_DATABASE: ${DB_NAME_DOCK}
     ports:
-      - '3307:3306'
+      - '${DB_PORT_DOCK}:3306'
