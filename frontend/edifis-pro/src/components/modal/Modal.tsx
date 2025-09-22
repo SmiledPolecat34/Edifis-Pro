@@ -14,6 +14,7 @@ export default function Modal({ show, onClose, children }: ModalProps) {
         {/* bouton fermer */}
         <button
           onClick={onClose}
+          aria-label="Fermer la fenêtre modale"
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 hover:bg-gray-200 rounded-tr-lg p-1 transition"
         >
           ✕

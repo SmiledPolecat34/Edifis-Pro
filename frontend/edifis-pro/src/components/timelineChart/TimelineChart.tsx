@@ -114,9 +114,9 @@ export default function TimelineChart({ tasks }: TimelineChartProps) {
         <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800">Chronologie des Missions</h2>
             <div className="flex items-center space-x-2">
-                <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="px-3 py-1 bg-gray-200 rounded-md text-sm font-medium">‹ Préc.</button>
+                <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} aria-label="Mois précédent" className="px-3 py-1 bg-gray-200 rounded-md text-sm font-medium">‹ Préc.</button>
                 <span className="text-lg font-semibold text-gray-700">{currentDate.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}</span>
-                <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="px-3 py-1 bg-gray-200 rounded-md text-sm font-medium">Suiv ›</button>
+                <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} aria-label="Mois suivant" className="px-3 py-1 bg-gray-200 rounded-md text-sm font-medium">Suiv ›</button>
             </div>
         </div>
         <div className="flex space-x-4 mb-4">
