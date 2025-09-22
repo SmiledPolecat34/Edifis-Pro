@@ -240,10 +240,10 @@ async function run() {
       });
     }
 
-    console.log('✅ Seed terminé : rôles, utilisateurs, compétences, chantiers et tâches créés.');
+    console.log('Seed terminé : rôles, utilisateurs, compétences, chantiers et tâches créés.');
     process.exit(0);
   } catch (e) {
-    console.error('❌ Seed error:', e);
+    console.error('Seed error:', e);
     process.exit(1);
   }
 }

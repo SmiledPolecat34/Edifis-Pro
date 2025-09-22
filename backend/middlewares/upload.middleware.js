@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
       uploadPath += 'construction_sites/';
     }
 
-    // ✅ Vérifie si le dossier existe, sinon crée-le
+    // Vérifie si le dossier existe, sinon crée-le
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }

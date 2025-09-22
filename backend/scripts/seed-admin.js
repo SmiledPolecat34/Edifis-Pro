@@ -35,10 +35,10 @@ const { hash } = require('../services/password.service');
       });
     }
 
-    console.log('✅ Admin créé/mis à jour : admin@edifis-pro.com / AdminEdifis2025!');
+    console.log('Admin créé/mis à jour : admin@edifis-pro.com / AdminEdifis2025!');
     process.exit(0);
   } catch (e) {
-    console.error('❌ seed-admin error:', e);
+    console.error('seed-admin error:', e);
     process.exit(1);
   }
 })();
