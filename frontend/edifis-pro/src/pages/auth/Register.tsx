@@ -23,7 +23,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchRoles = async () => {
       try {
         const res = await apiService.get<Role[]>('/roles');
@@ -43,7 +43,15 @@ export default function Register() {
   };
 
   const isDisabled = () => {
-    return !formData.email || !formData.password || !formData.role || !formData.firstname || !formData.lastname || !formData.numberphone || loading;
+    return (
+      !formData.email ||
+      !formData.password ||
+      !formData.role ||
+      !formData.firstname ||
+      !formData.lastname ||
+      !formData.numberphone ||
+      loading
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,11 +79,14 @@ export default function Register() {
     <main className="h-dvh md:p-8 w-full">
       <div className="relative grid h-full flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="relative h-full flex-col lg:flex hidden p-8 rounded-xl overflow-hidden">
-          <Link to="/" className="relative flex items-center text-sm text-white sm:text-lg font-medium uppercase z-10">
+          <Link
+            to="/"
+            className="relative flex items-center text-sm text-dark sm:text-lg font-medium uppercase z-10"
+          >
             <img src={logo} alt="Edifis Pro" className="h-4.5 w-4.5 mr-2" />
             Edifis <span className="font-light">Pro</span>
           </Link>
-          <h1 className="relative xl:text-7xl text-5xl font-bold uppercase text-white mt-auto z-10">
+          <h1 className="relative xl:text-7xl text-5xl font-bold uppercase text-dark mt-auto z-10">
             Construisons ensemble l'avenir, solide et durable.
           </h1>
           <img
@@ -88,7 +99,10 @@ export default function Register() {
           <div className="mx-auto flex max-w-[350px] w-full flex-col justify-center gap-6">
             <div className="flex flex-col items-center gap-2">
               <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
-              <Link to="/" className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase">
+              <Link
+                to="/"
+                className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase"
+              >
                 Edifis <span className="font-light">Pro</span>
               </Link>
               <p className="text-sm text-slate-500">Créez votre compte pour commencer</p>
@@ -96,7 +110,9 @@ export default function Register() {
             <div className="grid gap-6">
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-2">
-                  <label className="sr-only" htmlFor="firstname">Prénom</label>
+                  <label className="sr-only" htmlFor="firstname">
+                    Prénom
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="firstname"
@@ -105,7 +121,9 @@ export default function Register() {
                     value={formData.firstname}
                     onChange={handleChange}
                   />
-                  <label className="sr-only" htmlFor="lastname">Nom</label>
+                  <label className="sr-only" htmlFor="lastname">
+                    Nom
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="lastname"
@@ -114,7 +132,9 @@ export default function Register() {
                     value={formData.lastname}
                     onChange={handleChange}
                   />
-                   <label className="sr-only" htmlFor="numberphone">Téléphone</label>
+                  <label className="sr-only" htmlFor="numberphone">
+                    Téléphone
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="numberphone"
@@ -123,7 +143,9 @@ export default function Register() {
                     value={formData.numberphone}
                     onChange={handleChange}
                   />
-                  <label className="sr-only" htmlFor="email">Email</label>
+                  <label className="sr-only" htmlFor="email">
+                    Email
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="email"
@@ -132,7 +154,9 @@ export default function Register() {
                     value={formData.email}
                     onChange={handleChange}
                   />
-                  <label className="sr-only" htmlFor="password">Mot de passe</label>
+                  <label className="sr-only" htmlFor="password">
+                    Mot de passe
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="password"
@@ -141,7 +165,9 @@ export default function Register() {
                     value={formData.password}
                     onChange={handleChange}
                   />
-                  <label className="sr-only" htmlFor="confirmPassword">Confirmer le mot de passe</label>
+                  <label className="sr-only" htmlFor="confirmPassword">
+                    Confirmer le mot de passe
+                  </label>
                   <input
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     id="confirmPassword"
@@ -150,15 +176,19 @@ export default function Register() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                   />
-                  <label className="sr-only" htmlFor="role">Rôle</label>
+                  <label className="sr-only" htmlFor="role">
+                    Rôle
+                  </label>
                   <select
                     id="role"
                     className="h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     value={formData.role}
                     onChange={handleChange}
                   >
-                    <option value="" disabled>Sélectionnez un rôle</option>
-                    {roles.map((role) => (
+                    <option value="" disabled>
+                      Sélectionnez un rôle
+                    </option>
+                    {roles.map(role => (
                       <option key={role.role_id} value={role.name}>
                         {role.name}
                       </option>
@@ -166,7 +196,7 @@ export default function Register() {
                   </select>
                   {error && <p className="text-red-500 text-sm">{error}</p>}
                   <button
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 disabled:opacity-50 shadow-sm"
                     disabled={isDisabled()}
                   >
                     {loading ? 'Création...' : 'Créer un compte'}
@@ -180,4 +210,3 @@ export default function Register() {
     </main>
   );
 }
-

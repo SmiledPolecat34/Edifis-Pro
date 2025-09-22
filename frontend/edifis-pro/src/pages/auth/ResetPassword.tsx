@@ -148,7 +148,7 @@ export default function ResetPassword() {
               </div>
               {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
               <button
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm cursor-pointer"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 disabled:opacity-50 shadow-sm cursor-pointer"
                 disabled={loading || !formData.newPassword || !formData.confirmNewPassword}
                 type="submit"
               >

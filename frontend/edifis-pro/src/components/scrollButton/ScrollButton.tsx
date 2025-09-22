@@ -54,7 +54,7 @@ export default function ScrollButton({ scrollableRef }: ScrollButtonProps) {
         <button
           onClick={scrollToTop}
           aria-label="Remonter en haut de la page"
-          className="fixed bottom-8 right-8 z-50 h-12 w-12 rounded-full bg-orange-500 text-white shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 flex items-center justify-center transition-opacity duration-300 ease-in-out opacity-100 hover:scale-110 cursor-pointer"
+          className="fixed bottom-8 right-8 z-50 h-12 w-12 rounded-full bg-orange-500 text-dark shadow-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 flex items-center justify-center transition-opacity duration-300 ease-in-out opacity-100 hover:scale-110 cursor-pointer"
         >
           <ArrowUp size={24} />
         </button>
@@ -63,7 +63,7 @@ export default function ScrollButton({ scrollableRef }: ScrollButtonProps) {
         <button
           onClick={scrollToBottom}
           aria-label="Descendre en bas de la page"
-          className="fixed bottom-24 right-8 z-50 h-12 w-12 rounded-full bg-gray-700 text-white shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center transition-opacity duration-300 ease-in-out opacity-100 hover:scale-110 cursor-pointer"
+          className="fixed bottom-24 right-8 z-50 h-12 w-12 rounded-full bg-gray-700 text-dark shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 flex items-center justify-center transition-opacity duration-300 ease-in-out opacity-100 hover:scale-110 cursor-pointer"
         >
           <ArrowDown size={24} />
         </button>

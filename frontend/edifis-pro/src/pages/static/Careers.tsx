@@ -45,7 +45,7 @@ export default function Careers() {
                 </div>
                 <a
                   href="mailto:recrutement@edifis-pro.com?subject=Candidature pour le poste de ${job.title}"
-                  className="mt-4 md:mt-0 inline-block whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
+                  className="mt-4 md:mt-0 inline-block whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-dark hover:bg-orange-600 shadow-sm"
                 >
                   Postuler
                 </a>

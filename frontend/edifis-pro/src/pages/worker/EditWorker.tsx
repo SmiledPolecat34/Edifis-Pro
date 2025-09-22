@@ -285,7 +285,7 @@ export default function EditWorker() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
+                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-dark hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
                 >
                   {submitting ? 'Mise à jour...' : "Mettre à jour l'employé"}
                 </button>
@@ -293,7 +293,7 @@ export default function EditWorker() {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 shadow-sm cursor-pointer"
+                  className="w-full md:w-auto inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-red-600 text-dark hover:bg-red-700 shadow-sm cursor-pointer"
                 >
                   Supprimer l'employé
                 </button>

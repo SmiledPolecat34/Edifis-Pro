@@ -162,7 +162,7 @@ export default function Construction() {
         {user && ['Admin', 'HR', 'Manager'].includes(user.role?.name) && (
           <Link
             to="/AddConstruction"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 shadow-sm"
           >
             Ajouter un chantier
           </Link>
@@ -191,13 +191,13 @@ export default function Construction() {
         <div className="hidden md:flex items-center gap-2 ml-auto">
           <button
             onClick={() => setView('grid')}
-            className={`p-2 cursor-pointer rounded-md ${view === 'grid' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`p-2 cursor-pointer rounded-md ${view === 'grid' ? 'bg-orange-500 text-dark' : 'bg-gray-200 text-gray-700'}`}
           >
             <LayoutGrid size={20} />
           </button>
           <button
             onClick={() => setView('list')}
-            className={`p-2 cursor-pointer rounded-md ${view === 'list' ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            className={`p-2 cursor-pointer rounded-md ${view === 'list' ? 'bg-orange-500 text-dark' : 'bg-gray-200 text-gray-700'}`}
           >
             <List size={20} />
           </button>

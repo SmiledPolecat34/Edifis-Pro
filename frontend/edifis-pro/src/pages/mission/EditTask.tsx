@@ -216,7 +216,7 @@ export default function EditMission() {
         <div className="flex gap-4 mt-6 border-t border-gray-200 pt-6">
           <button
             onClick={handleSave}
-            className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 shadow-sm ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={!canEdit}
           >
             Sauvegarder les changements

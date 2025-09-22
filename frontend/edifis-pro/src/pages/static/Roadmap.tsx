@@ -58,14 +58,14 @@ export default function Roadmap() {
           {roadmapData.map((item, index) => (
             <div key={index} className="mb-10 ml-8">
               <span
-                className={`absolute -left-4 flex items-center justify-center w-8 h-8 rounded-full text-white ${statusColors[item.status] || 'bg-gray-500'}`}
+                className={`absolute -left-4 flex items-center justify-center w-8 h-8 rounded-full text-dark ${statusColors[item.status] || 'bg-gray-500'}`}
               >
                 {/* Icon can go here */}
               </span>
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div className="flex items-center mb-2">
                   <span
-                    className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-white ${statusColors[item.status] || 'bg-gray-500'}`}
+                    className={`text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-dark ${statusColors[item.status] || 'bg-gray-500'}`}
                   >
                     {item.status}
                   </span>

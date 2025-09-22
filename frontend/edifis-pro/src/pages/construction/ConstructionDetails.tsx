@@ -243,7 +243,7 @@ export default function ConstructionDetails() {
                 </button>
                 <button
                   onClick={handleSave}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full md:w-auto shadow-sm"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 w-full md:w-auto shadow-sm"
                 >
                   Sauvegarder
                 </button>

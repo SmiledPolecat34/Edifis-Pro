@@ -95,7 +95,7 @@ export default function EditCompetence() {
             <div className="border-t border-gray-200 pt-6 flex justify-end">
               <button
                 type="submit"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-white hover:bg-orange-600 shadow-sm cursor-pointer"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-5 py-2.5 bg-orange-500 text-dark hover:bg-orange-600 shadow-sm cursor-pointer"
               >
                 Enregistrer les modifications
               </button>

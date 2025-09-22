@@ -132,7 +132,7 @@ export default function Profile() {
               </button>
             )}
             <button
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 w-full sm:w-auto shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 w-full sm:w-auto shadow-sm cursor-pointer"
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
             >
               {isEditing ? 'Sauvegarder' : 'Modifier le profil'}
@@ -261,7 +261,7 @@ export default function Profile() {
                   <button
                     type="submit"
                     disabled={pwLoading}
-                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 disabled:opacity-60 shadow-sm cursor-pointer"
                   >
                     {pwLoading ? 'Mise à jour…' : 'Mettre à jour le mot de passe'}
                   </button>

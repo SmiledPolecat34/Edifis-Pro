@@ -68,7 +68,9 @@ export default function Home() {
 
   const siteTaskCounts = sites.map(site => ({
     name: site.name,
-    taskCount: tasks.filter(task => task.construction_site?.construction_site_id === site.construction_site_id).length,
+    taskCount: tasks.filter(
+      task => task.construction_site?.construction_site_id === site.construction_site_id,
+    ).length,
   }));
 
   const canViewStats = user?.role?.name && ['Admin', 'Manager', 'HR'].includes(user.role.name);
@@ -92,21 +94,21 @@ export default function Home() {
       {canViewStats && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
           <StatCard
-            icon={<Building size={24} className="text-white" />}
+            icon={<Building size={24} className="text-dark" />}
             title="Chantiers en cours"
             value={activeSites}
             color="bg-blue-500"
             to="/construction"
           />
           <StatCard
-            icon={<Users size={24} className="text-white" />}
+            icon={<Users size={24} className="text-dark" />}
             title="Employés actifs"
             value={totalWorkers}
             color="bg-green-500"
             to="/workers"
           />
           <StatCard
-            icon={<ListChecks size={24} className="text-white" />}
+            icon={<ListChecks size={24} className="text-dark" />}
             title="Tâches à faire"
             value={tasksToDo}
             color="bg-orange-500"

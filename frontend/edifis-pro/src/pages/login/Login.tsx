@@ -61,12 +61,12 @@ export default function Login() {
           <div className="relative h-full flex-col lg:flex hidden p-8 rounded-xl overflow-hidden">
             <Link
               to="/"
-              className="relative flex items-center text-sm text-white sm:text-lg font-medium uppercase z-10"
+              className="relative flex items-center text-sm text-dark sm:text-lg font-medium uppercase z-10"
             >
               <img src={logo} alt="Edifis Pro" className="h-4.5 w-4.5 mr-2" />
               Edifis <span className="font-light">Pro</span>
             </Link>
-            <h1 className="relative xl:text-7xl text-5xl font-bold uppercase text-white mt-auto z-10">
+            <h1 className="relative xl:text-7xl text-5xl font-bold uppercase text-dark mt-auto z-10">
               Construisons ensemble l'avenir, solide et durable.
             </h1>
             <img
@@ -138,7 +138,7 @@ export default function Login() {
                     </div>
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     <button
-                      className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 shadow-sm cursor-pointer"
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 disabled:opacity-50 shadow-sm cursor-pointer"
                       disabled={isDisabled()}
                     >
                       {loading ? 'Connexion...' : 'Se connecter'}

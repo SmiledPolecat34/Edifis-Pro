@@ -85,7 +85,7 @@ export default function Workers() {
         {canCreate && (
           <Link
             to="/workers/add"
-            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-white hover:bg-orange-600 shadow-sm"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-10 px-4 py-2 bg-orange-500 text-dark hover:bg-orange-600 shadow-sm"
           >
             Ajouter un employé
           </Link>
@@ -157,7 +157,7 @@ export default function Workers() {
                   </Link>
                   <button
                     onClick={() => handleDelete(worker.user_id!)}
-                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                    className="flex-1 inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors h-9 px-4 py-2 bg-red-600 text-dark hover:bg-red-700 cursor-pointer"
                   >
                     Supprimer
                   </button>

@@ -273,7 +273,7 @@ export default function WorkerDetails() {
                           description: c.description ?? 'Pas de description',
                         })
                       }
-                      className="text-sm text-white bg-orange-500 hover:bg-orange-500 rounded-full w-5 h-5 flex items-center justify-center"
+                      className="text-sm text-dark bg-orange-500 hover:bg-orange-500 rounded-full w-5 h-5 flex items-center justify-center"
                     >
                       ?
                     </button>
@@ -313,7 +313,7 @@ export default function WorkerDetails() {
               <p className="mb-4">{modalData.description}</p>
               <button
                 onClick={() => setModalData(null)}
-                className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                className="px-4 py-2 bg-orange-500 text-dark rounded hover:bg-orange-600"
               >
                 Fermer
               </button>
@@ -330,7 +330,7 @@ export default function WorkerDetails() {
                 }
                 setIsEditing(!isEditing);
               }}
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition cursor-pointer"
+              className="px-4 py-2 bg-orange-500 text-dark rounded hover:bg-orange-600 transition cursor-pointer"
             >
               {isEditing ? 'Enregistrer' : 'Modifier'}
             </button>
@@ -338,7 +338,7 @@ export default function WorkerDetails() {
           {canDelete && (
             <button
               onClick={handleDelete}
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition cursor-pointer"
+              className="px-4 py-2 bg-red-600 text-dark rounded hover:bg-red-700 transition cursor-pointer"
             >
               Supprimer
             </button>
