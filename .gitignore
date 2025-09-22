@@ -5,6 +5,8 @@ frontend/edifis-pro/.env
 backend/coverage
 frontend/edifis-pro/coverage
 .env
+.github\workflows\ci.yml
+.github\workflows\deploy.yml
 
 pnpm-lock.yaml
 
