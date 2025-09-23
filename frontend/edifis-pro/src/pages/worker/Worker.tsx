@@ -100,6 +100,9 @@ export default function Workers() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
+        <label htmlFor="roleFilter" className="sr-only">
+          Filtrer les employés par rôle
+        </label>
         <select
           value={roleFilter}
           onChange={e => setRoleFilter(e.target.value)}
