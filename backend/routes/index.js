@@ -1,20 +1,20 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-// Importation des routes
-const userRoutes = require("./user.routes");
-const taskRoutes = require("./task.routes");
-const constructionSiteRoutes = require("./constructionSite.routes");
-const competenceRoutes = require("./competence.routes");
-const authRoutes = require("./auth.routes");
-const roleRoutes = require("./role.routes.js"); // Ajout des routes de rôle
+const authRoutes = require('./auth.routes');
+const userRoutes = require('./user.routes');
+const roleRoutes = require('./role.routes');
+const statusRoutes = require('./status.routes');
+const competenceRoutes = require('./competence.routes');
+const constructionSiteRoutes = require('./constructionSite.routes');
+const taskRoutes = require('./task.routes');
 
-// Utilisation des routes
-router.use("/users", userRoutes);
-router.use("/tasks", taskRoutes);
-router.use("/construction-sites", constructionSiteRoutes);
-router.use("/competences", competenceRoutes);
-router.use("/auth", authRoutes);
-router.use("/roles", roleRoutes); // Ajout des routes de rôle
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
+router.use('/status', statusRoutes);
+router.use('/competences', competenceRoutes);
+router.use('/construction-sites', constructionSiteRoutes);
+router.use('/tasks', taskRoutes);
 
 module.exports = router;
