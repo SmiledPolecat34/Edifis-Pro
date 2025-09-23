@@ -32,6 +32,7 @@ const GridView = ({ projects }: { projects: ConstructionSite[] }) => (
           alt={project.name}
           width={400}
           height={200}
+          loading="lazy"
         />
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-lg text-gray-900 mr-2">{project.name}</h3>

@@ -42,6 +42,9 @@ export default function Header({ setIsMobileNavOpen }: HeaderProps) {
               className="aspect-square h-full w-full"
               src={getProfileImageUrl()}
               alt="photo de profil"
+              width={36}
+              height={36}
+              loading="lazy"
             />
           </Link>
           <span className="text-sm">

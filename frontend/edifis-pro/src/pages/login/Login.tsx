@@ -75,12 +75,13 @@ export default function Login() {
               alt="Chantier de construction"
               fetchPriority="high"
               decoding="async"
+              loading="lazy"
             />
           </div>
           <div className="p-4 lg:p-8">
             <div className="mx-auto flex max-w-[350px] w-full flex-col justify-center gap-6">
               <div className="flex flex-col items-center gap-2">
-                <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" />
+                <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" loading="lazy" />
                 <Link
                   to="/"
                   className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase"

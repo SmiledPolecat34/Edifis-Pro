@@ -111,6 +111,7 @@ export default function Profile() {
                 className="object-cover h-full w-full"
                 src={previewImage}
                 alt="Photo de profil"
+                loading="lazy"
               />
             </div>
             <div>

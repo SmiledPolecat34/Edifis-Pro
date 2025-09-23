@@ -76,7 +76,7 @@ export default function ResetPassword() {
   const renderMessage = (title: string, message: string, linkText: string, linkTo: string) => (
     <div className="text-center space-y-4">
       <div className="flex justify-center">
-        <img src={logo} alt="Logo Edifis Pro" className="h-10 w-10" />
+        <img src={logo} alt="Logo Edifis Pro" className="h-10 w-10" loading="lazy" />
       </div>
       <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
       <p className="text-sm text-gray-600">{message}</p>
@@ -109,7 +109,7 @@ export default function ResetPassword() {
         ) : (
           <>
             <div className="flex flex-col items-center gap-2 text-center">
-              <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" />
+              <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" loading="lazy" />
               <h1 className="text-2xl font-semibold text-gray-900">
                 Réinitialiser le mot de passe
               </h1>

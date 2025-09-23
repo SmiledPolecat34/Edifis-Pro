@@ -13,7 +13,7 @@ export default function Footer() {
             to="/"
             className="flex items-center align-center space-x-1.5 text-lg text-gray-900 font-semibold uppercase transition-colors"
           >
-            <img src={logo} alt="Logo Edifis Pro" className="h-5 w-5" />
+            <img src={logo} alt="Logo Edifis Pro" className="h-5 w-5" loading="lazy" />
             Edifis <span className="font-light">Pro</span>
           </Link>
           <p className="text-gray-600 text-sm mt-2">Construisons l'avenir, ensemble.</p>

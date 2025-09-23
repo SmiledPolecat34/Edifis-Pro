@@ -10,7 +10,7 @@ export default function PublicHeader() {
           className="flex items-center align-center space-x-1.5 text-lg text-gray-900 font-semibold uppercase transition-colors"
           aria-label="Retour à la page de connexion"
         >
-          <img src={logo} alt="" className="h-5 w-5" aria-hidden="true" />
+          <img src={logo} alt="" className="h-5 w-5" aria-hidden="true" loading="lazy" />
           <h1 className="text-lg font-semibold uppercase">
             Edifis <span className="font-light">Pro</span>
           </h1>

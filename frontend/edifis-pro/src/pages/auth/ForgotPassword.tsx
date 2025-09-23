@@ -46,7 +46,7 @@ export default function ForgotPassword() {
         {success ? (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
-              <img src={logo} alt="Logo Edifis Pro" className="h-10 w-10" />
+              <img src={logo} alt="Logo Edifis Pro" className="h-10 w-10" loading="lazy" />
             </div>
             <h1 className="text-2xl font-semibold text-gray-900">Email envoyé !</h1>
             <p className="text-sm text-gray-600">
@@ -65,7 +65,7 @@ export default function ForgotPassword() {
         ) : (
           <>
             <div className="flex flex-col items-center gap-2 text-center">
-              <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" />
+              <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" loading="lazy" />
               <h1 className="text-2xl font-semibold text-gray-900">Mot de passe oublié</h1>
               <p className="text-sm text-gray-600">
                 Entrez votre email pour recevoir un lien de réinitialisation.

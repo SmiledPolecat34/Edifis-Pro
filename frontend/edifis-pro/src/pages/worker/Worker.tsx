@@ -135,6 +135,7 @@ export default function Workers() {
                   src={worker.profile_picture?.replace('/api', '') || DEFAULT_IMAGE}
                   alt={`Photo de ${worker.firstname}`}
                   className="w-full h-48 object-cover rounded-md mb-4"
+                  loading="lazy"
                 />
                 <h2 className="text-lg font-semibold text-gray-900">
                   {worker.firstname} {worker.lastname}

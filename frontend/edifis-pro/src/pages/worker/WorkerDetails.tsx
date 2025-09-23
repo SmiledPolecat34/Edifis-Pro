@@ -170,6 +170,7 @@ export default function WorkerDetails() {
             src={worker.profile_picture || DEFAULT_IMAGE}
             alt={worker.firstname}
             className="w-24 h-24 object-cover rounded-full mr-4"
+            loading="lazy"
           />
           <div className="flex flex-col">
             {isEditing ? (
