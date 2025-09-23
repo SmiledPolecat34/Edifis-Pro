@@ -75,7 +75,7 @@ export default function Login() {
               alt="Chantier de construction"
               fetchPriority="high"
               decoding="async"
-              loading="lazy"
+              loading="eager"
             />
           </div>
           <div className="p-4 lg:p-8">
