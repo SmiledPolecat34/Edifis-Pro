@@ -9,6 +9,7 @@ import constructionSiteService, {
 } from '../../../services/constructionSiteService';
 import userService, { User } from '../../../services/userService';
 import { Building, Users, ListChecks } from 'lucide-react';
+import Loading from '../../components/loading/Loading';
 
 export default function Home() {
   const { user } = useAuth();
@@ -75,7 +76,13 @@ export default function Home() {
 
   const canViewStats = user?.role?.name && ['Admin', 'Manager', 'HR'].includes(user.role.name);
 
-  if (loading) return <p className="text-center text-gray-500 py-10">Chargement...</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100dvh-65px)] w-full p-8">
+        <Loading />
+      </div>
+    );
+  }
   if (error) return <p className="text-center text-red-500 py-10">{error}</p>;
 
   if (!user) {
@@ -121,7 +128,7 @@ export default function Home() {
       <div className="grid xl:grid-cols-[7fr_3fr] grid-cols-1 gap-8 h-full">
         <div className="flex flex-col min-h-0">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Tâches par chantier</h2>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-grow">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-grow min-h-[250px]">
             {tasks.length === 0 ? (
               <p className="text-gray-500 text-sm text-center pt-10">
                 Aucune mission pour le moment.
@@ -133,7 +140,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col min-h-0">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Vos missions récentes</h2>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-y-auto max-h-96">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 overflow-y-auto max-h-96 min-h-[200px]">
             <div className="space-y-4">
               {tasks.length === 0 ? (
                 <p className="text-gray-500 text-sm text-center pt-10">
