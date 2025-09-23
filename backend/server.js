@@ -31,8 +31,14 @@ app.use(
       // Personnalisation des directives
       directives: {
         // Sources autorisées pour le contenu
-        'default-src': ["'self'"], // Autoriser uniquement le même domaine
-        'img-src': ["'self'", 'data:', 'http://localhost:5000'], // Autoriser les images du même domaine, data URIs et localhost
+        'default-src': ["'self'"],
+        // Sources autorisées pour les images
+        'img-src': [
+          "'self'",
+          'data:',
+          'https://images.unsplash.com',
+          'https://gentle-cupcake-8c59ea.netlify.app',
+        ],
       },
     },
     // Politique de ressources croisées
