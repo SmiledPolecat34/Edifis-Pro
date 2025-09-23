@@ -30,6 +30,8 @@ const GridView = ({ projects }: { projects: ConstructionSite[] }) => (
           className="h-48 w-full object-cover rounded-md mb-4"
           src={project.image}
           alt={project.name}
+          width={400}
+          height={200}
         />
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-lg text-gray-900 mr-2">{project.name}</h3>
@@ -177,6 +179,9 @@ export default function Construction() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
+        <label htmlFor="statusFilter" className="sr-only">
+          Filtrer les chantiers par statut
+        </label>
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
@@ -191,12 +196,15 @@ export default function Construction() {
         <div className="hidden md:flex items-center gap-2 ml-auto">
           <button
             onClick={() => setView('grid')}
+            aria-label="Afficher en grille"
             className={`p-2 cursor-pointer rounded-md ${view === 'grid' ? 'bg-orange-500 text-dark' : 'bg-gray-200 text-gray-700'}`}
           >
             <LayoutGrid size={20} />
           </button>
+
           <button
             onClick={() => setView('list')}
+            aria-label="Afficher en liste"
             className={`p-2 cursor-pointer rounded-md ${view === 'list' ? 'bg-orange-500 text-dark' : 'bg-gray-200 text-gray-700'}`}
           >
             <List size={20} />
