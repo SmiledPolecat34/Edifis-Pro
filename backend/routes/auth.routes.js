@@ -1,10 +1,16 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const authController = require("../controllers/auth.controller");
-const { validate, schemas } = require("../middlewares/validator.middleware");
-const { rateLimitIPAndEmail, rateLimitIP } = require("../middlewares/rateLimit.middleware");
+const authController = require('../controllers/auth.controller');
+const { validate, schemas } = require('../middlewares/validator.middleware');
+const { rateLimitIPAndEmail, rateLimitIP } = require('../middlewares/rateLimit.middleware');
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Gestion de l'authentification
+ */
 /**
  * @swagger
  * /api/auth/register:
@@ -28,11 +34,7 @@ const { rateLimitIPAndEmail, rateLimitIP } = require("../middlewares/rateLimit.m
  *       201: { description: Utilisateur créé }
  *       400: { description: Données invalides }
  */
-router.post(
-  "/register",
-  validate(schemas.register),
-  authController.register
-);
+router.post('/register', validate(schemas.register), authController.register);
 
 /**
  * @swagger
@@ -55,10 +57,10 @@ router.post(
  *       401: { description: Identifiants invalides }
  */
 router.post(
-  "/login",
-  rateLimitIPAndEmail(),                    // anti brute-force
+  '/login',
+  rateLimitIPAndEmail(), // anti brute-force
   validate(schemas.login),
-  authController.login
+  authController.login,
 );
 
 /**
@@ -69,10 +71,10 @@ router.post(
  *     tags: [Auth]
  */
 router.post(
-  "/forgot-password",
+  '/forgot-password',
   rateLimitIPAndEmail(),
   validate(schemas.forgotPassword),
-  authController.forgotPassword
+  authController.forgotPassword,
 );
 
 /**
@@ -96,10 +98,10 @@ router.post(
  *       400: { description: Token invalide ou expiré }
  */
 router.post(
-  "/reset-password",
+  '/reset-password',
   rateLimitIP(),
   validate(schemas.resetPassword),
-  authController.resetPassword
+  authController.resetPassword,
 );
 
 module.exports = router;
