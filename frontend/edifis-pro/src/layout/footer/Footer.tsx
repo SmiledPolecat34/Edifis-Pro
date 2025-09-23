@@ -6,7 +6,7 @@ export default function Footer() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <footer className="w-full border-t border-gray-200 bg-white">
+    <footer className="w-full border-t border-gray-200 bg-white h-auto">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 md:px-8 py-10">
         <div className="md:col-span-1">
           <Link
