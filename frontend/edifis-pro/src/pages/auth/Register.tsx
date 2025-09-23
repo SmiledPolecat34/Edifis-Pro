@@ -83,7 +83,7 @@ export default function Register() {
             to="/"
             className="relative flex items-center text-sm text-dark sm:text-lg font-medium uppercase z-10"
           >
-            <img src={logo} alt="Edifis Pro" className="h-4.5 w-4.5 mr-2" />
+            <img src={logo} alt="Logo Edifis Pro" className="h-4.5 w-4.5 mr-2" />
             Edifis <span className="font-light">Pro</span>
           </Link>
           <h1 className="relative xl:text-6xl text-5xl font-bold uppercase text-dark mt-auto z-10">
@@ -98,7 +98,7 @@ export default function Register() {
         <div className="p-4 lg:p-8">
           <div className="mx-auto flex max-w-[350px] w-full flex-col justify-center gap-6">
             <div className="flex flex-col items-center gap-2">
-              <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
+              <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" />
               <Link
                 to="/"
                 className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase"

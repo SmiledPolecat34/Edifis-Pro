@@ -82,7 +82,7 @@ export default function SideBar({ isMobileNavOpen, setIsMobileNavOpen }: SideBar
             onClick={handleLinkClick}
             className="flex items-center align-center space-x-1.5 text-lg text-gray-900 font-semibold uppercase transition-colors"
           >
-            <img src={logo} alt="Edifis Pro" className="h-4 w-4" />
+            <img src={logo} alt="Logo Edifis Pro" className="h-4 w-4" />
             Edifis <span className="font-light">Pro</span>
           </Link>
         </div>

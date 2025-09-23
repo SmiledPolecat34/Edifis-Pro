@@ -13,17 +13,40 @@ export default function Footer() {
             to="/"
             className="flex items-center align-center space-x-1.5 text-lg text-gray-900 font-semibold uppercase transition-colors"
           >
-            <img src={logo} alt="Edifis Pro" className="h-5 w-5" />
+            <img src={logo} alt="Logo Edifis Pro" className="h-5 w-5" />
             Edifis <span className="font-light">Pro</span>
           </Link>
           <p className="text-gray-600 text-sm mt-2">Construisons l'avenir, ensemble.</p>
         </div>
         <div>
-          <h3 className="text-gray-900 font-semibold text-base">À propos</h3>
+          <h2 className="text-gray-900 font-semibold text-base">À propos</h2>
           <ul className="mt-4 space-y-2">
-            <li><Link to="/careers" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Carrières</Link></li>
-            {isAuthenticated && <li><Link to="/roadmap" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Feuille de route</Link></li>}
-            <li><Link to="/announcements" className="text-sm text-gray-600 hover:text-orange-600 transition-colors">Annonces</Link></li>
+            <li>
+              <Link
+                to="/careers"
+                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                Carrières
+              </Link>
+            </li>
+            {isAuthenticated && (
+              <li>
+                <Link
+                  to="/roadmap"
+                  className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                >
+                  Feuille de route
+                </Link>
+              </li>
+            )}
+            <li>
+              <Link
+                to="/announcements"
+                className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                Annonces
+              </Link>
+            </li>
             <li>
               <Link
                 to="/legal"
@@ -51,46 +74,46 @@ export default function Footer() {
           </ul>
         </div>
         {isAuthenticated && (
-            <div>
-            <h3 className="text-gray-900 font-semibold text-base">Entreprise</h3>
+          <div>
+            <h2 className="text-gray-900 font-semibold text-base">Entreprise</h2>
             <ul className="mt-4 space-y-2">
-                <li>
+              <li>
                 <Link
-                    to="/p2p-merchants"
-                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                  to="/p2p-merchants"
+                  className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                    Demande pour les marchands P2P
+                  Demande pour les marchands P2P
                 </Link>
-                </li>
-                <li>
+              </li>
+              <li>
                 <Link
-                    to="/listing-application"
-                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                  to="/listing-application"
+                  className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                    Postuler au listing
+                  Postuler au listing
                 </Link>
-                </li>
-                <li>
+              </li>
+              <li>
                 <Link
-                    to="/institutional-services"
-                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                  to="/institutional-services"
+                  className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                    Services institutionnels et VIP
+                  Services institutionnels et VIP
                 </Link>
-                </li>
-                <li>
+              </li>
+              <li>
                 <Link
-                    to="/labs"
-                    className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
+                  to="/labs"
+                  className="text-sm text-gray-600 hover:text-orange-600 transition-colors"
                 >
-                    Labs
+                  Labs
                 </Link>
-                </li>
+              </li>
             </ul>
-            </div>
+          </div>
         )}
         <div>
-          <h3 className="text-gray-900 font-semibold text-base">Services</h3>
+          <h2 className="text-gray-900 font-semibold text-base">Services</h2>
           <ul className="mt-4 space-y-2">
             <li>
               <Link

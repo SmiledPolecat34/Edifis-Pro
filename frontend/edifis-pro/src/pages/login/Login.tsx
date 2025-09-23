@@ -63,7 +63,7 @@ export default function Login() {
               to="/"
               className="relative flex items-center text-sm text-dark sm:text-lg font-medium uppercase z-10"
             >
-              <img src={logo} alt="Edifis Pro" className="h-4.5 w-4.5 mr-2" />
+              <img src={logo} alt="Logo Edifis Pro" className="h-4.5 w-4.5 mr-2" />
               Edifis <span className="font-light">Pro</span>
             </Link>
             <h1 className="relative xl:text-6xl text-5xl font-bold uppercase text-dark mt-auto z-10">
@@ -71,14 +71,16 @@ export default function Login() {
             </h1>
             <img
               className="absolute inset-0 object-cover w-full h-full brightness-60"
-              src="https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?q=80&w=1946&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt="Chantier"
+              src="https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?q=80&w=1946&auto=format&fit=crop"
+              alt="Chantier de construction"
+              fetchPriority="high"
+              decoding="async"
             />
           </div>
           <div className="p-4 lg:p-8">
             <div className="mx-auto flex max-w-[350px] w-full flex-col justify-center gap-6">
               <div className="flex flex-col items-center gap-2">
-                <img src={logo} alt="Edifis Pro" className="h-8 w-8" />
+                <img src={logo} alt="Logo Edifis Pro" className="h-8 w-8" />
                 <Link
                   to="/"
                   className="flex justify-center items-center text-2xl font-semibold text-slate-950 uppercase"
