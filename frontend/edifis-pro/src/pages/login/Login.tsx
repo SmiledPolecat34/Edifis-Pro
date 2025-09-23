@@ -71,7 +71,7 @@ export default function Login() {
             </h1>
             <img
               className="absolute inset-0 object-cover w-full h-full brightness-60"
-              src="https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?w=1200&h=900&fit=crop&q=70&auto=format"
+              src="https://images.unsplash.com/photo-1626885930974-4b69aa21bbf9?w=1200&q=70&auto=format&fit=crop"
               alt="Chantier de construction"
               fetchPriority="high"
               decoding="async"
