@@ -1,8 +1,8 @@
 const API_BASE_URL =
   // configurable via Vite: define VITE_API_URL in a .env file at frontend/edifis-pro
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_URL) ||
   // fallback (dev): backend exposed by docker-compose on port 5000
-  "http://localhost:5000/api";
+  'http://localhost:5000/api';
 
 const apiService = {
   get: async <T>(endpoint: string): Promise<T> => {
@@ -14,93 +14,93 @@ const apiService = {
     //     Authorization: `Bearer ${token}`,
     //   },
     // });
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const headers: Record<string, string> = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "GET",
+      method: 'GET',
       headers,
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || 'Une erreur est survenue');
     }
     return await response.json();
   },
 
   post: async <T>(endpoint: string, data: unknown): Promise<T> => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
 
-    let bodyText = "";
+    let bodyText = '';
     try {
       bodyText = await res.text(); // on lit une seule fois
       const json = bodyText ? JSON.parse(bodyText) : {};
       if (!res.ok) {
-        console.error("API POST error:", res.status, json);
+        console.error('API POST error:', res.status, json);
         throw new Error(json.message || json.error || `HTTP ${res.status}`);
       }
       return json as T;
     } catch (e) {
       // si le body n’est pas du JSON
       if (!res.ok) {
-        console.error("API POST error (raw):", res.status, bodyText);
-        throw new Error(`HTTP ${res.status} - ${bodyText || "Erreur inconnue"}`);
+        console.error('API POST error (raw):', res.status, bodyText);
+        throw new Error(`HTTP ${res.status} - ${bodyText || 'Erreur inconnue'}`);
       }
       throw e;
     }
   },
 
   put: async <T>(endpoint: string, data: unknown): Promise<T> => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "PUT",
+      method: 'PUT',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || 'Une erreur est survenue');
     }
     return await response.json();
   },
 
   delete: async <T>(endpoint: string): Promise<T> => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "DELETE",
+      method: 'DELETE',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || 'Une erreur est survenue');
     }
     return await response.json();
   },
 
   postForm: async <T>(endpoint: string, formData: FormData): Promise<T> => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -108,7 +108,23 @@ const apiService = {
     });
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || "Une erreur est survenue");
+      throw new Error(errorData.error || errorData.message || 'Une erreur est survenue');
+    }
+    return await response.json();
+  },
+
+  putForm: async <T>(endpoint: string, formData: FormData): Promise<T> => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || errorData.message || 'Une erreur est survenue');
     }
     return await response.json();
   },

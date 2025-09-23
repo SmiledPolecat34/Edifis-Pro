@@ -26,6 +26,10 @@ const constructionSiteService = {
     return await apiService.put<ConstructionSite>(`/construction-sites/${id}`, data);
   },
 
+  updateForm: async (id: number, formData: FormData): Promise<ConstructionSite> => {
+    return await apiService.putForm<ConstructionSite>(`/construction-sites/${id}`, formData);
+  },
+
   // Supprimer un chantier
   delete: async (id: number): Promise<void> => {
     return await apiService.delete<void>(`/construction-sites/${id}`);
