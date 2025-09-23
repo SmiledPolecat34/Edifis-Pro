@@ -86,7 +86,7 @@ export default function Register() {
             <img src={logo} alt="Edifis Pro" className="h-4.5 w-4.5 mr-2" />
             Edifis <span className="font-light">Pro</span>
           </Link>
-          <h1 className="relative xl:text-7xl text-5xl font-bold uppercase text-dark mt-auto z-10">
+          <h1 className="relative xl:text-6xl text-5xl font-bold uppercase text-dark mt-auto z-10">
             Construisons ensemble l'avenir, solide et durable.
           </h1>
           <img
