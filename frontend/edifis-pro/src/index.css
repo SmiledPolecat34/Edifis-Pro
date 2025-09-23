@@ -1,17 +1,19 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: "Geist";
-  src: url("./assets/fonts/Geist[wght].ttf") format("truetype");
+  font-family: 'Geist';
+  src: url('./assets/fonts/Geist[wght].ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: "Geist Mono";
-  src: url("./assets/fonts/GeistMono[wght].ttf") format("truetype");
+  font-family: 'Geist Mono';
+  src: url('./assets/fonts/GeistMono[wght].ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
+  font-display: swap;
 }
 
 :root {
