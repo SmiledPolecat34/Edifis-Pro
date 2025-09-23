@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import competenceService, { Competence } from '../../../services/competenceService';
+import { Pencil, Trash2, FileText } from 'lucide-react';
 import Modal from '../../components/modal/Modal';
 
 export function ManageCompetences() {
@@ -68,7 +69,7 @@ export function ManageCompetences() {
             filteredList.map(c => (
               <li
                 key={c.competence_id}
-                className="p-4 flex justify-between items-center flex-wrap gap-2"
+                className="p-4 flex justify-between items-center flex-wrap gap-2 min-h-[64px]"
               >
                 <span className="text-base text-gray-800 font-medium">{c.name}</span>
                 <div className="space-x-2 flex-shrink-0">
@@ -78,7 +79,7 @@ export function ManageCompetences() {
                     aria-label={`Détails de la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
                   >
-                    📄
+                    <FileText className="w-5 h-5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={() => navigate(`/competences/edit/${c.competence_id}`)}
@@ -86,7 +87,7 @@ export function ManageCompetences() {
                     aria-label={`Modifier la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer"
                   >
-                    ✏️
+                    <Pencil className="w-5 h-5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={() => handleDelete(c.competence_id)}
@@ -94,7 +95,7 @@ export function ManageCompetences() {
                     aria-label={`Supprimer la compétence ${c.name}`}
                     className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors bg-red-500 text-dark hover:bg-red-600 cursor-pointer"
                   >
-                    🗑️
+                    <Trash2 className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </li>
