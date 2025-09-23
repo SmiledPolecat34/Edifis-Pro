@@ -93,6 +93,9 @@ export default function Workers() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <label htmlFor="searchQuery" className="sr-only">
+          Rechercher par nom, compétences...
+        </label>
         <input
           type="text"
           placeholder="Rechercher par nom, compétences..."

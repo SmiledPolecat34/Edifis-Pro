@@ -172,6 +172,9 @@ export default function Construction() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <label htmlFor="searchQuery" className="sr-only">
+          Rechercher un chantier
+        </label>
         <input
           type="search"
           placeholder="Rechercher un chantier..."

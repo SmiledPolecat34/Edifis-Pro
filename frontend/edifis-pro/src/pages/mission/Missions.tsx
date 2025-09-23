@@ -178,6 +178,9 @@ export default function Missions() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <label htmlFor="search" className="sr-only">
+          Rechercher une mission
+        </label>
         <input
           type="text"
           placeholder="Rechercher une mission..."
