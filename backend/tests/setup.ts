@@ -1,9 +1,9 @@
-const sequelize = require("../config/sequelize");
+const sequelize = require('../config/sequelize');
 
 beforeAll(async () => {
   await sequelize.sync({ force: true });
 });
 
-afterAll(async () => {
-  await sequelize.close();
-});
+// afterAll(async () => {
+//   await sequelize.close();
+// });

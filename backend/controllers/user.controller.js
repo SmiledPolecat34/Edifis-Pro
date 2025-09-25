@@ -72,7 +72,7 @@ exports.createUser = async (req, res) => {
 
     res.status(201).json({
       message: 'Utilisateur créé avec succès',
-      user: userResponse,
+      user: userResponse || newUser,
     });
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {

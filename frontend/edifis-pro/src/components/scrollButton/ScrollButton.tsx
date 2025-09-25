@@ -43,8 +43,8 @@ export default function ScrollButton({ scrollableRef }: ScrollButtonProps) {
 
   const scrollToBottom = () => {
     scrollableRef.current?.scrollTo({
-      top: scrollableRef.current.scrollHeight,
-      behavior: 'smooth',
+      top: scrollableRef.current.scrollHeight, // Aller en bas
+      behavior: 'smooth', // Défilement en douceur
     });
   };
 

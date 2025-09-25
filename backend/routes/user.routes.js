@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const userController = require("../controllers/user.controller");
-const { protect, isAdmin, canManageUsers } = require("../middlewares/auth.middleware");
-const { upload, setUploadType } = require("../middlewares/upload.middleware");
+const userController = require('../controllers/user.controller');
+const { protect, isAdmin, canManageUsers } = require('../middlewares/auth.middleware');
+const { upload, setUploadType } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -32,14 +32,40 @@ const { upload, setUploadType } = require("../middlewares/upload.middleware");
  *       403: { description: Interdit }
  */
 router.post(
-    "/",
-    protect,
-    (req, res, next) => {
-        if (["Admin", "HR", "Manager"].includes(req.user.role)) return next();
-        return res.status(403).json({ message: "Accès interdit" });
-    },
-    userController.createUser
+  '/',
+  protect,
+  (req, res, next) => {
+    if (['Admin', 'HR', 'Manager'].includes(req.user.role)) return next();
+    return res.status(403).json({ message: 'Accès interdit' });
+  },
+  userController.createUser,
 );
+
+/**
+ * @swagger
+ * /api/users/change-password:
+ *   post:
+ *     summary: Changer le mot de passe d'un utilisateur
+ *    tags: [Users]
+ *    security:
+ *      - bearerAuth: []
+ *    requestBody:
+ *     required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *      type: object
+ *     properties:
+ *      oldPassword: { type: string }
+ *     newPassword: { type: string }
+ *   responses:
+ *    200: { description: OK }
+ *    400: { description: Données invalides }
+ *    401: { description: Non autorisé }
+ *    403: { description: Interdit }
+ */
+const { changePassword } = require('../controllers/user.controller');
+router.post('/change-password', protect, changePassword);
 
 /**
  * @swagger
@@ -53,7 +79,7 @@ router.post(
  *       200: { description: OK }
  *       401: { description: Non autorisé }
  */
-router.get("/project-chiefs", protect, userController.getAllProjectChiefs);
+router.get('/project-chiefs', protect, userController.getAllProjectChiefs);
 
 /**
  * @swagger
@@ -67,7 +93,7 @@ router.get("/project-chiefs", protect, userController.getAllProjectChiefs);
  *       200: { description: OK }
  *       401: { description: Non autorisé }
  */
-router.get("/assignable-to-task", protect, userController.getAssignableUsers);
+router.get('/assignable-to-task', protect, userController.getAssignableUsers);
 
 /**
  * @swagger
@@ -81,7 +107,7 @@ router.get("/assignable-to-task", protect, userController.getAssignableUsers);
  *       200: { description: OK }
  *       401: { description: Non autorisé }
  */
-router.get("/list", protect, userController.getDirectory);
+router.get('/list', protect, userController.getDirectory);
 
 /**
  * @swagger
@@ -96,7 +122,7 @@ router.get("/list", protect, userController.getDirectory);
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.get("/getallworkers", protect, isAdmin, userController.getAllWorkers);
+router.get('/getallworkers', protect, isAdmin, userController.getAllWorkers);
 
 /**
  * @swagger
@@ -111,7 +137,7 @@ router.get("/getallworkers", protect, isAdmin, userController.getAllWorkers);
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.get("/all", protect, isAdmin, userController.getAllUsers);
+router.get('/all', protect, isAdmin, userController.getAllUsers);
 
 /**
  * @swagger
@@ -125,7 +151,7 @@ router.get("/all", protect, isAdmin, userController.getAllUsers);
  *       200: { description: OK }
  *       401: { description: Non autorisé }
  */
-router.get("/suggest-email", protect, userController.suggestEmail);
+router.get('/suggest-email', protect, userController.suggestEmail);
 
 /**
  * @swagger
@@ -147,7 +173,7 @@ router.get("/suggest-email", protect, userController.suggestEmail);
  *       401: { description: Non autorisé }
  *       404: { description: Utilisateur non trouvé }
  */
-router.get("/:id", protect, userController.getUserById);
+router.get('/:id', protect, userController.getUserById);
 
 /**
  * @swagger
@@ -177,7 +203,7 @@ router.get("/:id", protect, userController.getUserById);
  *       403: { description: Interdit }
  *       404: { description: Utilisateur non trouvé }
  */
-router.put("/:id", protect, canManageUsers, userController.updateUser);
+router.put('/:id', protect, canManageUsers, userController.updateUser);
 
 /**
  * @swagger
@@ -200,7 +226,7 @@ router.put("/:id", protect, canManageUsers, userController.updateUser);
  *       403: { description: Interdit }
  *       404: { description: Utilisateur non trouvé }
  */
-router.delete("/:id", protect, canManageUsers, userController.deleteUser);
+router.delete('/:id', protect, canManageUsers, userController.deleteUser);
 
 /**
  * @swagger
@@ -224,11 +250,11 @@ router.delete("/:id", protect, canManageUsers, userController.deleteUser);
  *       401: { description: Non autorisé }
  */
 router.post(
-    "/upload-profile",
-    protect,
-    setUploadType('profile'),
-    upload.single('profilePicture'),
-    userController.updateProfilePicture
+  '/upload-profile',
+  protect,
+  setUploadType('profile'),
+  upload.single('profilePicture'),
+  userController.updateProfilePicture,
 );
 
 /**
@@ -253,10 +279,6 @@ router.post(
  *       400: { description: Données invalides }
  *       401: { description: Non autorisé }
  */
-router.post(
-    "/change-password",
-    protect,
-    userController.changePassword
-);
+router.post('/change-password', protect, userController.changePassword);
 
 module.exports = router;

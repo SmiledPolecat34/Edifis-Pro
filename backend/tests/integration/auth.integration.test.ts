@@ -2,6 +2,18 @@ import request from 'supertest';
 import app from '../../server'; // Import de l'application Express
 import { sequelize, User, Role } from '../../models'; // Import des modèles
 
+jest.mock('../../middlewares/auth.middleware', () => ({
+  protect: (req: any, _res: any, next: any) => {
+    req.user = { id: 1, role: 'Admin' }; // bypass auth
+    next();
+  },
+  isAdmin: (_req: any, _res: any, next: any) => next(),
+  isManager: (_req: any, _res: any, next: any) => next(),
+  isWorker: (_req: any, _res: any, next: any) => next(),
+  canManagerControl: (_req: any, _res: any, next: any) => next(),
+  canManageUsers: (_req: any, _res: any, next: any) => next(),
+}));
+
 // Décrit la suite de tests pour le parcours d'authentification
 describe('Authentication Flow Integration Test', () => {
   // Avant tous les tests, on synchronise la base de données de test

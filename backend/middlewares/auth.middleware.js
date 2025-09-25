@@ -3,7 +3,7 @@ const { User, Role, Task } = require('../models');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
-const protect = (req, res, next) => {
+export const protect = (req, res, next) => {
   try {
     // Vérification du token JWT
     const token = req.headers.authorization?.split(' ')[1];
@@ -21,7 +21,7 @@ const protect = (req, res, next) => {
   }
 };
 
-const authorize = allowedRoles => {
+export const authorize = allowedRoles => {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Accès non autorisé.' });
@@ -107,7 +107,7 @@ const canUpdateTask = async (req, res, next) => {
   }
 };
 
-const isAdmin = (req, res, next) => {
+export const isAdmin = (req, res, next) => {
   if (req.user && req.user.role === 'Admin') {
     return next();
   }
@@ -116,7 +116,7 @@ const isAdmin = (req, res, next) => {
     .json({ message: 'Accès non autorisé. Seuls les Admins peuvent effectuer cette action.' });
 };
 
-const isManager = (req, res, next) => {
+export const isManager = (req, res, next) => {
   if (req.user && req.user.role === 'Manager') {
     return next();
   }

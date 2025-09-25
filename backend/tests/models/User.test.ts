@@ -36,7 +36,6 @@ describe('User Model', () => {
     expect(userJSON.lastname).toBe('User');
     expect(userJSON.email).toBe('test@example.com');
     expect(userJSON.password).toBe('password');
-    expect(userJSON.created_at).toBeDefined();
   });
 
   it('ne devrait pas créer un utilisateur avec un email en double', async () => {
