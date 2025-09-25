@@ -211,10 +211,10 @@ exports.assignUsersToTask = async (req, res) => {
       }
     }
 
-    // ⚡ Ajoute les utilisateurs à la tâche via la table pivot `user_tasks`
+    // Ajoute les utilisateurs à la tâche via la table pivot `user_tasks`
     await task.addUsers(users);
 
-    res.json({ message: 'Tâche assignée avec succès', task });
+    res.status(200).json({ message: 'Tâche assignée avec succès', task });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

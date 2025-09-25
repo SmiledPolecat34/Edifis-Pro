@@ -33,7 +33,8 @@ describe('Task Controller', () => {
       };
       req.body = newTask;
 
-      Task.create = jest.fn().mockResolvedValue(newTask);
+      Task.create = jest.fn().mockResolvedValue({ task_id: 1, ...newTask });
+      Task.findByPk = jest.fn().mockResolvedValue(newTask);
 
       await taskController.createTask(req as Request, res as Response);
 
@@ -261,10 +262,7 @@ describe('Task Controller', () => {
     it('devrait renvoyer 400 si un ou plusieurs utilisateurs sont invalides', async () => {
       const mockTask = { addUsers: jest.fn() };
       Task.findByPk = jest.fn().mockResolvedValue(mockTask);
-      User.findAll = jest.fn().mockResolvedValue([
-        { user_id: 2, role: { name: 'Worker' } },
-        { user_id: 3, role: { name: 'Worker' } },
-      ]);
+      User.findAll = jest.fn().mockResolvedValue([{ user_id: 2, role: { name: 'Worker' } }]);
 
       await taskController.assignUsersToTask(req as Request, res as Response);
       expect(res.status).toHaveBeenCalledWith(400);
@@ -278,7 +276,15 @@ describe('Task Controller', () => {
         req.user.role = 'Worker'; // Assigner is Worker
       }
       const mockTask = { addUsers: jest.fn() };
-      const mockUsers = [{ user_id: 2, role: { name: 'Worker' } }];
+      const mockUsers = [
+        {
+          user_id: 2,
+          firstname: 'Jean',
+          lastname: 'Dupont',
+          role: { name: 'Worker' },
+        },
+      ];
+
       Task.findByPk = jest.fn().mockResolvedValue(mockTask);
       User.findAll = jest.fn().mockResolvedValue(mockUsers);
 

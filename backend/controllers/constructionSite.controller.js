@@ -33,11 +33,9 @@ exports.createConstructionSite = async (req, res) => {
 
       chefDeProjet = await User.findByPk(chef_de_projet_id);
       if (!chefDeProjet || !roleIds.includes(chefDeProjet.role_id)) {
-        return res
-          .status(400)
-          .json({
-            message: "L'utilisateur spécifié n'est pas un chef de projet ou un manager valide",
-          });
+        return res.status(400).json({
+          message: "L'utilisateur spécifié n'est pas un chef de projet ou un manager valide",
+        });
       }
     }
 
@@ -184,7 +182,8 @@ exports.deleteConstructionSite = async (req, res) => {
 // Assigner un chantier à un chef de chantier
 exports.assignConstructionSite = async (req, res) => {
   try {
-    const { siteId, chefId } = req.body;
+    const { chefId } = req.body;
+    const siteId = req.params.id;
 
     if (!siteId || !chefId) {
       return res
