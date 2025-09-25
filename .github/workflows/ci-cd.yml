@@ -27,7 +27,7 @@ jobs:
         # Configure Node.js pour l'environnement CI
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Installer les dépendances et exécuter les tests backend
         # Passe dans le dossier backend, installe les dépendances et lance les tests
@@ -51,7 +51,7 @@ jobs:
         # Configure Node.js pour le déploiement
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
 
       - name: Construire le Frontend
         # Construit l'application frontend (React)

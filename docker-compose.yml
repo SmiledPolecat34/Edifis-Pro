@@ -1,16 +1,22 @@
+# Version de Docker Compose
 version: '3.9'
+# Définition des services
+# Chaque service correspond à un conteneur Docker
 services:
+  # Service pour la base de données PostgreSQL
   backend:
+    # Service pour l'API backend
     build: ./backend
+    # Configuration des ports
     ports:
       - '${BACKEND_PORT}:3000'
     environment:
-      - DB_HOST=mariadb
+      - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
     depends_on:
-      - mariadb
+      - postgres
 
   frontend:
     build:
