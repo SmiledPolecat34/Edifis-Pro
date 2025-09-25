@@ -2,28 +2,8 @@ import request from 'supertest';
 import app from '../../server';
 import { sequelize } from '../../models'; // Import sequelize instance
 import { User } from '../../models';
-import * as authMiddleware from '../../middlewares/auth.middleware'; // Import auth middleware
-
-jest.mock('../../middlewares/auth.middleware', () => ({
-  protect: (req: any, _res: any, next: any) => {
-    req.user = { id: 1, role: 'Admin' }; // bypass auth
-    next();
-  },
-  isAdmin: (_req: any, _res: any, next: any) => next(),
-  isManager: (_req: any, _res: any, next: any) => next(),
-  isWorker: (_req: any, _res: any, next: any) => next(),
-  canManagerControl: (_req: any, _res: any, next: any) => next(),
-  canManageUsers: (_req: any, _res: any, next: any) => next(),
-}));
 
 describe('User Integration Tests', () => {
-  beforeAll(() => {
-    jest.spyOn(authMiddleware, 'protect').mockImplementation((req: any, _res: any, next: any) => {
-      req.user = { id: 1, role: 'Admin' };
-      next();
-    });
-  });
-
   afterAll(async () => {
     await sequelize.close();
   });

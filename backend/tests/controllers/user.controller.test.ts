@@ -340,7 +340,7 @@ describe('User Controller', () => {
         firstname: 'New',
         lastname: 'User',
       });
-      expect([200, 500]).toContain((res.status as jest.Mock).mock.calls.[0].[0]);
+      expect([200, 500]).toContain((res.status as jest.Mock).mock.calls[0][0]);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Utilisateur mis à jour',
         user: {

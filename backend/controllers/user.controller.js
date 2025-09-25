@@ -74,14 +74,14 @@ exports.createUser = async (req, res) => {
       message: 'Utilisateur créé avec succès',
       user: userResponse || newUser,
     });
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(409).json({ message: "L'email existe déjà" });
-    }
   } catch (error) {
-    if (error.name === 'SequelizeUniqueConstraintError') {
+    if (
+      error.name === 'SequelizeUniqueConstraintError' ||
+      (error.message && error.message.includes('UNIQUE'))
+    ) {
       return res.status(409).json({ message: "L'email existe déjà" });
     }
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: 'Création échouée' });
   }
 };
 
@@ -298,7 +298,7 @@ exports.updateUser = async (req, res) => {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({ message: "L'email existe déjà" });
     }
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message || 'Update error' });
   }
 };
 // >>> LISTE filtrée selon le rôle du demandeur
@@ -390,7 +390,7 @@ exports.updateProfilePicture = async (req, res) => {
     user.profile_picture = req.file.filename;
     await user.save();
 
-    res.json({
+    res.status(200).json({
       message: 'Image de profil mise à jour avec succès',
       profile_picture: user.profile_picture,
     });
@@ -404,10 +404,14 @@ exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    const userId = req.user?.id;
+    const userId = req.user?.id || req.user?.user_id || req.user?.userId;
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(400).json({ message: 'Utilisateur non trouvé' });
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    if (!validatePolicy(newPassword)) {
+      return res.status(400).json({ message: 'Erreur de validation' });
     }
 
     const ok = await bcrypt.compare(currentPassword, user.password);
@@ -417,7 +421,6 @@ exports.changePassword = async (req, res) => {
 
     const hashed = await bcrypt.hash(newPassword, 10);
     await user.update({ password: hashed });
-
     return res.json({ message: 'Mot de passe mis à jour' });
   } catch (err) {
     return res.status(500).json({ message: 'Erreur serveur' });

@@ -80,13 +80,4 @@ exports.getCategories = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-};
-
-// Récupérer les niveaux disponibles
-exports.getLevels = async (req, res) => {
-  try {
-    res.json(['Beginner', 'Intermediate', 'Advanced', 'Expert']);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+}
