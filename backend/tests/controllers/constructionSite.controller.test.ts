@@ -212,16 +212,19 @@ describe('ConstructionSite Controller', () => {
       const mockConstructionSite = {
         save: jest.fn().mockResolvedValue(true),
         picture: 'old_picture.jpg',
+        image_url: 'old_picture.jpg',
       };
       (ConstructionSite.findByPk as jest.Mock).mockResolvedValue(mockConstructionSite);
 
       await constructionSiteController.updateConstructionImage(req as Request, res as Response);
 
       expect(ConstructionSite.findByPk).toHaveBeenCalled();
-      expect(mockConstructionSite.picture).toBe('new_picture.jpg');
+      expect(mockConstructionSite.image_url).toBe('new_picture.jpg');
+
       expect(mockConstructionSite.save).toHaveBeenCalled();
       expect(fs.unlinkSync).toHaveBeenCalledWith('/mock/path/to/picture.jpg');
-      expect([200, 500]).toContain((res.status as jest.Mock).mock.calls[0][0]);
+      expect(res.status).toHaveBeenCalledWith(200);
+
       expect(res.json).toHaveBeenCalledWith({
         message: 'Image du chantier mise à jour avec succès',
         picture: 'new_picture.jpg',

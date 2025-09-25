@@ -212,7 +212,7 @@ exports.assignConstructionSite = async (req, res) => {
 // Mettre à jour l’image du chantier
 exports.updateConstructionImage = async (req, res) => {
   try {
-    const { siteId } = req.body;
+    const { siteId } = req.params.id;
     if (!req.file) {
       return res.status(400).json({ message: 'Aucune image envoyée' });
     }

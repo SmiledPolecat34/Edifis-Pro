@@ -17,6 +17,7 @@ describe('Task Controller', () => {
 
   beforeEach(() => {
     req = {};
+    req.user = { id: 1, role: 'Admin' };
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
@@ -26,6 +27,7 @@ describe('Task Controller', () => {
 
   describe('createTask', () => {
     it('devrait créer une tâche et renvoyer un status 201', async () => {
+      req.user = { id: 1, role: 'Admin' };
       const newTask = {
         title: 'Test Task',
         description: 'Description de test',
@@ -34,13 +36,14 @@ describe('Task Controller', () => {
       req.body = newTask;
 
       Task.create = jest.fn().mockResolvedValue({ task_id: 1, ...newTask });
-      Task.findByPk = jest.fn().mockResolvedValue(newTask);
+      Task.findByPk = jest.fn().mockResolvedValue({ task_id: 1, ...newTask });
 
       await taskController.createTask(req as Request, res as Response);
 
-      expect(Task.create).toHaveBeenCalledWith(expect.objectContaining(newTask));
+      expect(res.json).toHaveBeenCalledWith({ task_id: 1, ...newTask });
+
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(newTask);
+      expect(res.json).toHaveBeenCalledWith({ task_id: 1, ...newTask });
     });
 
     it("devrait renvoyer une erreur 500 en cas d'échec lors de la création", async () => {
@@ -262,6 +265,7 @@ describe('Task Controller', () => {
     it('devrait renvoyer 400 si un ou plusieurs utilisateurs sont invalides', async () => {
       const mockTask = { addUsers: jest.fn() };
       Task.findByPk = jest.fn().mockResolvedValue(mockTask);
+      req.body.userIds = [2, 3];
       User.findAll = jest.fn().mockResolvedValue([{ user_id: 2, role: { name: 'Worker' } }]);
 
       await taskController.assignUsersToTask(req as Request, res as Response);
@@ -286,14 +290,20 @@ describe('Task Controller', () => {
       ];
 
       Task.findByPk = jest.fn().mockResolvedValue(mockTask);
-      User.findAll = jest.fn().mockResolvedValue(mockUsers);
+      req.body.userIds = [2];
+      User.findAll = jest
+        .fn()
+        .mockResolvedValue([
+          { user_id: 2, firstname: 'Jean', lastname: 'Dupont', role: { name: 'Worker' } },
+        ]);
+      (req.user as any).role = 'Worker';
 
       await taskController.assignUsersToTask(req as Request, res as Response);
 
       expect([400, 403]).toContain((res.status as jest.Mock).mock.calls[0][0]);
       expect(res.json).toHaveBeenCalledWith({
         message:
-          'Vous ne pouvez pas assigner une tâche à un utilisateur de rang égal ou supérieur (utilisateur: undefined undefined, rôle: Worker).',
+          'Vous ne pouvez pas assigner une tâche à un utilisateur de rang égal ou supérieur (utilisateur: Jean Dupont, rôle: Worker).',
       });
     });
 

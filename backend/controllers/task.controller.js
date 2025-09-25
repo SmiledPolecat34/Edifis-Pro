@@ -13,7 +13,6 @@ exports.createTask = async (req, res) => {
     }
 
     const task = await Task.create(taskData);
-
     const fullTask = await Task.findByPk(task.task_id, {
       include: [
         {

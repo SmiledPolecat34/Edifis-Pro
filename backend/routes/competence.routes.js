@@ -10,7 +10,6 @@ const validateUpdateCompetence = validate(schemas.updateCompetence);
 
 const authorizedRoles = ['Admin', 'Manager', 'HR'];
 
-
 /**
  * @swagger
  * tags:
@@ -162,6 +161,5 @@ router.put(
  *         description: Compétence non trouvée
  */
 router.delete('/:id', protect, authorize(authorizedRoles), competenceController.deleteCompetence);
-
 
 module.exports = router;

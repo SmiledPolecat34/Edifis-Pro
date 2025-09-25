@@ -1,7 +1,6 @@
 import request from 'supertest';
 import app from '../../server'; // Import de l'application Express
 import { sequelize, User, Role } from '../../models'; // Import des modèles
-import { authorize } from '@/middlewares/auth.middleware';
 
 jest.mock('../../middlewares/auth.middleware', () => ({
   protect: (req: any, _res: any, next: any) => {
@@ -9,7 +8,7 @@ jest.mock('../../middlewares/auth.middleware', () => ({
     next();
   },
   isAdmin: (_req: any, _res: any, next: any) => next(),
-  authorize: (_req: any, _res: any, next: any) => next(),
+  authorize: () => (_req: any, _res: any, next: any) => next(),
   isManager: (_req: any, _res: any, next: any) => next(),
   isWorker: (_req: any, _res: any, next: any) => next(),
   canManagerControl: (_req: any, _res: any, next: any) => next(),

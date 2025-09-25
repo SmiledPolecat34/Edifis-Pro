@@ -44,6 +44,7 @@ describe('User Controller', () => {
 
     it('devrait renvoyer 400 si des champs requis sont manquants', async () => {
       req.body = { firstname: 'John' }; // champs incomplets
+      User.create = jest.fn().mockRejectedValue(new Error('Création échouée'));
       await createUser(req as Request, res as Response);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -60,7 +61,8 @@ describe('User Controller', () => {
         role_id: 2,
         numberphone: '123456',
       };
-      (User.create as jest.Mock).mockRejectedValue({ name: 'SequelizeUniqueConstraintError' }); // Mock create to throw unique constraint error
+      User.create = jest.fn().mockRejectedValue(new Error('Création échouée'));
+
       await createUser(req as Request, res as Response);
       expect(res.status).toHaveBeenCalledWith(409);
       expect(res.json).toHaveBeenCalledWith({ message: "L'email existe déjà" });
@@ -338,8 +340,7 @@ describe('User Controller', () => {
         firstname: 'New',
         lastname: 'User',
       });
-      expect([200, 500]).toContain((res.status as jest.Mock).mock.calls[0][0]);
-
+      expect([200, 500]).toContain((res.status as jest.Mock).mock.calls.[0].[0]);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Utilisateur mis à jour',
         user: {

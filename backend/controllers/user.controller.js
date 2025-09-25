@@ -74,6 +74,9 @@ exports.createUser = async (req, res) => {
       message: 'Utilisateur créé avec succès',
       user: userResponse || newUser,
     });
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ message: "L'email existe déjà" });
+    }
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(409).json({ message: "L'email existe déjà" });
@@ -292,6 +295,9 @@ exports.updateUser = async (req, res) => {
     });
   } catch (error) {
     logger.error('Update user error:', { message: error.message, stack: error.stack });
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ message: "L'email existe déjà" });
+    }
     return res.status(500).json({ error: error.message });
   }
 };
@@ -401,7 +407,7 @@ exports.changePassword = async (req, res) => {
     const userId = req.user?.id;
     const user = await User.findByPk(userId);
     if (!user) {
-      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+      return res.status(400).json({ message: 'Utilisateur non trouvé' });
     }
 
     const ok = await bcrypt.compare(currentPassword, user.password);

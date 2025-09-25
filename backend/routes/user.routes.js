@@ -43,32 +43,6 @@ router.post(
 
 /**
  * @swagger
- * /api/users/change-password:
- *   post:
- *     summary: Changer le mot de passe d'un utilisateur
- *    tags: [Users]
- *    security:
- *      - bearerAuth: []
- *    requestBody:
- *     required: true
- *    content:
- *     application/json:
- *      schema:
- *      type: object
- *     properties:
- *      oldPassword: { type: string }
- *     newPassword: { type: string }
- *   responses:
- *    200: { description: OK }
- *    400: { description: Données invalides }
- *    401: { description: Non autorisé }
- *    403: { description: Interdit }
- */
-const { changePassword } = require('../controllers/user.controller');
-router.post('/change-password', protect, changePassword);
-
-/**
- * @swagger
  * /api/users/project-chiefs:
  *   get:
  *     summary: Récupérer tous les chefs de projet
@@ -278,6 +252,8 @@ router.post(
  *       200: { description: OK }
  *       400: { description: Données invalides }
  *       401: { description: Non autorisé }
+ *       403: { description: Interdit }
+ *       404: { description: Utilisateur non trouvé }
  */
 router.post('/change-password', protect, userController.changePassword);
 
