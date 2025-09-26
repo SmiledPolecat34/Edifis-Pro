@@ -17,7 +17,7 @@ exports.createTask = async (req, res) => {
       include: [
         {
           model: ConstructionSite,
-          as: 'construction_sites',
+          as: 'construction_site',
         },
         {
           model: User,
@@ -46,7 +46,7 @@ exports.getAllTasks = async (req, res) => {
       include: [
         {
           model: ConstructionSite,
-          as: 'construction_sites',
+          as: 'construction_site',
           attributes: ['construction_site_id', 'name', 'state', 'open_time', 'end_time'],
         },
         {
@@ -88,7 +88,7 @@ exports.getTaskById = async (req, res) => {
       include: [
         {
           model: ConstructionSite,
-          as: 'construction_sites',
+          as: 'construction_site',
         },
         {
           model: User,
@@ -148,7 +148,7 @@ exports.updateTask = async (req, res) => {
         },
         {
           model: ConstructionSite,
-          as: 'construction_sites',
+          as: 'construction_site',
         },
       ],
     });
@@ -238,7 +238,7 @@ exports.getTasksByUserId = async (req, res) => {
         },
         {
           model: ConstructionSite,
-          as: 'construction_sites',
+          as: 'construction_site',
         },
         {
           model: User,
