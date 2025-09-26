@@ -1,8 +1,8 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const ctrl = require("../controllers/constructionSite.controller");
-const { protect } = require("../middlewares/auth.middleware");
-const { upload, setUploadType } = require("../middlewares/upload.middleware");
+const ctrl = require('../controllers/constructionSite.controller');
+const { protect } = require('../middlewares/auth.middleware');
+const { upload, setUploadType } = require('../middlewares/upload.middleware');
 
 /**
  * @swagger
@@ -38,10 +38,17 @@ const { upload, setUploadType } = require("../middlewares/upload.middleware");
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.post("/", protect, setUploadType('construction'), upload.single('image'), (req, res, next) => {
-    if (req.user && ["Admin", "Manager"].includes(req.user.role)) return next();
-    return res.status(403).json({ message: "Seul Admin/Manager peut créer" });
-}, ctrl.createConstructionSite);
+router.post(
+  '/',
+  protect,
+  setUploadType('construction'),
+  upload.single('image'),
+  (req, res, next) => {
+    if (req.user && ['Admin', 'Manager'].includes(req.user.role)) return next();
+    return res.status(403).json({ message: 'Seul Admin/Manager peut créer' });
+  },
+  ctrl.createConstructionSite,
+);
 
 /**
  * @swagger
@@ -56,10 +63,7 @@ router.post("/", protect, setUploadType('construction'), upload.single('image'),
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.get("/", protect, (req, res, next) => {
-    if (req.user && ["Admin", "Manager", "HR"].includes(req.user.role)) return next();
-    return res.status(403).json({ message: "Accès non autorisé" });
-}, ctrl.getAllConstructionSites);
+router.get('/', protect, ctrl.getAllConstructionSites);
 
 /**
  * @swagger
@@ -81,7 +85,7 @@ router.get("/", protect, (req, res, next) => {
  *       401: { description: Non autorisé }
  *       404: { description: Chantier non trouvé }
  */
-router.get("/:id/users", protect, ctrl.getUsersOfConstructionSite);
+router.get('/:id/users', protect, ctrl.getUsersOfConstructionSite);
 
 /**
  * @swagger
@@ -103,7 +107,7 @@ router.get("/:id/users", protect, ctrl.getUsersOfConstructionSite);
  *       401: { description: Non autorisé }
  *       404: { description: Chantier non trouvé }
  */
-router.get("/:id", protect, ctrl.getConstructionSiteById);
+router.get('/:id', protect, ctrl.getConstructionSiteById);
 
 /**
  * @swagger
@@ -133,10 +137,15 @@ router.get("/:id", protect, ctrl.getConstructionSiteById);
  *       403: { description: Interdit }
  *       404: { description: Chantier non trouvé }
  */
-router.put("/:id", protect, (req, res, next) => {
-    if (req.user && ["Admin", "Manager"].includes(req.user.role)) return next();
-    return res.status(403).json({ message: "Seul Admin/Manager peut modifier" });
-}, ctrl.updateConstructionSite);
+router.put(
+  '/:id',
+  protect,
+  (req, res, next) => {
+    if (req.user && ['Admin', 'Manager'].includes(req.user.role)) return next();
+    return res.status(403).json({ message: 'Seul Admin/Manager peut modifier' });
+  },
+  ctrl.updateConstructionSite,
+);
 
 /**
  * @swagger
@@ -159,9 +168,14 @@ router.put("/:id", protect, (req, res, next) => {
  *       403: { description: Interdit }
  *       404: { description: Chantier non trouvé }
  */
-router.delete("/:id", protect, (req, res, next) => {
-    if (req.user && req.user.role === "Admin") return next();
-    return res.status(403).json({ message: "Seul Admin peut supprimer" });
-}, ctrl.deleteConstructionSite);
+router.delete(
+  '/:id',
+  protect,
+  (req, res, next) => {
+    if (req.user && req.user.role === 'Admin') return next();
+    return res.status(403).json({ message: 'Seul Admin peut supprimer' });
+  },
+  ctrl.deleteConstructionSite,
+);
 
 module.exports = router;
