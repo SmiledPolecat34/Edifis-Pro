@@ -197,8 +197,7 @@ exports.getAllProjectChiefs = async (req, res) => {
 // Récupérer un utilisateur par ID
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findOne({
-      where: { user_id: req.params.id },
+    const user = await User.findByPk(req.params.id, {
       include: [
         { model: Role, as: 'role', attributes: ['role_id', 'name'] },
         {
@@ -210,7 +209,10 @@ exports.getUserById = async (req, res) => {
       ],
     });
 
-    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -1,4 +1,4 @@
-const Joi = require('joi');
+const Joi = require('joi'); // Pour la validation
 
 /**
  * Middleware générique de validation via Joi.
