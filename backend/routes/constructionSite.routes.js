@@ -63,7 +63,16 @@ router.post(
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.get('/', protect, ctrl.getAllConstructionSites);
+router.get(
+  '/',
+  protect,
+  (req, res, next) => {
+    if (req.user && ['Admin', 'Manager', 'HR', 'Worker', 'Project_Chief'].includes(req.user.role))
+      return next();
+    return res.status(403).json({ message: 'Accès non autorisé' });
+  },
+  ctrl.getAllConstructionSites,
+);
 
 /**
  * @swagger
