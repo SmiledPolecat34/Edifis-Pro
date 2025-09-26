@@ -27,7 +27,7 @@ const ConstructionSite = sequelize.define(
     image_url: { type: DataTypes.STRING },
   },
   {
-    tableName: 'construction_sites',
+    tableName: 'construction_site',
     timestamps: false,
     underscored: true,
     validate: {
