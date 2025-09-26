@@ -21,14 +21,14 @@ const protect = (req, res, next) => {
   }
 };
 
-function authorize(allowedRoles) {
+const authorize = allowedRoles => {
   return (req, res, next) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Accès non autorisé.' });
     }
     next();
   };
-}
+};
 
 // Manager & Admin : peuvent gérer les users (mais pas Admin)
 const canManageUsers = async (req, res, next) => {

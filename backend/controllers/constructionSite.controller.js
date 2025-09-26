@@ -182,8 +182,7 @@ exports.deleteConstructionSite = async (req, res) => {
 // Assigner un chantier à un chef de chantier
 exports.assignConstructionSite = async (req, res) => {
   try {
-    const { chefId } = req.body;
-    const siteId = req.params.id;
+    const { siteId, chefId } = req.body;
 
     if (!siteId || !chefId) {
       return res
