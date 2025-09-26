@@ -111,7 +111,7 @@ router.get('/getallworkers', protect, isAdmin, userController.getAllWorkers);
  *       401: { description: Non autorisé }
  *       403: { description: Interdit }
  */
-router.get('/all', protect, isAdmin, userController.getAllUsers);
+router.get('/all', protect, userController.getAllUsers);
 
 /**
  * @swagger
