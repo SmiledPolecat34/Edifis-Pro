@@ -49,7 +49,7 @@ PasswordResetToken.belongsTo(User, { foreignKey: 'user_id' });
 
 // ConstructionSite <-> Task (1-N)
 ConstructionSite.hasMany(Task, { foreignKey: 'construction_site_id' });
-Task.belongsTo(ConstructionSite, { foreignKey: 'construction_site_id', as: 'construction_site' });
+Task.belongsTo(ConstructionSite, { foreignKey: 'construction_site_id', as: 'construction_sites' });
 
 // ConstructionSite <-> User (Chef de projet) (1-N)
 ConstructionSite.belongsTo(User, { foreignKey: 'chef_de_projet_id', as: 'chefDeProjet' });

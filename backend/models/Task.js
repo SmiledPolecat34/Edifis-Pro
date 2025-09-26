@@ -49,7 +49,7 @@ const Task = sequelize.define(
 
 Task.associate = models => {
   Task.belongsTo(models.ConstructionSite, {
-    as: 'construction_site',
+    as: 'construction_sites',
     foreignKey: { name: 'construction_site_id', allowNull: true },
     onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
