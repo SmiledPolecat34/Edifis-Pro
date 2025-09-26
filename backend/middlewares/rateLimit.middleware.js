@@ -13,7 +13,7 @@ function rateLimitIP(opts = {}) {
   }
 
   const {
-    points = parseInt(process.env.RATE_LIMIT_POINTS || '10', 10), // 10 req
+    points = parseInt(process.env.RATE_LIMIT_POINTS || '5', 10), // 5 req
     duration = parseInt(process.env.RATE_LIMIT_DURATION || '60', 10), // par 60s
   } = opts;
 
