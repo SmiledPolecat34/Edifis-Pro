@@ -67,8 +67,7 @@ router.get(
   '/',
   protect,
   (req, res, next) => {
-    if (req.user && ['Admin', 'Manager', 'HR', 'Worker', 'Project_Chief'].includes(req.user.role))
-      return next();
+    if (req.user && ['Admin', 'Manager', 'HR'].includes(req.user.role)) return next();
     return res.status(403).json({ message: 'Accès non autorisé' });
   },
   ctrl.getAllConstructionSites,
