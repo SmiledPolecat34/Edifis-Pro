@@ -197,7 +197,7 @@ exports.getAllProjectChiefs = async (req, res) => {
 // Récupérer un utilisateur par ID
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findOne(req.params.id, {
+    const user = await User.findOne({
       where: { user_id: req.params.id },
       include: [
         { model: Role, as: 'role', attributes: ['role_id', 'name'] },
